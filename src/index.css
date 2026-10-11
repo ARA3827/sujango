@@ -827,14 +827,17 @@ input, select, textarea {
 
 .a4-sheet-preview {
   width: 100%;
-  max-width: 560px;
-  min-height: 792px; /* A4 210:297 비율 */
+  max-width: 595px; /* A4 정규격 프리뷰 너비 */
+  aspect-ratio: 210 / 297; /* A4 210mm:297mm 정규격 종횡비 100% 강제 (비율 왜곡 원천 차단) */
+  min-height: auto;
   background: #FFFFFF;
   border: 1px solid #CBD5E1;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   padding: 24px;
   position: relative;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .caption-print-grid {
@@ -846,32 +849,34 @@ input, select, textarea {
 
 .caption-card-item {
   background: #FFFFFF;
-  border: 1px dashed #94A3B8; /* 인쇄 후 자르는 절취선 */
-  border-radius: 4px;
-  padding: 14px 16px;
+  border: 1.5px solid #1E293B; /* 오리기 좋은 명확한 외곽 테두리 박스 */
+  border-radius: 2px; /* 자와 칼을 대고 반듯하게 자르기 편한 단정한 직각 모서리 */
+  padding: 16px 18px;
   position: relative;
   page-break-inside: avoid;
   box-sizing: border-box;
-  /* 실물 크기 고정: 캡션 개수와 무관하게 항상 일정 */
-  min-height: 145px;
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 /* 카드 상단 우측 삭제 버튼 (호버 시 표시, 인쇄 시 자동 제외) */
 .caption-card-delete-btn {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  background: rgba(241, 245, 249, 0.8);
-  border: none;
+  top: 8px;
+  right: 8px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
   border-radius: 50%;
   width: 22px;
   height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94A3B8;
+  color: #64748B;
   cursor: pointer;
-  opacity: 0.6;
+  opacity: 0.7;
   transition: all var(--transition-fast);
 }
 
@@ -881,22 +886,10 @@ input, select, textarea {
   opacity: 1;
 }
 
-.cut-line-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.65rem;
-  color: #94A3B8;
-  margin-bottom: 0.5rem;
-  border-bottom: 1px dashed #E2E8F0;
-  padding-bottom: 0.25rem;
-  font-family: var(--font-sans);
-  user-select: none;
-}
-
 /* 1. 클래식 미술관형 (명조) */
 .caption-card-item.classic {
   font-family: var(--font-serif);
+  border: 1.5px solid #334155;
 }
 
 .caption-card-item.classic .caption-title-ko {
@@ -1012,7 +1005,8 @@ input, select, textarea {
     padding: 0.5cm !important;
   }
   .caption-card-item {
-    border: 0.5pt dashed #94A3B8 !important; /* 가위/칼 자르기용 절취선 */
+    border: 1pt solid #1E293B !important; /* 테두리를 따라 반듯하게 자르는 명확한 외곽 테두리 */
+    border-radius: 0 !important;
     box-shadow: none !important;
     padding: 1.2cm 1.4cm !important;
   }

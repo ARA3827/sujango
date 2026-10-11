@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Plus, X, Printer, FileDown, Scissors } from 'lucide-react';
+import { Plus, X, Printer, FileDown } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import confetti from 'canvas-confetti';
@@ -117,30 +117,66 @@ export default function CaptionStudio({ onBack }) {
     saveCaptions(captions.filter(c => c.id !== id));
   };
 
-  // 단 1개의 통합 PDF 다운로드 함수 (A4 1:1 실물 크기 완벽 고정)
+  // 단 1개의 통합 PDF 다운로드 함수 (폰트 왜곡 방지: 원본 가로/세로 종횡비 100% 보존)
   const handleDownloadA4Pdf = async () => {
     if (!a4SheetRef.current || captions.length === 0) return;
 
     try {
       setIsGeneratingPdf(true);
       
-      // A4 시트 전체를 1:1 캡처
+      // 1. 순수 A4 종이 영역만 초고해상도로 캡처 (화면용 회색 테두리 및 그림자 제거)
       const imgData = await toPng(a4SheetRef.current, {
-        pixelRatio: 2.5,
+        pixelRatio: 3, // 인쇄소급 300DPI 초고해상도
         backgroundColor: '#FFFFFF',
+        style: {
+          border: 'none',
+          boxShadow: 'none',
+          borderRadius: '0px'
+        },
         filter: (node) => !node.classList?.contains('no-print')
       });
 
-      // 표준 A4(210 x 297 mm) PDF 생성
+      // 2. 캡처된 이미지의 실제 픽셀 가로/세로 비율 측정
+      const img = new Image();
+      img.src = imgData;
+      await new Promise((resolve) => { 
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+
+      // 3. A4 규격(210 x 297 mm) PDF 생성
       const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      // A4 용지에 1:1 크기로 그대로 매핑 (캡션이 1개든 여러 개든 크기가 절대 확대되지 않음)
-      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+
+      const imgAspectRatio = img.width / img.height;
+      const pdfAspectRatio = pdfWidth / pdfHeight; // 210 / 297 ≈ 0.70707
+
+      let renderWidth = pdfWidth;
+      let renderHeight = pdfHeight;
+      let posX = 0;
+      let posY = 0;
+
+      // 폰트가 세로/가로로 1mm도 늘어나지 않도록 종횡비 철저 보존 (Maintain Aspect Ratio)
+      if (Math.abs(imgAspectRatio - pdfAspectRatio) > 0.005) {
+        if (imgAspectRatio > pdfAspectRatio) {
+          renderWidth = pdfWidth;
+          renderHeight = pdfWidth / imgAspectRatio;
+          posY = (pdfHeight - renderHeight) / 2;
+        } else {
+          renderHeight = pdfHeight;
+          renderWidth = pdfHeight * imgAspectRatio;
+          posX = (pdfWidth - renderWidth) / 2;
+        }
+      }
+
+      // 왜곡 없는 1:1 완벽 정비율로 A4 용지에 배치
+      pdf.addImage(imgData, 'PNG', posX, posY, renderWidth, renderHeight);
       pdf.save(`[ArtFlow]전시캡션_A4출력용_${new Date().toISOString().split('T')[0]}.pdf`);
       triggerConfetti();
     } catch (err) {
       console.error('A4 PDF 생성 실패:', err);
-      alert('PDF 생성 중 문제가 발생했습니다. 브라우저 인쇄를 이용해 주세요.');
+      alert('PDF 생성 중 문제가 발생했습니다. 브라우저 바로 인쇄 기능을 이용해 주세요.');
     } finally {
       setIsGeneratingPdf(false);
     }
@@ -170,7 +206,7 @@ export default function CaptionStudio({ onBack }) {
             className="btn-primary" 
             disabled={isGeneratingPdf || captions.length === 0}
             style={{ width: 'auto', background: '#0F172A', padding: '0.65rem 1.25rem', fontSize: '0.9rem' }}
-            title="캡션 개수와 무관하게 실물 크기로 A4 용지에 출력되는 PDF"
+            title="테두리 박스를 따라 자르는 A4 인쇄용 정규격 PDF"
           >
             <FileDown size={18} />
             {isGeneratingPdf ? 'A4 PDF 생성 중...' : '📄 A4 인쇄용 PDF 다운로드'}
@@ -189,8 +225,8 @@ export default function CaptionStudio({ onBack }) {
       <div className="workspace-title-area" style={{ marginBottom: '1.25rem' }}>
         <h2>전시 캡션 네임택 출력기</h2>
         <p>
-          캡션이 1개든 여러 개든 <strong>실물 크기 그대로 A4 용지</strong>에 배치됩니다. 
-          상단의 <strong>[📄 A4 인쇄용 PDF 다운로드]</strong> 버튼 하나로 출력하여 선을 따라 잘라 쓰세요.
+          각 캡션마다 단정한 <strong>테두리 박스</strong>가 둘러져 있어 박스를 따라 칼이나 가위로 오리면 명패가 완성됩니다. 
+          상단의 <strong>[📄 A4 인쇄용 PDF 다운로드]</strong> 버튼을 눌러 출력하세요.
         </p>
       </div>
 
@@ -221,7 +257,7 @@ export default function CaptionStudio({ onBack }) {
         <div className="panel-card no-print">
           <div className="panel-card-title">
             <span>새 작품 캡션 등록</span>
-            <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 400 }}>A6 절취 규격</span>
+            <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 400 }}>테두리 규격 자동 생성</span>
           </div>
 
           <form onSubmit={handleAdd}>
@@ -346,12 +382,12 @@ export default function CaptionStudio({ onBack }) {
           </form>
         </div>
 
-        {/* 우측: 실제 A4 용지 1:1 실물 크기 프리뷰 */}
+        {/* 우측: 선명한 테두리 박스가 있는 A4 실물 크기 프리뷰 */}
         <div className="panel-card printable-caption-container" style={{ padding: '1rem' }}>
           <div className="panel-card-title no-print" style={{ marginBottom: '0.75rem' }}>
             <span>A4 인쇄 미리보기 ({captions.length}점 등록됨)</span>
             <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600 }}>
-              ✂️ 캡션이 1개라도 실물 크기로 출력되고 나머지는 여백으로 유지됩니다
+              📏 각 캡션 테두리를 따라 반듯하게 오려 사용하세요
             </span>
           </div>
 
@@ -361,7 +397,6 @@ export default function CaptionStudio({ onBack }) {
               좌측에서 작품 정보를 입력해 캡션을 추가해 보세요.
             </div>
           ) : (
-            /* 실제 A4 비율(210:297)을 유지하는 흰색 종이 컨테이너 */
             <div className="a4-sheet-container">
               <div className="a4-sheet-preview" ref={a4SheetRef}>
                 <div className="caption-print-grid">
@@ -379,36 +414,32 @@ export default function CaptionStudio({ onBack }) {
                         <X size={13} />
                       </button>
 
-                      {/* 자르는 선 가이드 */}
-                      <div className="cut-line-indicator">
-                        <Scissors size={11} strokeWidth={2} />
-                        <span>자르는 선 (Cut Line)</span>
-                      </div>
-
-                      {/* 작가 정보 */}
-                      <div className="caption-card-header">
-                        <span className="caption-artist-ko">{item.artistKo}</span>
-                        {item.artistEn && <span className="caption-artist-en">{item.artistEn}</span>}
-                      </div>
-
-                      {/* 작품 제목 */}
-                      <div className="caption-title-box">
-                        <div className="caption-title-ko">
-                          {styleMode === 'classic' ? `《${item.titleKo}》` : item.titleKo}
-                          <span className="caption-year">{item.year}</span>
+                      <div>
+                        {/* 작가 정보 */}
+                        <div className="caption-card-header">
+                          <span className="caption-artist-ko">{item.artistKo}</span>
+                          {item.artistEn && <span className="caption-artist-en">{item.artistEn}</span>}
                         </div>
-                        {item.titleEn && (
-                          <div className="caption-title-en">{item.titleEn}</div>
-                        )}
-                      </div>
 
-                      {/* 재료 및 규격 */}
-                      <div className="caption-meta-box">
-                        <div className="caption-medium">
-                          {item.mediumKo}
-                          {item.mediumEn && <span className="caption-sub"> ({item.mediumEn})</span>}
+                        {/* 작품 제목 */}
+                        <div className="caption-title-box">
+                          <div className="caption-title-ko">
+                            {styleMode === 'classic' ? `《${item.titleKo}》` : item.titleKo}
+                            <span className="caption-year">{item.year}</span>
+                          </div>
+                          {item.titleEn && (
+                            <div className="caption-title-en">{item.titleEn}</div>
+                          )}
                         </div>
-                        <div className="caption-size">{item.size}</div>
+
+                        {/* 재료 및 규격 */}
+                        <div className="caption-meta-box">
+                          <div className="caption-medium">
+                            {item.mediumKo}
+                            {item.mediumEn && <span className="caption-sub"> ({item.mediumEn})</span>}
+                          </div>
+                          <div className="caption-size">{item.size}</div>
+                        </div>
                       </div>
 
                       {/* 아트페어 가격 태그 (선택 시) */}
