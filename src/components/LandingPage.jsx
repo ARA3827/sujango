@@ -39,12 +39,9 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           그리고 세월이 흘러도 변치 않는 평생 작품 포트폴리오까지 한곳에서 관리하세요.
         </p>
 
-        <div className="landing-hero-cta">
-          <button onClick={onOpenLogin} className="btn-primary" style={{ padding: '0.85rem 1.75rem', fontSize: '1rem', width: 'auto' }}>
+        <div className="landing-hero-cta" style={{ justifyContent: 'center' }}>
+          <button onClick={onOpenLogin} className="btn-primary" style={{ padding: '0.9rem 2.2rem', fontSize: '1.02rem', width: 'auto' }}>
             ✨ 무료로 내 수장고 시작하기
-          </button>
-          <button onClick={onExploreGuest} className="btn-outline" style={{ padding: '0.85rem 1.5rem', fontSize: '0.95rem' }}>
-            👀 수장고 둘러보기
           </button>
         </div>
       </section>
