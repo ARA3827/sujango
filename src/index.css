@@ -833,6 +833,19 @@ input, select, textarea {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+.cut-line-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  color: #94A3B8;
+  margin-bottom: 0.65rem;
+  border-bottom: 1px dashed #E2E8F0;
+  padding-bottom: 0.35rem;
+  font-family: var(--font-sans);
+  user-select: none;
+}
+
 /* 1. 클래식 미술관형 (명조) */
 .caption-card-item.classic {
   font-family: var(--font-serif);
