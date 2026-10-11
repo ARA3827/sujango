@@ -317,13 +317,13 @@ ${hashtags}`;
                   )}
                 </button>
 
-                {/* 전체 1초 복사 버튼 */}
+                {/* 전체 복사 버튼 */}
                 <button 
                   className={`btn-subtle-copy ${copied ? 'copied' : ''}`}
                   onClick={() => handleCopy(currentText)}
                 >
                   {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? '복사 완료!' : '전체 1초 복사'}
+                  {copied ? '복사 완료!' : '전체 복사'}
                 </button>
               </div>
             )}
@@ -373,7 +373,7 @@ ${hashtags}`;
               }}>
                 <span>
                   {isEditMode 
-                    ? '✨ 수정이 끝나면 상단의 [보기 모드로 전환] 또는 [전체 1초 복사]를 누르세요.' 
+                    ? '✨ 수정이 끝나면 상단의 [보기 모드로 전환] 또는 [전체 복사]를 누르세요.' 
                     : '💡 내용에 나만의 어휘를 보태고 싶다면 상단의 [✍️ 직접 수정하기]를 누르세요.'}
                 </span>
                 {isModified && (

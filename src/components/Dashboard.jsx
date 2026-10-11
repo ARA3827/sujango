@@ -22,7 +22,7 @@ export default function Dashboard({
       title: '서류·출강 스튜디오',
       tag: '행정 서류',
       icon: <FileText size={22} />,
-      desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 3초 만에 공문서 규격으로 자동 완성합니다.',
+      desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 공문서 규격으로 자동 완성합니다.',
       actionText: '서류 작성하기'
     },
     {
@@ -60,7 +60,7 @@ export default function Dashboard({
           서류, 세금, SNS 행정은 아트플로우가 대신합니다.
         </h1>
         <p className="hero-sub">
-          복잡한 로그인과 API 연동 없이, 1인 창작자에게 꼭 필요한 도구를 한곳에서 1초 만에 복사하고 출력하세요.
+          복잡한 로그인과 API 연동 없이, 1인 창작자에게 꼭 필요한 도구를 한곳에서 간편하게 복사하고 출력하세요.
         </p>
       </section>
 

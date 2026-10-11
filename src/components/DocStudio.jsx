@@ -190,7 +190,7 @@ ${cvForm.collections.trim()}
 
       <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
         <h2>서류·출강 스튜디오</h2>
-        <p>복잡한 행정 서류 양식 때문에 지치지 마세요. 기관과 미술관이 원하는 규격으로 3초 만에 정리해 드립니다.</p>
+        <p>복잡한 행정 서류 양식 때문에 지치지 마세요. 기관과 미술관이 원하는 공문서 규격으로 단정하게 정리해 드립니다.</p>
       </div>
 
       {/* 내부 탭 내비게이션 */}
@@ -342,7 +342,7 @@ ${cvForm.collections.trim()}
             </div>
 
             <button className="btn-primary" onClick={generateLecturePlan}>
-              <Sparkles size={16} /> 3초 만에 강의계획서 자동 생성
+              <Sparkles size={16} /> 강의계획서 자동 생성
             </button>
           </div>
 
@@ -355,7 +355,7 @@ ${cvForm.collections.trim()}
                   onClick={() => handleCopy(lectureResult)}
                 >
                   {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? '복사 완료!' : '전체 1초 복사'}
+                  {copied ? '복사 완료!' : '전체 복사'}
                 </button>
               )}
             </div>
@@ -365,7 +365,7 @@ ${cvForm.collections.trim()}
             ) : (
               <div className="output-box" style={{ color: '#9CA3AF', textAlign: 'center', padding: '3rem 1rem' }}>
                 좌측에서 강좌 정보를 확인한 후<br />
-                <strong>[3초 만에 강의계획서 자동 생성]</strong> 버튼을 누르면 완성본이 여기에 나타납니다.
+                <strong>[강의계획서 자동 생성]</strong> 버튼을 누르면 완성본이 여기에 나타납니다.
               </div>
             )}
           </div>
@@ -456,7 +456,7 @@ ${cvForm.collections.trim()}
                   onClick={() => handleCopy(cvResult)}
                 >
                   {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? '복사 완료!' : '전체 1초 복사'}
+                  {copied ? '복사 완료!' : '전체 복사'}
                 </button>
               )}
             </div>
@@ -561,7 +561,7 @@ ${cvForm.collections.trim()}
                   onClick={() => handleCopy(invoiceResult)}
                 >
                   {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? '복사 완료!' : '전체 1초 복사'}
+                  {copied ? '복사 완료!' : '전체 복사'}
                 </button>
               )}
             </div>
