@@ -1,6 +1,6 @@
 /**
  * Sujango (수장고) 공식 서비스 정책 및 법적 면책 조항 DB
- * 1인 기업가 Ara Agent Lab의 법적 리스크를 100% 방어하는 표준 약관
+ * 1인 기업가 Ara Agent Lab의 표준 서비스 이용약관
  */
 
 export const TERMS_OF_SERVICE = {

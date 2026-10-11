@@ -745,7 +745,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                 style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.92rem' }}
               >
                 <Crown size={16} color="#EAB308" />
-                <span>👑 Pro 멤버십 안내 및 30일 무료 체험</span>
+                <span>👑 수장고프로 업그레이드</span>
               </button>
               <button
                 type="button"

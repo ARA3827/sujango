@@ -61,10 +61,10 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
               <span>SUJANGO MEMBERSHIP</span>
             </div>
             <h3 style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
-              당신의 평생 창작 자산을 위한 요금제
+              당신의 소중한 창작 자산을 위한 요금제
             </h3>
             <p style={{ fontSize: '0.88rem', color: '#64748B', marginTop: '4px', marginBottom: 0 }}>
-              기본 행정 서류는 평생 무료이며, 초고화질 무손실 원본 금고가 필요할 때 Pro로 업그레이드하세요.
+              기본 행정 서류와 작품 30점은 무료이며, 대용량 무손실 원본 금고가 필요할 때 Sujango Pro로 확장하세요.
             </p>
           </div>
           <button onClick={onClose} className="modal-close-btn">
@@ -124,12 +124,15 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
           {/* 1. Free 플랜 */}
           <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ marginBottom: '1rem' }}>
-              <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>무료 플랜 (Free)</h4>
-              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>창작과 행정 서식이 필요한 모든 예술가</p>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748B', background: '#F1F5F9', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '6px' }}>
+                기본 무료 플랜
+              </span>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>무료 플랜</h4>
+              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>창작과 행정 서식이 필요한 모든 예술가를 위한 기본 플랜</p>
             </div>
             
             <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '1.25rem' }}>
-              0원 <span style={{ fontSize: '0.85rem', fontWeight: 400, color: '#64748B' }}>/ 평생 무료</span>
+              0원 <span style={{ fontSize: '0.85rem', fontWeight: 400, color: '#64748B' }}>(기본 제공)</span>
             </div>
 
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
@@ -158,10 +161,10 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
             <button 
               type="button" 
               className="btn-outline" 
-              style={{ width: '100%', justifyContent: 'center', padding: '0.65rem', color: '#64748B' }}
+              style={{ width: '100%', justifyContent: 'center', padding: '0.65rem', color: '#0F172A', fontWeight: 600 }}
               disabled
             >
-              현재 이용 중인 기본 혜택
+              작품 30점 무료 이용 (현재 혜택)
             </button>
           </div>
 
@@ -172,11 +175,14 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0284C7', background: '#E0F2FE', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '6px' }}>
+                100GB 원본 금고
+              </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>Sujango Pro</h4>
                 <Crown size={16} color="#EAB308" />
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>어디서든 로그인 동기화 + 100GB 평생 무손실 금고</p>
+              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>어디서든 로그인 동기화 + 100GB 초고화질 무손실 금고</p>
             </div>
 
             <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '1.25rem' }}>
@@ -189,7 +195,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
               <li style={{ fontSize: '0.84rem', color: '#0F172A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>작품 무제한 등록 (30점 한도 완전 해제)</span>
+                <span>작품 무제한 등록 (30점 등록 한도 해제)</span>
               </li>
               <li style={{ fontSize: '0.84rem', color: '#0284C7', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
@@ -201,7 +207,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
               </li>
               <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>3중 분산 데이터센터 영구 백업 (11 9s 내구성)</span>
+                <span>3중 분산 데이터센터 안전 보관 (11 9s 내구성)</span>
               </li>
               <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
@@ -220,13 +226,13 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
               style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', background: '#0F172A' }}
               disabled={isUpgrading}
             >
-              <Sparkles size={16} color="#38BDF8" />
-              <span>{user?.isPro ? 'Pro 멤버십 이용 중' : '🎉 30일 무료 체험으로 시작하기'}</span>
+              <Crown size={16} color="#EAB308" />
+              <span>{user?.isPro ? 'Pro 멤버십 이용 중' : '수장고프로 업그레이드'}</span>
             </button>
           </div>
         </div>
 
-        {/* 얼리버드 결제 안내 아코디언 */}
+        {/* 결제 및 활성화 안내 아코디언 */}
         <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
           <div 
             onClick={() => setShowBankInfo(!showBankInfo)}
@@ -244,8 +250,8 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
           {showBankInfo && (
             <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #E2E8F0', fontSize: '0.82rem', color: '#64748B', lineHeight: 1.6 }}>
               • <strong>계좌 입금:</strong> 카카오뱅크 3333-01-1234567 (예금주: Ara Agent Lab 김아라)<br />
-              • 입금 후 작가명과 함께 문의 주시면 당일 내로 Pro 클라우드 금고가 활성화됩니다.<br />
-              • 온라인 신용카드 정기구독은 현재 전자상거래 PG사 심사 연동 중이며, 심사 기간 동안은 <strong>30일 무료 체험</strong>으로 바로 이용하실 수 있습니다.
+              • 입금 후 작가명과 함께 문의 주시면 당일 내로 Sujango Pro 클라우드 금고가 활성화됩니다.<br />
+              • 온라인 신용카드 정기구독은 현재 전자상거래 PG사 심사 연동 중이며, 신청 시 계좌 입금 또는 관리자 확인을 통해 즉시 활성화됩니다.
             </div>
           )}
         </div>

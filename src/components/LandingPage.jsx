@@ -36,7 +36,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
 
         <p className="landing-hero-sub">
           복잡한 미술관 제출 서류 양식부터 3.3% 원천징수 계산, 
-          그리고 세월이 흘러도 변치 않는 평생 작품 포트폴리오까지 한곳에서 관리하세요.
+          그리고 세월이 흘러도 변치 않는 나만의 디지털 작품 포트폴리오까지 한곳에서 관리하세요.
         </p>
 
         <div className="landing-hero-cta" style={{ justifyContent: 'center' }}>
@@ -172,7 +172,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           <span className="section-sub-tag">MEMBERSHIP PLAN</span>
           <h2>합리적이고 투명한 창작자 요금제</h2>
           <p>
-            기본 기능은 무료로 영구 사용하고, 대용량 무손실 원본 보관이 필요할 때 Pro로 업그레이드하세요.
+            기본 기능과 작품 30점은 무료로 보관하고, 대용량 무손실 원본 금고가 필요할 때 Sujango Pro로 확장하세요.
           </p>
         </div>
 
@@ -180,22 +180,23 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           {/* 무료 플랜 */}
           <div className="landing-pricing-card">
             <div className="pricing-card-header">
-              <span className="plan-badge-simple">평생 무료</span>
-              <h3 className="plan-title">Free 베이직</h3>
+              <span className="plan-badge-simple">기본 무료 플랜</span>
+              <h3 className="plan-title">무료 플랜</h3>
               <div className="plan-price-wrap">
                 <span className="plan-price-num">0</span>
-                <span className="plan-price-unit">원 / 평생</span>
+                <span className="plan-price-unit">원 (기본 제공)</span>
               </div>
-              <p className="plan-desc">행정 서류와 기본적인 작품 아카이빙을 위한 무료 플랜</p>
+              <p className="plan-desc">창작과 행정 서식이 필요한 모든 예술가를 위한 기본 플랜</p>
             </div>
             <ul className="plan-features">
-              <li><CheckCircle2 size={16} color="#059669" /> <strong>작품 아카이브 최대 30점</strong> 안전 보관</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 웹 최적화 확인용 압축 (내 PC 브라우저 저장)</li>
+              <li><CheckCircle2 size={16} color="#059669" /> <strong>작품 아카이브 서고 최대 30점</strong> 보관</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 웹 최적화 확인용 압축 보관 (내 PC 브라우저 안전 저장)</li>
               <li><CheckCircle2 size={16} color="#059669" /> 기기 교체 시 단일 JSON 파일 백업/복원 이동</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 4대 행정 서류·정산·캡션 도구 무제한 지원</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 출강 강의계획서 & 표준 CV 약력 & 견적서 무제한</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 전시 캡션 네임택 A4 단일 PDF 일괄 인쇄</li>
             </ul>
-            <button onClick={onOpenLogin} className="btn-outline" style={{ width: '100%', marginTop: '1.5rem' }}>
-              무료로 시작하기
+            <button onClick={onOpenLogin} className="btn-outline" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center' }}>
+              작품 30점 무료 이용
             </button>
           </div>
 
@@ -211,18 +212,18 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
                 <span className="plan-price-num">4,900</span>
                 <span className="plan-price-unit">원 / 월 (연 49,000원)</span>
               </div>
-              <p className="plan-desc">어디서든 로그인 동기화 + 100GB 평생 무손실 금고</p>
+              <p className="plan-desc">어디서든 로그인 동기화 + 100GB 초고화질 무손실 금고</p>
             </div>
             <ul className="plan-features">
-              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>작품 무제한 등록</strong> (30점 한도 완전 해제)</li>
+              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>작품 무제한 등록</strong> (30점 등록 한도 해제)</li>
               <li><CheckCircle2 size={16} color="#0284C7" /> <strong>PC • 스마트폰 어디서나 로그인 자동 동기화</strong></li>
-              <li><CheckCircle2 size={16} color="#059669" /> <strong>100GB 무손실 원본</strong> 클라우드 금고 보관</li>
-              <li><CheckCircle2 size={16} color="#059669" /> <strong>99.999999999% 내구성</strong> 3중 분산 백업</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 도록·인쇄용 <strong>원본 해상도 즉시 다운로드</strong></li>
-              <li><CheckCircle2 size={16} color="#059669" /> 갤러리·컬렉터 전용 <strong>비밀번호 도록 공유 링크</strong></li>
+              <li><CheckCircle2 size={16} color="#059669" /> <strong>100GB 초고화질 무손실 원본</strong> 클라우드 금고</li>
+              <li><CheckCircle2 size={16} color="#059669" /> <strong>3중 분산 데이터센터 안전 보관</strong> (11 9s 내구성)</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 대형 전시/인쇄/도록용 <strong>원본 즉시 다운로드</strong></li>
+              <li><CheckCircle2 size={16} color="#059669" /> 큐레이터·컬렉터 전용 <strong>프라이빗 도록 공유 링크</strong></li>
             </ul>
-            <button onClick={onOpenPricing} className="btn-primary" style={{ width: '100%', marginTop: '1.5rem' }}>
-              👑 Pro 요금제 및 30일 무료체험 안내
+            <button onClick={onOpenPricing} className="btn-primary" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center' }}>
+              수장고프로 업그레이드
             </button>
           </div>
         </div>
@@ -235,7 +236,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           </div>
           <div className="legal-shield-grid">
             <div className="shield-item">
-              <div className="shield-item-title">⚖️ 작가 저작권 전액 귀속 원칙</div>
+              <div className="shield-item-title">⚖️ 작가 저작권 본인 귀속 원칙</div>
               <p className="shield-item-desc">
                 업로드된 모든 작품 이미지와 작가노트의 지식재산권은 전적으로 작가 본인에게 귀속되며 상업적으로 이용되지 않습니다.
               </p>
