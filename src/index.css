@@ -812,36 +812,84 @@ input, select, textarea {
 }
 
 @media (max-width: 640px) {
-  .caption-print-grid {
-    grid-template-columns: 1fr;
-  }
+/* ===================================================================
+   A4 실물 크기 캡션 시트 (A4 1:1 고정 규격)
+=================================================================== */
+.a4-sheet-container {
+  background: #F1F5F9;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: auto;
+}
+
+.a4-sheet-preview {
+  width: 100%;
+  max-width: 560px;
+  min-height: 792px; /* A4 210:297 비율 */
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.caption-print-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  align-content: start;
 }
 
 .caption-card-item {
   background: #FFFFFF;
-  border: 1px dashed #CBD5E1;
-  border-radius: var(--radius-sm);
-  padding: 1.25rem 1.5rem;
+  border: 1px dashed #94A3B8; /* 인쇄 후 자르는 절취선 */
+  border-radius: 4px;
+  padding: 14px 16px;
   position: relative;
   page-break-inside: avoid;
-  transition: all var(--transition-fast);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+  /* 실물 크기 고정: 캡션 개수와 무관하게 항상 일정 */
+  min-height: 145px;
 }
 
-.caption-card-item:hover {
-  border-color: #0F172A;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+/* 카드 상단 우측 삭제 버튼 (호버 시 표시, 인쇄 시 자동 제외) */
+.caption-card-delete-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(241, 245, 249, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all var(--transition-fast);
+}
+
+.caption-card-delete-btn:hover {
+  background: #FEE2E2;
+  color: #DC2626;
+  opacity: 1;
 }
 
 .cut-line-indicator {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: #94A3B8;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.5rem;
   border-bottom: 1px dashed #E2E8F0;
-  padding-bottom: 0.35rem;
+  padding-bottom: 0.25rem;
   font-family: var(--font-sans);
   user-select: none;
 }
@@ -852,10 +900,10 @@ input, select, textarea {
 }
 
 .caption-card-item.classic .caption-title-ko {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #0F172A;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
 }
 
 /* 2. 모던 미니멀형 (산세리프) */
@@ -864,109 +912,79 @@ input, select, textarea {
 }
 
 .caption-card-item.modern .caption-title-ko {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #0F172A;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
 }
 
 .caption-card-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .caption-artist-ko {
-  font-size: 0.96rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #1E293B;
-  margin-right: 0.5rem;
+  margin-right: 0.4rem;
 }
 
 .caption-artist-en {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: #64748B;
   font-style: italic;
 }
 
 .caption-year {
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 400;
   color: #64748B;
-  margin-left: 0.5rem;
+  margin-left: 0.4rem;
 }
 
 .caption-title-en {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #64748B;
   font-style: italic;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .caption-meta-box {
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   color: #334155;
-  line-height: 1.5;
-  margin-top: 0.35rem;
+  line-height: 1.45;
+  margin-top: 0.25rem;
 }
 
 .caption-meta-box .caption-sub {
   color: #64748B;
-  font-size: 0.8rem;
+  font-size: 0.76rem;
 }
 
 .caption-size {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: #64748B;
   margin-top: 0.15rem;
 }
 
 .caption-price-tag {
-  margin-top: 0.65rem;
-  padding-top: 0.45rem;
+  margin-top: 0.5rem;
+  padding-top: 0.35rem;
   border-top: 1px solid #F1F5F9;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #0F172A;
 }
 
 .caption-red-dot {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   background-color: #E11D48;
   border-radius: 50%;
   display: inline-block;
-}
-
-/* 상단 우측 슬림 플로팅 도구함 */
-.caption-top-tools {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  z-index: 5;
-}
-
-.caption-tool-btn {
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
-  color: #475569;
-  border-radius: 4px;
-  padding: 3px 6px;
-  font-size: 0.72rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  transition: all var(--transition-fast);
-}
-
-.caption-tool-btn:hover {
-  background: #0F172A;
-  color: #FFFFFF;
-  border-color: #0F172A;
 }
 
 /* ===================================================================
