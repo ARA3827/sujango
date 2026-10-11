@@ -416,25 +416,26 @@ export default function CaptionStudio({ onBack }) {
                         <X size={13} />
                       </button>
 
-                      <div>
-                        {/* 작가 정보 */}
-                        <div className="caption-card-header">
-                          <span className="caption-artist-ko">{item.artistKo}</span>
-                          {item.artistEn && <span className="caption-artist-en">{item.artistEn}</span>}
-                        </div>
-
-                        {/* 작품 제목 */}
-                        <div className="caption-title-box">
-                          <div className="caption-title-ko">
-                            {styleMode === 'classic' ? `《${item.titleKo}》` : item.titleKo}
-                            <span className="caption-year">{item.year}</span>
+                      <div className="caption-card-content">
+                        {/* 상단: 작가 정보 및 작품 제목 */}
+                        <div>
+                          <div className="caption-card-header">
+                            <span className="caption-artist-ko">{item.artistKo}</span>
+                            {item.artistEn && <span className="caption-artist-en">{item.artistEn}</span>}
                           </div>
-                          {item.titleEn && (
-                            <div className="caption-title-en">{item.titleEn}</div>
-                          )}
+
+                          <div className="caption-title-box">
+                            <div className="caption-title-ko">
+                              {styleMode === 'classic' ? `《${item.titleKo}》` : item.titleKo}
+                              <span className="caption-year">{item.year}</span>
+                            </div>
+                            {item.titleEn && (
+                              <div className="caption-title-en">{item.titleEn}</div>
+                            )}
+                          </div>
                         </div>
 
-                        {/* 재료 및 규격 */}
+                        {/* 하단: 재료 및 규격 */}
                         <div className="caption-meta-box">
                           <div className="caption-medium">
                             {item.mediumKo}
