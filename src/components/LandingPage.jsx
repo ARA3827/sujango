@@ -13,10 +13,13 @@ import {
   AlertTriangle,
   Lock,
   Layers,
-  Download
+  Download,
+  Crown,
+  HardDrive,
+  FileCheck
 } from 'lucide-react';
 
-export default function LandingPage({ onOpenLogin, onExploreGuest }) {
+export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing }) {
   return (
     <div className="landing-wrapper">
       {/* 1. 히어로 섹션 */}
@@ -181,7 +184,96 @@ export default function LandingPage({ onOpenLogin, onExploreGuest }) {
         </div>
       </section>
 
-      {/* 4. 하단 CTA */}
+      {/* 4. 요금제 안내 섹션 (Free vs Pro 클라우드 금고) */}
+      <section className="landing-pricing-section">
+        <div className="section-title-center">
+          <span className="section-sub-tag">MEMBERSHIP PLAN</span>
+          <h2>합리적이고 투명한 창작자 요금제</h2>
+          <p>
+            기본 기능은 무료로 영구 사용하고, 대용량 무손실 원본 보관이 필요할 때 Pro로 업그레이드하세요.
+          </p>
+        </div>
+
+        <div className="landing-pricing-grid">
+          {/* 무료 플랜 */}
+          <div className="landing-pricing-card">
+            <div className="pricing-card-header">
+              <span className="plan-badge-simple">평생 무료</span>
+              <h3 className="plan-title">Free 베이직</h3>
+              <div className="plan-price-wrap">
+                <span className="plan-price-num">0</span>
+                <span className="plan-price-unit">원 / 평생</span>
+              </div>
+              <p className="plan-desc">행정 서류와 기본적인 작품 아카이빙을 위한 무료 플랜</p>
+            </div>
+            <ul className="plan-features">
+              <li><CheckCircle2 size={16} color="#059669" /> 웹 최적화 규격 자동 압축 보관</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 4대 행정 서류·정산·캡션 도구 지원</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 브라우저 로컬 안전 저장</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 전체 아카이브 JSON 백업 파일 다운로드</li>
+            </ul>
+            <button onClick={onOpenLogin} className="btn-outline" style={{ width: '100%', marginTop: '1.5rem' }}>
+              무료로 시작하기
+            </button>
+          </div>
+
+          {/* Pro 플랜 (추천) */}
+          <div className="landing-pricing-card featured">
+            <div className="pricing-popular-tag">
+              <Crown size={13} /> 작가 추천
+            </div>
+            <div className="pricing-card-header">
+              <span className="plan-badge-pro">100GB 원본 금고</span>
+              <h3 className="plan-title">ArtFlow Pro</h3>
+              <div className="plan-price-wrap">
+                <span className="plan-price-num">4,900</span>
+                <span className="plan-price-unit">원 / 월 (연 49,000원)</span>
+              </div>
+              <p className="plan-desc">인스타그램이 사라져도 안전한 무손실 원본 클라우드 금고</p>
+            </div>
+            <ul className="plan-features">
+              <li><CheckCircle2 size={16} color="#059669" /> <strong>100GB 무손실 원본</strong> 클라우드 금고 보관</li>
+              <li><CheckCircle2 size={16} color="#059669" /> <strong>99.999999999% 내구성</strong> 3중 분산 백업</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 도록·인쇄용 <strong>원본 해상도 즉시 다운로드</strong></li>
+              <li><CheckCircle2 size={16} color="#059669" /> 갤러리·컬렉터 전용 <strong>비밀번호 도록 공유 링크</strong></li>
+              <li><CheckCircle2 size={16} color="#059669" /> 30일 무료 체험 제공 (언제든 위약금 없이 해지)</li>
+            </ul>
+            <button onClick={onOpenPricing} className="btn-primary" style={{ width: '100%', marginTop: '1.5rem' }}>
+              👑 Pro 요금제 및 30일 무료체험 안내
+            </button>
+          </div>
+        </div>
+
+        {/* 3대 법적 신뢰 안심 보증 배너 */}
+        <div className="landing-legal-shield-box">
+          <div className="legal-shield-header">
+            <ShieldCheck size={20} color="#0284C7" />
+            <h4>Ara Agent Lab의 3대 안심 서비스 보증</h4>
+          </div>
+          <div className="legal-shield-grid">
+            <div className="shield-item">
+              <div className="shield-item-title">⚖️ 100% 작가 저작권 보호</div>
+              <p className="shield-item-desc">
+                업로드된 모든 작품 이미지와 작가노트의 지식재산권은 전적으로 작가 본인에게 귀속되며 상업적으로 이용되지 않습니다.
+              </p>
+            </div>
+            <div className="shield-item">
+              <div className="shield-item-title">🛡️ 투명한 손해배상 및 약관</div>
+              <p className="shield-item-desc">
+                공정거래위원회 표준 전자상거래 지침을 준수하며, 명확한 손해배상 책임 한도와 자가 백업 권고로 상호 신뢰를 지킵니다.
+              </p>
+            </div>
+            <div className="shield-item">
+              <div className="shield-item-title">🔒 프라이빗 데이터 주권</div>
+              <p className="shield-item-desc">
+                언제든지 회원 탈퇴 시 보관된 모든 데이터는 즉시 복구 불가능하게 파기되며, 단일 파일로 모든 데이터를 소장할 수 있습니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. 하단 CTA */}
       <section className="landing-bottom-cta">
         <h2>당신의 소중한 작품 세계, 이제 아트플로우에서 지키세요</h2>
         <p>어떤 복잡한 설정도 필요 없습니다. 오늘부터 당신만의 디지털 아카이브가 시작됩니다.</p>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Sparkles, User, LogOut, LogIn, Eye } from 'lucide-react';
+import { Palette, Sparkles, User, LogOut, LogIn, Eye, Crown } from 'lucide-react';
 
 export default function Header({ 
   currentView, 
@@ -8,7 +8,8 @@ export default function Header({
   onOpenLogin, 
   onLogout,
   isGuestExploring,
-  onExitGuest
+  onExitGuest,
+  onOpenPricing
 }) {
   const today = new Date();
   const dateStr = today.toLocaleDateString('ko-KR', {
@@ -61,6 +62,16 @@ export default function Header({
               ← 대시보드 홈
             </button>
           )}
+
+          {/* Pro 요금제 및 보관 서비스 안내 버튼 */}
+          <button
+            onClick={onOpenPricing}
+            className="header-pricing-btn"
+            title="ArtFlow Pro 멤버십 및 100GB 작품 원본 금고 요금제 안내"
+          >
+            <Crown size={14} color="#D97706" />
+            <span>Pro 멤버십</span>
+          </button>
 
           {/* 로그인 상태에 따른 프로필 / 로그인 버튼 */}
           {user ? (

@@ -146,6 +146,29 @@ input, select, textarea {
   color: var(--text-secondary);
 }
 
+.header-pricing-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #B45309;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.38rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-pricing-btn:hover {
+  background: #FEF3C7;
+  border-color: #F59E0B;
+  color: #92400E;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.15);
+}
+
 .artflow-main {
   flex: 1;
   max-width: 1180px;
@@ -1894,6 +1917,188 @@ input, select, textarea {
   .landing-comparison-section {
     grid-template-columns: 1fr;
   }
+}
+
+/* ===================================================================
+   랜딩 페이지 요금제 & 법적 안전 방패 디자인
+   =================================================================== */
+.landing-pricing-section {
+  margin-bottom: 4rem;
+}
+
+.landing-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  max-width: 860px;
+  margin: 0 auto 2.5rem;
+}
+
+.landing-pricing-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.75rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normal);
+}
+
+.landing-pricing-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+}
+
+.landing-pricing-card.featured {
+  border: 2px solid #0F172A;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.pricing-popular-tag {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background: #D97706;
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.02em;
+}
+
+.pricing-card-header {
+  margin-bottom: 1.5rem;
+}
+
+.plan-badge-simple {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748B;
+  background: #F1F5F9;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.plan-badge-pro {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0284C7;
+  background: #E0F2FE;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.plan-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 0.5rem;
+}
+
+.plan-price-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.plan-price-num {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.03em;
+}
+
+.plan-price-unit {
+  font-size: 0.85rem;
+  color: #64748B;
+}
+
+.plan-desc {
+  font-size: 0.84rem;
+  color: #64748B;
+  line-height: 1.5;
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  border-top: 1px solid #F1F5F9;
+  padding-top: 1.25rem;
+}
+
+.plan-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.plan-features li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* 법적 안전 신뢰 배너 */
+.landing-legal-shield-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: var(--radius-lg);
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1.75rem 2rem;
+}
+
+.legal-shield-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.legal-shield-header h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.legal-shield-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.shield-item-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 0.35rem;
+}
+
+.shield-item-desc {
+  font-size: 0.8rem;
+  color: #64748B;
+  line-height: 1.55;
+  margin: 0;
 }
 
 

@@ -9,14 +9,26 @@ import ArchiveStudio from './components/ArchiveStudio';
 import NewToolModal from './components/NewToolModal';
 import LandingPage from './components/LandingPage';
 import LoginModal from './components/LoginModal';
+import PolicyModal from './components/PolicyModal';
+import PricingModal from './components/PricingModal';
 import { getStoredUser, saveUser, DEMO_USER } from './utils/authStorage';
-import { UserCheck, UserX, Sparkles } from 'lucide-react';
+import { UserCheck, UserX, Sparkles, Crown } from 'lucide-react';
 
 export default function App() {
   // 인증 상태 관리 (기본값: getStoredUser() 또는 null)
   const [user, setUser] = useState(getStoredUser);
   const [isGuestExploring, setIsGuestExploring] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  // 법적 정책 모달 및 유료 요금제 모달 상태
+  const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
+  const [policyTab, setPolicyTab] = useState('terms');
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+
+  const handleOpenPolicy = (tab = 'terms') => {
+    setPolicyTab(tab);
+    setIsPolicyModalOpen(true);
+  };
 
   // 브라우저 Hash 기반 URL 파싱 (뒤로가기 완벽 연동)
   const getViewFromHash = () => {
@@ -162,6 +174,7 @@ export default function App() {
         onLogout={handleLogout}
         isGuestExploring={isGuestExploring}
         onExitGuest={() => setIsGuestExploring(false)}
+        onOpenPricing={() => setIsPricingModalOpen(true)}
       />
 
       {/* 메인 뷰 컨테이너 */}
@@ -171,6 +184,7 @@ export default function App() {
           <LandingPage 
             onOpenLogin={() => setIsLoginModalOpen(true)}
             onExploreGuest={() => setIsGuestExploring(true)}
+            onOpenPricing={() => setIsPricingModalOpen(true)}
           />
         ) : (
           /* 로그인 또는 게스트 둘러보기: 실제 2-Depth 올인원 워크스페이스 */
@@ -181,6 +195,7 @@ export default function App() {
                 taxSummary={taxSummary}
                 captionCount={captionCount}
                 onOpenNewToolModal={() => setIsNewToolModalOpen(true)}
+                onOpenPricing={() => setIsPricingModalOpen(true)}
               />
             )}
 
@@ -207,6 +222,7 @@ export default function App() {
               <ArchiveStudio 
                 onBack={handleBack} 
                 onNavigateToCaption={() => navigate('caption')}
+                onOpenPricing={() => setIsPricingModalOpen(true)}
               />
             )}
           </>
@@ -220,19 +236,75 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
       />
 
+      {/* Pro 멤버십 요금제 모달 */}
+      <PricingModal 
+        isOpen={isPricingModalOpen}
+        onClose={() => setIsPricingModalOpen(false)}
+        user={user}
+        onUpgradeSuccess={(upgradedUser) => {
+          setUser(upgradedUser);
+          saveUser(upgradedUser);
+        }}
+        onOpenPolicy={handleOpenPolicy}
+      />
+
+      {/* 공식 3대 법적 정책 모달 */}
+      <PolicyModal 
+        isOpen={isPolicyModalOpen}
+        onClose={() => setIsPolicyModalOpen(false)}
+        initialTab={policyTab}
+      />
+
       {/* 새 도구 아이디어 상자 모달 */}
       <NewToolModal 
         isOpen={isNewToolModalOpen} 
         onClose={() => setIsNewToolModalOpen(false)} 
       />
 
-      {/* 미니멀 푸터 */}
+      {/* 공식 미니멀 푸터 (법적 고지 완비) */}
       <footer className="artflow-footer">
         <div className="footer-inner">
-          <div>
-            <strong>ArtFlow</strong> • 1인 예술가를 위한 AI 행정 비서 & 정산 워크스테이션
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <strong>ArtFlow</strong>
+              <span style={{ color: '#CBD5E1' }}>|</span>
+              <span>1인 예술가를 위한 AI 행정 비서 & 정산 워크스테이션</span>
+              <span style={{ color: '#CBD5E1' }}>|</span>
+              <button 
+                onClick={() => setIsPricingModalOpen(true)} 
+                style={{ background: 'none', border: 'none', color: '#0284C7', fontWeight: 600, cursor: 'pointer', padding: 0, fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
+              >
+                <Crown size={12} /> Pro 멤버십 안내
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.78rem', color: '#64748B', flexWrap: 'wrap' }}>
+              <span>운영사: Ara Agent Lab</span>
+              <span>•</span>
+              <button 
+                onClick={() => handleOpenPolicy('terms')}
+                style={{ background: 'none', border: 'none', color: '#475569', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.78rem' }}
+              >
+                서비스 이용약관
+              </button>
+              <span>•</span>
+              <button 
+                onClick={() => handleOpenPolicy('privacy')}
+                style={{ background: 'none', border: 'none', color: '#475569', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.78rem' }}
+              >
+                개인정보 처리방침
+              </button>
+              <span>•</span>
+              <button 
+                onClick={() => handleOpenPolicy('refund')}
+                style={{ background: 'none', border: 'none', color: '#475569', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.78rem' }}
+              >
+                구독 및 환불 규정
+              </button>
+            </div>
           </div>
-          <div>
+
+          <div style={{ textAlign: 'right', fontSize: '0.78rem', color: '#94A3B8' }}>
             Ara Agent Lab © {new Date().getFullYear()} • 모든 데이터는 기기(LocalStorage)에 안전하게 보관됩니다.
           </div>
         </div>
