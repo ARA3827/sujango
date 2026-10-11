@@ -82,7 +82,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
         <div className="comparison-card highlight">
           <div className="comparison-header safe">
             <ShieldCheck size={20} color="#059669" />
-            <h3>수장고 (Sujango) 프라이빗 디지털 수장고</h3>
+            <h3>프라이빗 디지털 수장고</h3>
           </div>
           <ul className="comparison-list">
             <li>✅ <strong>어떤 플랫폼 변화에도 영원히 안전한</strong> 작가 본인 소유의 디지털 서고</li>
