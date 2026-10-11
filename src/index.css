@@ -920,33 +920,53 @@ input, select, textarea {
 }
 
 .caption-price-tag {
-  margin-top: 0.75rem;
-  padding-top: 0.5rem;
+  margin-top: 0.65rem;
+  padding-top: 0.45rem;
   border-top: 1px solid #F1F5F9;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: #0F172A;
 }
 
 .caption-red-dot {
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   background-color: #E11D48;
   border-radius: 50%;
   display: inline-block;
 }
 
-.caption-card-actions {
+/* 상단 우측 슬림 플로팅 도구함 */
+.caption-top-tools {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid #F8FAFC;
+  gap: 4px;
+  z-index: 5;
+}
+
+.caption-tool-btn {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 0.72rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all var(--transition-fast);
+}
+
+.caption-tool-btn:hover {
+  background: #0F172A;
+  color: #FFFFFF;
+  border-color: #0F172A;
 }
 
 /* ===================================================================

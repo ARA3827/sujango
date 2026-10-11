@@ -1,12 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { Tag, Plus, Trash2, Printer, Download, Copy, Check, Sparkles, Scissors, Image as ImageIcon } from 'lucide-react';
+import { Tag, Plus, Trash2, Printer, FileDown, Image as ImageIcon, Scissors, Check, Sparkles } from 'lucide-react';
 import { toPng } from 'html-to-image';
+import { jsPDF } from 'jspdf';
 import confetti from 'canvas-confetti';
 
 export default function CaptionStudio({ onBack }) {
   const [styleMode, setStyleMode] = useState('classic'); // 'classic' | 'modern' | 'commercial'
-  const [copiedId, setCopiedId] = useState(null);
-  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isGeneratingPng, setIsGeneratingPng] = useState(false);
   const [downloadingId, setDownloadingId] = useState(null);
 
   const gridRef = useRef(null);
@@ -119,16 +120,102 @@ export default function CaptionStudio({ onBack }) {
     }
   };
 
-  // 개별 캡션 카드를 고해상도 PNG(300 DPI급)로 직접 다운로드
-  const handleDownloadSingle = async (item) => {
+  // 1. 전체 A4 규격 PDF 다운로드 (컴맹도 클릭하면 바로 열리는 표준 포맷!)
+  const handleDownloadA4Pdf = async () => {
+    if (!gridRef.current || captions.length === 0) return;
+
+    try {
+      setIsGeneratingPdf(true);
+      // 고해상도 캔버스 캡처
+      const imgData = await toPng(gridRef.current, {
+        pixelRatio: 2.5,
+        backgroundColor: '#FFFFFF',
+        filter: (node) => !node.classList?.contains('no-print')
+      });
+
+      // A4 규격 (210 x 297 mm) PDF 생성
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const margin = 12; // 12mm 마진
+      const pageWidth = 210;
+      const printWidth = pageWidth - (margin * 2);
+
+      const img = new Image();
+      img.src = imgData;
+      await new Promise((resolve) => { img.onload = resolve; });
+
+      const printHeight = (img.height * printWidth) / img.width;
+
+      pdf.addImage(imgData, 'PNG', margin, margin, printWidth, printHeight);
+      pdf.save(`[ArtFlow]전시캡션_A4출력용_${new Date().toISOString().split('T')[0]}.pdf`);
+      triggerConfetti();
+    } catch (err) {
+      console.error('A4 PDF 생성 실패:', err);
+      alert('PDF 생성 중 문제가 발생했습니다. 브라우저 인쇄 기능을 이용해 주세요.');
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
+  // 2. 전체 A4 시트 이미지(PNG) 다운로드 (보조 옵션)
+  const handleDownloadA4Png = async () => {
+    if (!gridRef.current || captions.length === 0) return;
+
+    try {
+      setIsGeneratingPng(true);
+      const dataUrl = await toPng(gridRef.current, {
+        pixelRatio: 2.5,
+        backgroundColor: '#FFFFFF',
+        filter: (node) => !node.classList?.contains('no-print')
+      });
+
+      const link = document.createElement('a');
+      link.download = `[ArtFlow]전시캡션_전체시트_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = dataUrl;
+      link.click();
+      triggerConfetti();
+    } catch (err) {
+      console.error('이미지 저장 실패:', err);
+      alert('이미지 저장 중 오류가 발생했습니다.');
+    } finally {
+      setIsGeneratingPng(false);
+    }
+  };
+
+  // 3. 개별 단일 캡션 PDF 다운로드
+  const handleDownloadSinglePdf = async (item) => {
     const cardEl = document.getElementById(`caption-card-${item.id}`);
     if (!cardEl) return;
 
     try {
       setDownloadingId(item.id);
-      // 화면용 버튼들을 임시로 가리고 고해상도 캡처
+      const imgData = await toPng(cardEl, {
+        pixelRatio: 3,
+        backgroundColor: '#FFFFFF',
+        filter: (node) => !node.classList?.contains('no-print')
+      });
+
+      // 엽서/라벨 규격 PDF 생성 (가로 148 x 세로 105 mm)
+      const pdf = new jsPDF('l', 'mm', [148, 105]);
+      pdf.addImage(imgData, 'PNG', 10, 10, 128, 85);
+      pdf.save(`[캡션]_${item.titleKo}_${item.artistKo}.pdf`);
+      triggerConfetti();
+    } catch (err) {
+      console.error('단일 캡션 PDF 저장 실패:', err);
+      alert('PDF 저장 중 오류가 발생했습니다.');
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  // 4. 개별 단일 캡션 PNG 이미지 다운로드
+  const handleDownloadSinglePng = async (item) => {
+    const cardEl = document.getElementById(`caption-card-${item.id}`);
+    if (!cardEl) return;
+
+    try {
+      setDownloadingId(item.id);
       const dataUrl = await toPng(cardEl, {
-        pixelRatio: 3, // 인쇄용 3배율 초고화질
+        pixelRatio: 3,
         backgroundColor: '#FFFFFF',
         filter: (node) => !node.classList?.contains('no-print')
       });
@@ -139,43 +226,10 @@ export default function CaptionStudio({ onBack }) {
       link.click();
       triggerConfetti();
     } catch (err) {
-      console.error('캡션 이미지 다운로드 실패:', err);
-      alert('이미지 생성 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      console.error('단일 캡션 이미지 저장 실패:', err);
     } finally {
       setDownloadingId(null);
     }
-  };
-
-  // 전체 A4 인쇄 시트 일괄 다운로드
-  const handleDownloadAllSheet = async () => {
-    if (!gridRef.current) return;
-
-    try {
-      setIsDownloadingAll(true);
-      const dataUrl = await toPng(gridRef.current, {
-        pixelRatio: 2.5,
-        backgroundColor: '#FFFFFF',
-        filter: (node) => !node.classList?.contains('no-print')
-      });
-
-      const link = document.createElement('a');
-      link.download = `[ArtFlow]전시캡션_전체출력시트_${new Date().toISOString().split('T')[0]}.png`;
-      link.href = dataUrl;
-      link.click();
-      triggerConfetti();
-    } catch (err) {
-      console.error('전체 시트 다운로드 실패:', err);
-      alert('전체 시트 생성 중 문제가 발생했습니다.');
-    } finally {
-      setIsDownloadingAll(false);
-    }
-  };
-
-  const handleCopyText = (item) => {
-    const text = `${item.artistKo} (${item.artistEn})\n《${item.titleKo}》 (${item.titleEn}), ${item.year}\n${item.mediumKo} (${item.mediumEn})\n${item.size}\n${item.price}`;
-    navigator.clipboard.writeText(text);
-    setCopiedId(item.id);
-    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const triggerConfetti = () => {
@@ -191,33 +245,50 @@ export default function CaptionStudio({ onBack }) {
 
   return (
     <div className="workspace-wrapper">
+      {/* 상단 툴바: PDF 다운로드를 1순위 표준으로 배치 */}
       <div className="workspace-top-bar">
         <button onClick={onBack} className="back-btn">
           ← 전체 도구 목록으로
         </button>
-        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <button 
-            onClick={handleDownloadAllSheet} 
-            className="btn-outline" 
-            disabled={isDownloadingAll || captions.length === 0}
-            style={{ fontWeight: 600 }}
+            onClick={handleDownloadA4Pdf} 
+            className="btn-primary" 
+            disabled={isGeneratingPdf || captions.length === 0}
+            style={{ width: 'auto', background: '#0F172A', padding: '0.65rem 1.15rem' }}
+            title="모든 PC/스마트폰에서 프로그램 선택 창 없이 바로 열리는 인쇄용 PDF"
           >
-            <Download size={16} /> 
-            {isDownloadingAll ? '시트 생성 중...' : '📥 전체 A4 시트 이미지 다운로드'}
+            <FileDown size={17} />
+            {isGeneratingPdf ? 'PDF 생성 중...' : '📄 A4 인쇄용 PDF 다운로드 (권장)'}
           </button>
+
+          <button 
+            onClick={handleDownloadA4Png} 
+            className="btn-outline" 
+            disabled={isGeneratingPng || captions.length === 0}
+            style={{ fontSize: '0.84rem' }}
+            title="이미지 파일로 필요한 경우 선택"
+          >
+            <ImageIcon size={15} />
+            {isGeneratingPng ? '이미지 생성 중...' : '🖼️ 이미지(PNG) 저장'}
+          </button>
+
           <button 
             onClick={() => window.print()} 
-            className="btn-primary" 
-            style={{ width: 'auto' }}
+            className="btn-outline" 
+            style={{ fontSize: '0.84rem' }}
           >
-            <Printer size={16} /> 🖨️ A4 바로 인쇄
+            <Printer size={15} /> 바로 인쇄
           </button>
         </div>
       </div>
 
-      <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
+      <div className="workspace-title-area" style={{ marginBottom: '1.25rem' }}>
         <h2>전시 캡션 네임택 출력기</h2>
-        <p>복사할 필요 없이 <strong>카드 이미지(PNG)로 바로 다운로드</strong>받아 프린트하고 칼선대로 잘라서 전시장에 부착하세요.</p>
+        <p>
+          복잡한 프로그램 선택 없이 <strong>[📄 A4 인쇄용 PDF]</strong>를 다운로드받으세요. 
+          어떤 컴퓨터에서도 바로 열리며, 점선 절취선대로 자르면 전시장 명패가 완성됩니다.
+        </p>
       </div>
 
       {/* 스타일 선택 바 */}
@@ -372,12 +443,12 @@ export default function CaptionStudio({ onBack }) {
           </form>
         </div>
 
-        {/* 우측: 실시간 캡션 미리보기 & 다운로드 영역 */}
+        {/* 우측: 불필요한 하단 공백 없는 황금비율 캡션 출력 시트 */}
         <div className="panel-card printable-caption-container">
           <div className="panel-card-title no-print">
-            <span>
-              출력용 캡션 명패 ({captions.length}점)
-            </span>
+            <div>
+              <span>출력용 캡션 명패 ({captions.length}점)</span>
+            </div>
             <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600 }}>
               ✂️ 테두리 점선 절취선을 따라 오려 사용하세요
             </span>
@@ -396,17 +467,47 @@ export default function CaptionStudio({ onBack }) {
                   id={`caption-card-${item.id}`}
                   className={`caption-card-item ${styleMode}`}
                 >
-                  {/* 자르는 선 가이드 헤더 (인쇄 및 다운로드 이미지에 포함) */}
+                  {/* 상단 우측 슬림 플로팅 도구함 (화면에서만 보이고 인쇄/PDF 시 자동 제외) */}
+                  <div className="caption-top-tools no-print">
+                    <button 
+                      onClick={() => handleDownloadSinglePdf(item)}
+                      className="caption-tool-btn"
+                      title="단일 캡션 PDF 다운로드"
+                      disabled={downloadingId === item.id}
+                    >
+                      <FileDown size={11} /> PDF
+                    </button>
+                    <button 
+                      onClick={() => handleDownloadSinglePng(item)}
+                      className="caption-tool-btn"
+                      title="단일 캡션 PNG 이미지 저장"
+                      disabled={downloadingId === item.id}
+                    >
+                      <ImageIcon size={11} /> PNG
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(item.id)}
+                      className="caption-tool-btn"
+                      style={{ color: '#94A3B8' }}
+                      title="삭제"
+                    >
+                      <Trash2 size={11} />
+                    </button>
+                  </div>
+
+                  {/* 자르는 선 가이드 헤더 (인쇄 및 다운로드에 단정하게 포함) */}
                   <div className="cut-line-indicator">
-                    <Scissors size={12} strokeWidth={2} />
+                    <Scissors size={11} strokeWidth={2} />
                     <span>자르는 선 (Cut Line)</span>
                   </div>
 
+                  {/* 작가 정보 */}
                   <div className="caption-card-header">
                     <span className="caption-artist-ko">{item.artistKo}</span>
                     {item.artistEn && <span className="caption-artist-en">{item.artistEn}</span>}
                   </div>
 
+                  {/* 작품 제목 */}
                   <div className="caption-title-box">
                     <div className="caption-title-ko">
                       {styleMode === 'classic' ? `《${item.titleKo}》` : item.titleKo}
@@ -417,6 +518,7 @@ export default function CaptionStudio({ onBack }) {
                     )}
                   </div>
 
+                  {/* 재료 및 규격 */}
                   <div className="caption-meta-box">
                     <div className="caption-medium">
                       {item.mediumKo}
@@ -425,41 +527,13 @@ export default function CaptionStudio({ onBack }) {
                     <div className="caption-size">{item.size}</div>
                   </div>
 
+                  {/* 아트페어 가격 태그 (선택 시) */}
                   {styleMode === 'commercial' && (
                     <div className="caption-price-tag">
                       <span>{item.price}</span>
                       {!item.isNfs && <span className="caption-red-dot" title="판매 가능" />}
                     </div>
                   )}
-
-                  {/* 화면용 액션 버튼: 개별 다운로드 및 삭제 (인쇄 및 캡처 시 숨김) */}
-                  <div className="caption-card-actions no-print">
-                    <button 
-                      onClick={() => handleDownloadSingle(item)}
-                      className="btn-outline"
-                      style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem', fontWeight: 600, color: '#0F172A', borderColor: '#0F172A' }}
-                      title="고해상도 PNG 이미지로 다운로드"
-                      disabled={downloadingId === item.id}
-                    >
-                      <Download size={13} />
-                      {downloadingId === item.id ? '저장 중...' : '📥 캡션 다운로드'}
-                    </button>
-                    <button 
-                      onClick={() => handleCopyText(item)}
-                      className={`btn-subtle-copy ${copiedId === item.id ? 'copied' : ''}`}
-                      title="텍스트 복사"
-                    >
-                      {copiedId === item.id ? <Check size={12} /> : <Copy size={12} />}
-                      {copiedId === item.id ? '복사됨' : '텍스트'}
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(item.id)}
-                      style={{ color: '#9CA3AF', padding: '4px' }}
-                      title="삭제"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
                 </div>
               ))}
             </div>
