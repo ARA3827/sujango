@@ -26,22 +26,22 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
       <section className="landing-hero">
         <div className="landing-hero-badge">
           <Sparkles size={14} color="#0284C7" />
-          <span>1인 예술가를 위한 AI 행정 비서 & 작품 금고</span>
+          <span>창작자를 위한 프라이빗 디지털 수장고</span>
         </div>
 
         <h1 className="landing-hero-title">
           오롯이 창작에만 몰입하세요.<br />
-          서류, 세금, 아카이브는 아트플로우가 지킵니다.
+          서류, 세금, 아카이브는 수장고(Sujango)가 지킵니다.
         </h1>
 
         <p className="landing-hero-sub">
           복잡한 미술관 제출 서류 양식부터 3.3% 원천징수 계산, 
-          그리고 인스타그램이 사라져도 안전한 평생 작품 포트폴리오까지 한곳에서 관리하세요.
+          그리고 세월이 흘러도 변치 않는 평생 작품 포트폴리오까지 한곳에서 관리하세요.
         </p>
 
         <div className="landing-hero-cta">
           <button onClick={onOpenLogin} className="btn-primary" style={{ padding: '0.85rem 1.75rem', fontSize: '1rem', width: 'auto' }}>
-            ✨ 무료로 내 작품 금고 시작하기
+            ✨ 무료로 내 수장고 시작하기
           </button>
           <button onClick={onExploreGuest} className="btn-outline" style={{ padding: '0.85rem 1.5rem', fontSize: '0.95rem' }}>
             👀 대시보드 바로 둘러보기
@@ -64,15 +64,15 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
         </div>
       </section>
 
-      {/* 2. 핵심 통찰: 인스타그램 vs 아트플로우 비교 배너 */}
+      {/* 2. 핵심 통찰: 일반 SNS 보관 vs 수장고(Sujango) 비교 배너 */}
       <section className="landing-comparison-section">
         <div className="comparison-card">
           <div className="comparison-header warning">
             <AlertTriangle size={20} color="#DC2626" />
-            <h3>인스타그램 (SNS)에만 의존할 때의 위험</h3>
+            <h3>일반 SNS나 개인 기기에만 보관할 때의 위험</h3>
           </div>
           <ul className="comparison-list">
-            <li>❌ <strong>계정 해킹/정지 한 번에</strong> 수년간 쌓아온 작품과 기록이 영구 소멸</li>
+            <li>❌ <strong>계정 분실/기기 고장 한 번에</strong> 수년간 쌓아온 작품과 기록이 소실될 위험</li>
             <li>❌ 사진이 강제로 저화질로 뭉개져 <strong>도록이나 인쇄용으로 재활용 불가</strong></li>
             <li>❌ 작품 호수, 연도, 재료, 가격 등 <strong>미술계 표준 규격 정리가 불가능</strong></li>
             <li>❌ 큐레이터나 갤러리 미팅 시 <strong>공식 포트폴리오로 제출하기 어려움</strong></li>
@@ -82,10 +82,10 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
         <div className="comparison-card highlight">
           <div className="comparison-header safe">
             <ShieldCheck size={20} color="#059669" />
-            <h3>아트플로우 (ArtFlow) 평생 작품 금고</h3>
+            <h3>수장고 (Sujango) 프라이빗 디지털 수장고</h3>
           </div>
           <ul className="comparison-list">
-            <li>✅ <strong>SNS가 폭파되어도 안전한</strong> 작가 본인 소유의 영구 디지털 서고</li>
+            <li>✅ <strong>어떤 플랫폼 변화에도 영원히 안전한</strong> 작가 본인 소유의 디지털 서고</li>
             <li>✅ 20MB 고화질 사진도 <strong>웹 최적화로 가볍게 자동 다이어트 압축</strong></li>
             <li>✅ 작품 사진을 누르면 <strong>도록용 작가노트와 미술관 캡션 명패가 한눈에</strong></li>
             <li>✅ 클릭 한 번으로 <strong>전체 데이터를 내 PC에 파일로 안전하게 백업</strong></li>
@@ -107,12 +107,12 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             <div className="feature-icon-box" style={{ background: '#EFF6FF', color: '#2563EB' }}>
               <Archive size={24} />
             </div>
-            <h4>📁 나의 작품 아카이브 서고</h4>
+            <h4>📁 나의 작품 디지털 수장고</h4>
             <p>
               작품 사진과 도록용 작가노트, 캡션 규격을 차곡차곡 모아두는 나만의 디지털 도록.
               스마트폰 사진도 깃털처럼 가볍게 자동 압축 보관됩니다.
             </p>
-            <div className="feature-tag">데이터 락인 영구 금고</div>
+            <div className="feature-tag">프라이빗 영구 보존</div>
           </div>
 
           {/* 기능 2 */}
@@ -224,7 +224,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             </div>
             <div className="pricing-card-header">
               <span className="plan-badge-pro">100GB 원본 금고</span>
-              <h3 className="plan-title">ArtFlow Pro</h3>
+              <h3 className="plan-title">Sujango Pro</h3>
               <div className="plan-price-wrap">
                 <span className="plan-price-num">4,900</span>
                 <span className="plan-price-unit">원 / 월 (연 49,000원)</span>
@@ -276,10 +276,10 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
 
       {/* 5. 하단 CTA */}
       <section className="landing-bottom-cta">
-        <h2>당신의 소중한 작품 세계, 이제 아트플로우에서 지키세요</h2>
-        <p>어떤 복잡한 설정도 필요 없습니다. 오늘부터 당신만의 디지털 아카이브가 시작됩니다.</p>
+        <h2>당신의 소중한 작품 세계, 이제 수장고(Sujango)에서 지키세요</h2>
+        <p>어떤 복잡한 설정도 필요 없습니다. 오늘부터 당신만의 디지털 수장고가 시작됩니다.</p>
         <button onClick={onOpenLogin} className="btn-primary" style={{ padding: '0.9rem 2rem', fontSize: '1rem', width: 'auto', margin: '0 auto' }}>
-          무료로 내 작품 보관소 만들기
+          무료로 내 수장고 만들기
         </button>
       </section>
     </div>

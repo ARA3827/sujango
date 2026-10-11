@@ -58,7 +58,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', color: '#0284C7', padding: '3px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.5rem' }}>
               <Crown size={14} />
-              <span>ARTFLOW MEMBERSHIP</span>
+              <span>SUJANGO MEMBERSHIP</span>
             </div>
             <h3 style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
               당신의 평생 창작 자산을 위한 요금제
@@ -173,7 +173,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
 
             <div style={{ marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>ArtFlow Pro</h4>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>Sujango Pro</h4>
                 <Crown size={16} color="#EAB308" />
               </div>
               <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>어디서든 로그인 동기화 + 100GB 평생 무손실 금고</p>

@@ -55,7 +55,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', fontFamily: 'var(--font-serif)' }}>
-              ArtFlow 로그인
+              Sujango (수장고) 시작하기
             </span>
           </div>
           <button onClick={onClose} className="modal-close-btn">
@@ -64,7 +64,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         </div>
 
         <p style={{ fontSize: '0.85rem', color: '#64748B', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-          나만의 작품 아카이브 금고와 행정 서류, 정산 장부를 안전하게 관리하세요.
+          창작자를 위한 프라이빗 디지털 수장고와 행정 서류, 정산 장부를 안전하게 관리하세요.
         </p>
 
         {/* 1. 가장 빠른 데모 계정 로그인 버튼 */}

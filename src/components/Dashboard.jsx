@@ -65,10 +65,10 @@ export default function Dashboard({
       <section className="dashboard-hero">
         <h1 className="hero-quote">
           오롯이 작업에만 몰입하세요.<br />
-          서류, 세금, SNS 행정은 아트플로우가 대신합니다.
+          서류, 세금, SNS 행정은 수장고(Sujango)가 대신합니다.
         </h1>
         <p className="hero-sub">
-          복잡한 로그인과 API 연동 없이, 1인 창작자에게 꼭 필요한 도구를 한곳에서 간편하게 복사하고 출력하세요.
+          창작자를 위한 프라이빗 디지털 수장고. 꼭 필요한 도구를 한곳에서 간편하게 복사하고 출력하세요.
         </p>
       </section>
 
@@ -95,12 +95,12 @@ export default function Dashboard({
         </div>
 
         <div className="stat-item-box" onClick={() => onSelectView('archive')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">📁 내 작품 아카이브 서고</div>
+          <div className="stat-label">📁 내 작품 디지털 수장고</div>
           <div className="stat-value" style={{ color: '#0284C7' }}>
             {artworks.length}점 보관 중
           </div>
           <div className="stat-sub">
-            사진 • 작가노트 영구 금고
+            사진 • 작가노트 영구 보존
           </div>
         </div>
 
@@ -173,18 +173,18 @@ export default function Dashboard({
         <div className="archive-board-header">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span className="archive-board-title">📁 나의 작품 아카이브 서고</span>
+              <span className="archive-board-title">📁 나의 작품 디지털 수장고</span>
               <span className="archive-board-count">총 {artworks.length}점 보관 중</span>
             </div>
             <p style={{ fontSize: '0.82rem', color: '#64748B', margin: '4px 0 0 0' }}>
-              인스타그램이 사라져도 안전한 나만의 개인 기록장. 사진을 클릭하면 상세 작가노트와 캡션을 열람할 수 있습니다.
+              세월이 흘러도 변치 않는 나만의 프라이빗 디지털 수장고. 사진을 클릭하면 상세 도록과 작가노트, 캡션을 열람할 수 있습니다.
             </p>
           </div>
           <button 
             onClick={() => onSelectView('archive')} 
             className="archive-board-more-btn"
           >
-            전체 서고 열람 <ArrowRight size={14} />
+            전체 수장고 열람 <ArrowRight size={14} />
           </button>
         </div>
 

@@ -26,9 +26,10 @@ export default function Header({
         <div className="brand-wrapper" onClick={onGoHome} role="button" tabIndex={0}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Palette size={22} strokeWidth={2.2} color="#0F172A" />
-            <span className="brand-title">ArtFlow</span>
+            <span className="brand-title">Sujango</span>
           </div>
-          <span className="brand-badge">Ara Agent Lab</span>
+          <span className="brand-badge">수장고</span>
+          <span className="brand-badge hide-mobile" style={{ background: 'transparent', color: '#64748B', padding: 0 }}>Ara Agent Lab</span>
         </div>
 
         {/* 우측 사용자 컨트롤 & 상태 표시 */}
@@ -67,7 +68,7 @@ export default function Header({
           <button
             onClick={onOpenPricing}
             className="header-pricing-btn"
-            title="ArtFlow Pro 멤버십 및 100GB 작품 원본 금고 요금제 안내"
+            title="Sujango Pro 멤버십 및 100GB 작품 원본 금고 요금제 안내"
           >
             <Crown size={14} color="#D97706" />
             <span>Pro 멤버십</span>

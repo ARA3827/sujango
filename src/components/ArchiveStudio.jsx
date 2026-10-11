@@ -260,16 +260,16 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
       {/* 2. 타이틀 영역 */}
       <div className="workspace-title-area" style={{ marginBottom: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-          <h2>나의 작품 아카이브 서고</h2>
+          <h2>나의 작품 디지털 수장고</h2>
           {user?.isPro ? (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', border: '1px solid #BAE6FD', color: '#0369A1', padding: '4px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600 }}>
               <Crown size={13} color="#0284C7" />
-              <span>Pro 멤버십: 무제한 등록 & 기기 간 실시간 클라우드 동기화 중</span>
+              <span>Sujango Pro: 무제한 등록 & 기기 간 실시간 클라우드 동기화 중</span>
             </div>
           ) : (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '0.8rem', color: '#64748B', background: '#F1F5F9', padding: '4px 10px', borderRadius: '999px', fontWeight: 600 }}>
-                📁 무료 보관함: <strong>{artworks.length}</strong> / 30점 (내 PC 저장)
+                📁 무료 수장고: <strong>{artworks.length}</strong> / 30점 (내 PC 저장)
               </span>
               <button 
                 onClick={onOpenPricing}
@@ -278,14 +278,14 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                 title="무제한 등록 및 기기 간 자동 동기화 Pro 플랜 안내"
               >
                 <Crown size={12} color="#D97706" />
-                <span>무제한 & 클라우드 동기화 Pro</span>
+                <span>무제한 & 클라우드 수장고 Pro</span>
               </button>
             </div>
           )}
         </div>
         <p>
-          인스타그램이나 SNS가 사라져도 안전합니다. 
-          작품 사진, 도록용 작가노트, 캡션 명패 규격을 나만의 디지털 금고에 영구히 보관하세요.
+          창작자를 위한 프라이빗 디지털 수장고(Sujango). 
+          작품 사진, 도록용 작가노트, 캡션 명패 규격을 세월이 흘러도 변치 않게 영구히 보관하세요.
         </p>
       </div>
 

@@ -267,9 +267,12 @@ export default function App() {
         <div className="footer-inner">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <strong>ArtFlow</strong>
+              <strong>Sujango</strong>
+              <span style={{ fontSize: '0.8rem', color: '#64748B' }}>수장고</span>
+              <span style={{ color: '#CBD5E1' }}>•</span>
+              <span style={{ fontSize: '0.8rem', color: '#0284C7', fontWeight: 600 }}>sujango.com</span>
               <span style={{ color: '#CBD5E1' }}>|</span>
-              <span>1인 예술가를 위한 AI 행정 비서 & 정산 워크스테이션</span>
+              <span>창작자를 위한 프라이빗 디지털 수장고</span>
               <span style={{ color: '#CBD5E1' }}>|</span>
               <button 
                 onClick={() => setIsPricingModalOpen(true)} 
@@ -306,7 +309,7 @@ export default function App() {
           </div>
 
           <div style={{ textAlign: 'right', fontSize: '0.78rem', color: '#94A3B8' }}>
-            Ara Agent Lab © {new Date().getFullYear()} • 모든 데이터는 기기(LocalStorage)에 안전하게 보관됩니다.
+            Ara Agent Lab © {new Date().getFullYear()} Sujango (sujango.com) • All Rights Reserved.
           </div>
         </div>
       </footer>
