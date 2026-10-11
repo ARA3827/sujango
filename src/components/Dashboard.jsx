@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FileText, 
   PenTool, 
@@ -7,8 +7,11 @@ import {
   Plus, 
   ArrowRight,
   Layers,
-  Sparkles
+  Sparkles,
+  Archive,
+  Image as ImageIcon
 } from 'lucide-react';
+import { getArtworks } from '../utils/archiveStorage';
 
 export default function Dashboard({ 
   onSelectView, 
@@ -16,6 +19,11 @@ export default function Dashboard({
   captionCount = 3,
   onOpenNewToolModal
 }) {
+  const [artworks, setArtworks] = useState([]);
+
+  useEffect(() => {
+    setArtworks(getArtworks());
+  }, []);
   const tools = [
     {
       id: 'doc',
@@ -86,8 +94,18 @@ export default function Dashboard({
           </div>
         </div>
 
+        <div className="stat-item-box" onClick={() => onSelectView('archive')} style={{ cursor: 'pointer' }}>
+          <div className="stat-label">📁 내 작품 아카이브 서고</div>
+          <div className="stat-value" style={{ color: '#0284C7' }}>
+            {artworks.length}점 보관 중
+          </div>
+          <div className="stat-sub">
+            사진 • 작가노트 영구 금고
+          </div>
+        </div>
+
         <div className="stat-item-box" onClick={() => onSelectView('doc')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">행정 서류 원클릭 빌더</div>
+          <div className="stat-label">행정 서류 공문서 빌더</div>
           <div className="stat-value" style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Layers size={20} /> 서류 3종 지원
           </div>
@@ -148,6 +166,95 @@ export default function Dashboard({
             필요한 소소한 기능이 떠오르면 언제든 여기에 추가하고 확장하세요.
           </p>
         </div>
+      </div>
+
+      {/* 4. 나의 작품 아카이브 서고 (1-Depth 슬림 게시판) */}
+      <div className="archive-board-section">
+        <div className="archive-board-header">
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="archive-board-title">📁 나의 작품 아카이브 서고</span>
+              <span className="archive-board-count">총 {artworks.length}점 보관 중</span>
+            </div>
+            <p style={{ fontSize: '0.82rem', color: '#64748B', margin: '4px 0 0 0' }}>
+              인스타그램이 사라져도 안전한 나만의 개인 기록장. 사진을 클릭하면 상세 작가노트와 캡션을 열람할 수 있습니다.
+            </p>
+          </div>
+          <button 
+            onClick={() => onSelectView('archive')} 
+            className="archive-board-more-btn"
+          >
+            전체 서고 열람 <ArrowRight size={14} />
+          </button>
+        </div>
+
+        {artworks.length > 0 ? (
+          <div className="archive-table-wrapper">
+            <table className="archive-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '56px', textAlign: 'center' }}>작품</th>
+                  <th>작품명</th>
+                  <th>제작연도 / 규격</th>
+                  <th>재료 및 기법</th>
+                  <th>보관된 기록</th>
+                  <th style={{ width: '90px', textAlign: 'right' }}>등록일</th>
+                </tr>
+              </thead>
+              <tbody>
+                {artworks.slice(0, 5).map((art) => (
+                  <tr 
+                    key={art.id} 
+                    onClick={() => onSelectView('archive')}
+                    style={{ cursor: 'pointer' }}
+                    title="클릭하여 상세 도록 및 작가노트 열람"
+                  >
+                    <td style={{ textAlign: 'center' }}>
+                      <div className="archive-mini-thumb">
+                        {art.imageUrl ? (
+                          <img src={art.imageUrl} alt={art.title} />
+                        ) : (
+                          <ImageIcon size={15} color="#94A3B8" />
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ fontWeight: 600, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>《{art.title}》</span>
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: '#64748B' }}>{art.artist || '김아라'}</div>
+                    </td>
+                    <td>
+                      <span style={{ fontSize: '0.84rem', color: '#334155', fontWeight: 500 }}>{art.year}년</span>
+                      <span style={{ fontSize: '0.78rem', color: '#64748B', marginLeft: '6px' }}>
+                        ({art.size?.split('(')[0]?.trim() || art.size})
+                      </span>
+                    </td>
+                    <td>
+                      <span style={{ fontSize: '0.82rem', color: '#475569' }}>
+                        {art.medium && art.medium.length > 20 ? art.medium.slice(0, 20) + '...' : art.medium || '-'}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                        {art.statement && <span className="archive-badge badge-green">작가노트</span>}
+                        {art.instaCaption && <span className="archive-badge badge-blue">인스타</span>}
+                        {art.blogStory && <span className="archive-badge badge-purple">블로그</span>}
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'right', fontSize: '0.78rem', color: '#94A3B8' }}>
+                      {art.createdAt || '최근'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="archive-empty-box" onClick={() => onSelectView('archive')}>
+            <p>아직 등록된 작품이 없습니다. 클릭하여 첫 작품 사진과 작가노트를 등록해 보세요.</p>
+          </div>
+        )}
       </div>
     </div>
   );

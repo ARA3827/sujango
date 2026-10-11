@@ -5,13 +5,14 @@ import DocStudio from './components/DocStudio';
 import StatementStudio from './components/StatementStudio';
 import TaxStudio from './components/TaxStudio';
 import CaptionStudio from './components/CaptionStudio';
+import ArchiveStudio from './components/ArchiveStudio';
 import NewToolModal from './components/NewToolModal';
 
 export default function App() {
   // 브라우저 Hash 기반 URL 파싱 (뒤로가기 완벽 연동)
   const getViewFromHash = () => {
     const hash = window.location.hash.replace('#', '');
-    const validViews = ['doc', 'statement', 'tax', 'caption'];
+    const validViews = ['doc', 'statement', 'tax', 'caption', 'archive'];
     return validViews.includes(hash) ? hash : 'dashboard';
   };
 
@@ -107,6 +108,13 @@ export default function App() {
 
         {currentView === 'caption' && (
           <CaptionStudio onBack={handleBack} />
+        )}
+
+        {currentView === 'archive' && (
+          <ArchiveStudio 
+            onBack={handleBack} 
+            onNavigateToCaption={() => navigate('caption')}
+          />
         )}
       </main>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Copy, 
   Check, 
@@ -8,18 +8,31 @@ import {
   Share2, 
   Edit3, 
   Eye, 
-  RotateCcw 
+  RotateCcw,
+  Image as ImageIcon,
+  Archive,
+  Upload
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { saveSingleArtwork } from '../utils/archiveStorage';
+import { compressImage } from '../utils/imageCompressor';
 
 export default function StatementStudio({ onBack }) {
   const [activeTab, setActiveTab] = useState('statement'); // 'statement' | 'insta' | 'blog'
   const [copied, setCopied] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false); // 수정 모드 토글 (선택사항)
 
+  // 사진 및 아카이브 저장 상태
+  const [artworkImage, setArtworkImage] = useState('');
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [saveToArchive, setSaveToArchive] = useState(true);
+  const [savedNotice, setSavedNotice] = useState(false);
+  const fileInputRef = useRef(null);
+
   // 입력 상태
   const [artwork, setArtwork] = useState({
     title: '새벽의 경계 (The Boundary of Dawn)',
+    artist: '김아라',
     year: '2026',
     medium: 'Oil and mixed media on linen',
     size: '116.8 × 91.0 cm (50호)',
@@ -105,7 +118,41 @@ ${hashtags}`;
 
     setResults(generated);
     setOriginalResults(generated);
+
+    // 아카이브 서고에 자동 보관
+    if (saveToArchive) {
+      saveSingleArtwork({
+        title,
+        artist: artwork.artist || '김아라',
+        year,
+        medium,
+        size,
+        imageUrl: artworkImage,
+        statement: statementText,
+        instaCaption: instaText,
+        blogStory: blogText
+      });
+      setSavedNotice(true);
+      setTimeout(() => setSavedNotice(false), 4000);
+    }
+
     triggerConfetti();
+  };
+
+  // 이미지 파일 선택 시 자동 압축
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsCompressing(true);
+      const compressed = await compressImage(file, 1200, 0.82);
+      setArtworkImage(compressed);
+    } catch (err) {
+      alert('이미지 압축 중 오류가 발생했습니다: ' + err.message);
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   // 실시간 텍스트 수정 핸들러
@@ -230,6 +277,79 @@ ${hashtags}`;
               value={artwork.inspiration}
               onChange={(e) => setArtwork({...artwork, inspiration: e.target.value})}
             />
+          </div>
+
+          {/* 작품 사진 첨부 (선택사항) */}
+          <div className="form-group">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+              <label className="form-label" style={{ margin: 0 }}>작품 사진 (선택 - 자동 다이어트 압축)</label>
+              {artworkImage && (
+                <button 
+                  type="button" 
+                  onClick={() => setArtworkImage('')} 
+                  style={{ fontSize: '0.75rem', color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  사진 삭제
+                </button>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  width: '68px',
+                  height: '68px',
+                  borderRadius: '6px',
+                  border: '1px dashed #CBD5E1',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  background: '#F8FAFC',
+                  overflow: 'hidden',
+                  flexShrink: 0
+                }}
+              >
+                {artworkImage ? (
+                  <img src={artworkImage} alt="선택된 작품" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <>
+                    <Upload size={18} color="#94A3B8" />
+                    <span style={{ fontSize: '0.68rem', color: '#64748B', marginTop: '2px' }}>
+                      {isCompressing ? '압축 중' : '사진 첨부'}
+                    </span>
+                  </>
+                )}
+              </div>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                accept="image/*" 
+                style={{ display: 'none' }} 
+                onChange={handleImageUpload} 
+              />
+              <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
+                대용량 원본 사진도 웹 최적화 크기(300KB)로 자동 다이어트 압축되어 기기에 안전하게 보관됩니다.
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '0.85rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: '#334155', cursor: 'pointer' }}>
+              <input 
+                type="checkbox" 
+                checked={saveToArchive}
+                onChange={(e) => setSaveToArchive(e.target.checked)}
+              />
+              <span style={{ fontWeight: 500 }}>📁 [내 작품 아카이브 서고]에 자동 보관하기</span>
+            </label>
+            {savedNotice && (
+              <div style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600, marginTop: '4px' }}>
+                ✓ 작품 사진과 3대 작가노트가 아카이브 서고에 안전하게 보관되었습니다!
+              </div>
+            )}
           </div>
 
           <button className="btn-primary" onClick={handleGenerate}>

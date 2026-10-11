@@ -1131,3 +1131,366 @@ input, select, textarea {
     color: #000000 !important;
   }
 }
+
+/* ==========================================================================
+   내 작품 아카이브 서고 (My Artwork Archive) 스타일
+   ========================================================================== */
+
+/* 1. 대시보드 1-Depth 슬림 게시판 섹션 */
+.archive-board-section {
+  margin-top: 2.5rem;
+  background: #FFFFFF;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.archive-board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.archive-board-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+}
+
+.archive-board-count {
+  font-size: 0.75rem;
+  background: #F1F5F9;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.archive-board-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0284C7;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all var(--transition-fast);
+}
+
+.archive-board-more-btn:hover {
+  background: #F0F9FF;
+  color: #0369A1;
+}
+
+.archive-table-wrapper {
+  overflow-x: auto;
+}
+
+.archive-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.archive-table th {
+  padding: 0.65rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748B;
+  border-bottom: 1px solid #E2E8F0;
+  background: #F8FAFC;
+}
+
+.archive-table td {
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #F1F5F9;
+  vertical-align: middle;
+}
+
+.archive-table tr:hover td {
+  background: #FAFAFC;
+}
+
+.archive-mini-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #F1F5F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #E2E8F0;
+}
+
+.archive-mini-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.archive-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.badge-green {
+  background: #ECFDF5;
+  color: #059669;
+  border: 1px solid #D1FAE5;
+}
+
+.badge-blue {
+  background: #EFF6FF;
+  color: #2563EB;
+  border: 1px solid #DBEAFE;
+}
+
+.badge-purple {
+  background: #FAF5FF;
+  color: #7C3AED;
+  border: 1px solid #F3E8FF;
+}
+
+.archive-empty-box {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #94A3B8;
+  font-size: 0.88rem;
+  background: #FAFAFC;
+  border: 1px dashed #E2E8F0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* 2. 2-Depth 도록 화면 (Filmstrip & Image Frame) */
+.archive-filmstrip-wrapper {
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.archive-filmstrip {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.archive-filmstrip-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.5rem 0.85rem;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 190px;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.archive-filmstrip-item:hover {
+  border-color: #CBD5E1;
+  background: #F8FAFC;
+}
+
+.archive-filmstrip-item.active {
+  border-color: #0F172A;
+  background: #F8FAFC;
+  box-shadow: 0 0 0 1px #0F172A;
+}
+
+.filmstrip-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #F1F5F9;
+  flex-shrink: 0;
+}
+
+.filmstrip-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.filmstrip-empty-thumb {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.filmstrip-info {
+  overflow: hidden;
+}
+
+.filmstrip-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filmstrip-sub {
+  font-size: 0.72rem;
+  color: #64748B;
+  white-space: nowrap;
+}
+
+.archive-image-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #F8FAFC;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.archive-image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #0F172A;
+  transition: transform 0.25s ease;
+}
+
+.archive-image-frame:hover img {
+  transform: scale(1.02);
+}
+
+.image-frame-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #FFFFFF;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.archive-image-frame:hover .image-frame-overlay {
+  opacity: 1;
+}
+
+.archive-no-image {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #94A3B8;
+  font-size: 0.85rem;
+}
+
+.archive-caption-plaque {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.plaque-artist {
+  font-size: 0.82rem;
+  color: #64748B;
+  margin-bottom: 2px;
+}
+
+.plaque-title {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 6px;
+}
+
+.plaque-year {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #64748B;
+}
+
+.plaque-medium, .plaque-size {
+  font-size: 0.82rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.plaque-price {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0F172A;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed #E2E8F0;
+}
+
+/* 3. 라이트박스 확대 모달 */
+.lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.lightbox-content img {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-close-btn {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 6px;
+  transition: transform 0.15s ease;
+}
+
+.lightbox-close-btn:hover {
+  transform: scale(1.15);
+}
+
