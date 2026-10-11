@@ -803,17 +803,39 @@ input, select, textarea {
 }
 
 /* ===================================================================
-   전시 캡션 네임택 스타일 (Caption Studio) - A4 2열 4행 표 형식 (Grid Table)
+   전시 캡션 네임택 스타일 (Caption Studio) - 다중 A4 시트 & 독립 네모박스
 =================================================================== */
 
+/* 여러 장의 A4 시트 래퍼 */
+.a4-sheets-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  align-items: center;
+}
+
 .a4-sheet-container {
-  background: #F1F5F9;
+  background: #F8FAFC;
   border-radius: var(--radius-md);
   padding: 1.5rem;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  overflow-x: auto;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.a4-page-header {
+  width: 100%;
+  max-width: 595px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
 }
 
 /* A4 실물 1:1 규격 프리뷰 용지 (210mm x 297mm 정규격) */
@@ -830,32 +852,32 @@ input, select, textarea {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
 }
 
-/* A4 한 페이지 2열 4행 표(Grid Table) 레이아웃 */
+/* 2열 가로 고정, 세로는 내용물에 따라 자연스럽게 차곡차곡 쌓임 */
 .caption-print-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(4, 1fr); /* 4행을 A4 전체 높이에 균등 4등분 배분! */
-  gap: 12px;
+  gap: 16px;
   width: 100%;
-  height: 100%;
   box-sizing: border-box;
-  flex: 1;
+  align-content: start;
 }
 
-/* 캡션 네모 박스 - 옅은 회색 테두리로 선 따라 자르기 최적화 */
+/* 각각이 독립된 직사각형 표(네모박스) - 가로 고정, 세로 가변(auto) */
 .caption-card-item {
   background: #FFFFFF;
   border: 1px solid #CBD5E1; /* 사용자가 요청한 선명하고 옅은 회색 자르는 테두리 */
   border-radius: 0px; /* 자와 칼을 대고 반듯하게 자르기 편한 단정한 직각 사각형 */
-  /* 상단 18px, 좌우 18px, 하단 26px (하단 사이즈 텍스트와 박스선 사이 충분한 여백 보장) */
-  padding: 18px 18px 26px 18px;
+  /* 상단 18px, 좌우 18px, 하단 24px (하단 사이즈 텍스트와 박스선 사이 충분한 여백 보장) */
+  padding: 18px 18px 24px 18px;
   position: relative;
   page-break-inside: avoid;
+  break-inside: avoid;
   box-sizing: border-box;
-  height: 100%;
-  min-height: 165px;
+  height: auto; /* 내용물 길이에 따라 자연스럽게 유연하게 조정 */
+  min-height: 130px; /* 최소 크기 보장 */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -867,6 +889,7 @@ input, select, textarea {
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+  gap: 0.5rem;
 }
 
 .caption-card-item:hover {
@@ -1024,23 +1047,40 @@ input, select, textarea {
     padding: 0 !important;
     background: transparent !important;
   }
+  .a4-sheets-wrapper {
+    gap: 0 !important;
+    display: block !important;
+  }
+  .a4-sheet-container {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+  .a4-sheet-preview {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 1.5cm 1.2cm !important;
+    width: 100% !important;
+    aspect-ratio: auto !important;
+    min-height: 27cm !important;
+  }
   .caption-print-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    grid-template-rows: repeat(4, 1fr) !important;
-    gap: 0.5cm !important;
+    grid-template-rows: auto !important;
+    gap: 0.6cm !important;
     padding: 0 !important;
-    height: 100% !important;
+    height: auto !important;
   }
   .caption-card-item {
     border: 0.75pt solid #CBD5E1 !important; /* 선을 따라 자를 수 있는 단정한 옅은 회색 테두리 */
     border-radius: 0 !important;
     box-shadow: none !important;
-    padding: 0.6cm 0.8cm 1.2cm 0.8cm !important; /* 하단 여백 1.2cm로 넉넉하게 확보 */
-    height: 100% !important;
-  }
-  .caption-card-item.empty-slot {
-    border: 0.5pt dashed #E2E8F0 !important;
-    background: transparent !important;
+    padding: 0.6cm 0.7cm 0.9cm 0.7cm !important;
+    height: auto !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
   .output-box {
     border: none !important;

@@ -8,8 +8,11 @@ export default function CaptionStudio({ onBack }) {
   const [styleMode, setStyleMode] = useState('classic'); // 'classic' | 'modern' | 'commercial'
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
-  // A4 시트 전체 참조 (실물 크기 1:1 캡처용)
-  const a4SheetRef = useRef(null);
+  // 1페이지당 최대 6개 (2열 3행: 텍스트가 길어져도 세로 공간이 넉넉한 황금 비율)
+  const ITEMS_PER_PAGE = 6;
+
+  // 다중 A4 시트 참조 맵
+  const pageRefs = useRef({});
 
   // 캡션 리스트 상태 (LocalStorage)
   const [captions, setCaptions] = useState(() => {
@@ -117,62 +120,75 @@ export default function CaptionStudio({ onBack }) {
     saveCaptions(captions.filter(c => c.id !== id));
   };
 
-  // 단 1개의 통합 PDF 다운로드 함수 (폰트 왜곡 방지: 원본 가로/세로 종횡비 100% 보존)
+  // 캡션들을 페이지별로 묶음 (1페이지당 최대 6개)
+  const pages = [];
+  for (let i = 0; i < captions.length; i += ITEMS_PER_PAGE) {
+    pages.push(captions.slice(i, i + ITEMS_PER_PAGE));
+  }
+
+  // 다중 A4 페이지 지원 PDF 다운로드 함수 (폰트 왜곡 방지 및 다중 페이지 완벽 지원)
   const handleDownloadA4Pdf = async () => {
-    if (!a4SheetRef.current || captions.length === 0) return;
+    if (captions.length === 0) return;
 
     try {
       setIsGeneratingPdf(true);
       
-      // 1. 순수 A4 종이 영역만 초고해상도로 캡처 (화면용 회색 테두리 및 그림자 제거, 폰트 CORS 에러 방지)
-      const imgData = await toPng(a4SheetRef.current, {
-        pixelRatio: 3, // 인쇄소급 300DPI 초고해상도
-        backgroundColor: '#FFFFFF',
-        skipFonts: true, // 외부 구글폰트/CDN의 CORS SecurityError 및 폰트 메트릭 왜곡 원천 차단
-        style: {
-          border: 'none',
-          boxShadow: 'none',
-          borderRadius: '0px'
-        },
-        filter: (node) => !node.classList?.contains('no-print')
-      });
-
-      // 2. 캡처된 이미지의 실제 픽셀 가로/세로 비율 측정
-      const img = new Image();
-      img.src = imgData;
-      await new Promise((resolve) => { 
-        img.onload = resolve;
-        img.onerror = resolve;
-      });
-
-      // 3. A4 규격(210 x 297 mm) PDF 생성
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = 210;
       const pdfHeight = 297;
+      const pdfAspectRatio = pdfWidth / pdfHeight;
 
-      const imgAspectRatio = img.width / img.height;
-      const pdfAspectRatio = pdfWidth / pdfHeight; // 210 / 297 ≈ 0.70707
+      // 모든 A4 시트를 순서대로 캡처하여 PDF 페이지로 추가
+      for (let pIdx = 0; pIdx < pages.length; pIdx++) {
+        const pageEl = pageRefs.current[pIdx];
+        if (!pageEl) continue;
 
-      let renderWidth = pdfWidth;
-      let renderHeight = pdfHeight;
-      let posX = 0;
-      let posY = 0;
-
-      // 폰트가 세로/가로로 1mm도 늘어나지 않도록 종횡비 철저 보존 (Maintain Aspect Ratio)
-      if (Math.abs(imgAspectRatio - pdfAspectRatio) > 0.005) {
-        if (imgAspectRatio > pdfAspectRatio) {
-          renderWidth = pdfWidth;
-          renderHeight = pdfWidth / imgAspectRatio;
-          posY = (pdfHeight - renderHeight) / 2;
-        } else {
-          renderHeight = pdfHeight;
-          renderWidth = pdfHeight * imgAspectRatio;
-          posX = (pdfWidth - renderWidth) / 2;
+        if (pIdx > 0) {
+          pdf.addPage('a4', 'p');
         }
+
+        // 순수 A4 종이 영역만 초고해상도로 캡처
+        const imgData = await toPng(pageEl, {
+          pixelRatio: 3,
+          backgroundColor: '#FFFFFF',
+          skipFonts: true,
+          style: {
+            border: 'none',
+            boxShadow: 'none',
+            borderRadius: '0px'
+          },
+          filter: (node) => !node.classList?.contains('no-print')
+        });
+
+        const img = new Image();
+        img.src = imgData;
+        await new Promise((resolve) => { 
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+
+        const imgAspectRatio = img.width / img.height;
+        let renderWidth = pdfWidth;
+        let renderHeight = pdfHeight;
+        let posX = 0;
+        let posY = 0;
+
+        // 종횡비 100% 보존
+        if (Math.abs(imgAspectRatio - pdfAspectRatio) > 0.005) {
+          if (imgAspectRatio > pdfAspectRatio) {
+            renderWidth = pdfWidth;
+            renderHeight = pdfWidth / imgAspectRatio;
+            posY = (pdfHeight - renderHeight) / 2;
+          } else {
+            renderHeight = pdfHeight;
+            renderWidth = pdfHeight * imgAspectRatio;
+            posX = (pdfWidth - renderWidth) / 2;
+          }
+        }
+
+        pdf.addImage(imgData, 'PNG', posX, posY, renderWidth, renderHeight);
       }
 
-      // 왜곡 없는 1:1 완벽 정비율로 A4 용지에 배치
-      pdf.addImage(imgData, 'PNG', posX, posY, renderWidth, renderHeight);
       pdf.save(`[ArtFlow]전시캡션_A4출력용_${new Date().toISOString().split('T')[0]}.pdf`);
       triggerConfetti();
     } catch (err) {
@@ -226,8 +242,8 @@ export default function CaptionStudio({ onBack }) {
       <div className="workspace-title-area" style={{ marginBottom: '1.25rem' }}>
         <h2>전시 캡션 네임택 출력기</h2>
         <p>
-          A4 한 페이지에 <strong>2열 4행 표 형식</strong>으로 정렬되어, <strong>옅은 회색 테두리 선</strong>을 따라 자와 칼을 대고 일직선으로 오려내면 정갈한 명패가 완성됩니다. 
-          상단의 <strong>[📄 A4 인쇄용 PDF 다운로드]</strong> 버튼을 눌러 출력하세요.
+          각 작품마다 독립된 <strong>옅은 회색 테두리 박스</strong>가 둘러져 있어 선을 따라 자와 칼을 대고 오려내면 명패가 완성됩니다. 
+          가로는 2열로 반듯하게 고정되고 세로는 글자 길이에 맞춰 유연하게 조정되며, 작품이 많아지면 자동으로 A4 다음 장이 생성됩니다.
         </p>
       </div>
 
@@ -383,12 +399,12 @@ export default function CaptionStudio({ onBack }) {
           </form>
         </div>
 
-        {/* 우측: 선명한 테두리 박스가 있는 A4 실물 크기 프리뷰 */}
+        {/* 우측: 독립된 테두리 박스가 있는 실물 크기 A4 프리뷰 (다중 페이지 지원) */}
         <div className="panel-card printable-caption-container" style={{ padding: '1rem' }}>
           <div className="panel-card-title no-print" style={{ marginBottom: '0.75rem' }}>
-            <span>A4 인쇄 미리보기 (2열 4행 표 형식 / {captions.length}점 등록됨)</span>
+            <span>A4 인쇄 미리보기 (총 {captions.length}점 등록 / A4 {pages.length}장)</span>
             <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>
-              ✂️ 옅은 회색 테두리 선을 따라 반듯하게 오려 사용하세요
+              ✂️ 각 작품 테두리 선을 따라 오려 사용하세요 (가로 고정, 세로 자동)
             </span>
           </div>
 
@@ -398,78 +414,75 @@ export default function CaptionStudio({ onBack }) {
               좌측에서 작품 정보를 입력해 캡션을 추가해 보세요.
             </div>
           ) : (
-            <div className="a4-sheet-container">
-              <div className="a4-sheet-preview" ref={a4SheetRef}>
-                <div className="caption-print-grid">
-                  {/* 1. 등록된 캡션 카드 목록 (옅은 회색 직각 테두리 박스) */}
-                  {captions.map((item) => (
-                    <div 
-                      key={item.id} 
-                      className={`caption-card-item ${styleMode}`}
-                    >
-                      {/* 카드 삭제용 미니멀 X 버튼 (인쇄/PDF 시 자동 제외) */}
-                      <button 
-                        onClick={() => handleDelete(item.id)}
-                        className="caption-card-delete-btn no-print"
-                        title="이 캡션 삭제"
-                      >
-                        <X size={13} />
-                      </button>
+            <div className="a4-sheets-wrapper">
+              {pages.map((pageItems, pIdx) => (
+                <div key={`page-${pIdx}`} className="a4-sheet-container">
+                  <div className="a4-page-header no-print">
+                    <span>📄 A4 {pIdx + 1}페이지 ({pageItems.length}점)</span>
+                    <span style={{ fontSize: '0.75rem', color: '#64748B' }}>전체 {pages.length}장 중 {pIdx + 1}번째 장</span>
+                  </div>
 
-                      <div className="caption-card-content">
-                        {/* 상단: 작가 정보 및 작품 제목 */}
-                        <div>
-                          <div className="caption-card-header">
-                            <span className="caption-artist-ko">{item.artistKo}</span>
-                            {item.artistEn && <span className="caption-artist-en">{item.artistEn}</span>}
-                          </div>
+                  <div 
+                    className="a4-sheet-preview" 
+                    ref={(el) => { if (el) pageRefs.current[pIdx] = el; }}
+                  >
+                    <div className="caption-print-grid">
+                      {pageItems.map((item) => (
+                        <div 
+                          key={item.id} 
+                          className={`caption-card-item ${styleMode}`}
+                        >
+                          {/* 카드 삭제용 미니멀 X 버튼 (인쇄/PDF 시 자동 제외) */}
+                          <button 
+                            onClick={() => handleDelete(item.id)}
+                            className="caption-card-delete-btn no-print"
+                            title="이 캡션 삭제"
+                          >
+                            <X size={13} />
+                          </button>
 
-                          <div className="caption-title-box">
-                            <div className="caption-title-ko">
-                              {styleMode === 'classic' ? `《${item.titleKo}》` : item.titleKo}
-                              <span className="caption-year">{item.year}</span>
+                          <div className="caption-card-content">
+                            {/* 상단: 작가 정보 및 작품 제목 */}
+                            <div>
+                              <div className="caption-card-header">
+                                <span className="caption-artist-ko">{item.artistKo}</span>
+                                {item.artistEn && <span className="caption-artist-en">{item.artistEn}</span>}
+                              </div>
+
+                              <div className="caption-title-box">
+                                <div className="caption-title-ko">
+                                  {styleMode === 'classic' ? `《${item.titleKo}》` : item.titleKo}
+                                  <span className="caption-year">{item.year}</span>
+                                </div>
+                                {item.titleEn && (
+                                  <div className="caption-title-en">{item.titleEn}</div>
+                                )}
+                              </div>
                             </div>
-                            {item.titleEn && (
-                              <div className="caption-title-en">{item.titleEn}</div>
-                            )}
+
+                            {/* 하단: 재료 및 규격 */}
+                            <div className="caption-meta-box">
+                              <div className="caption-medium">
+                                {item.mediumKo}
+                                {item.mediumEn && <span className="caption-sub"> ({item.mediumEn})</span>}
+                              </div>
+                              <div className="caption-size">{item.size}</div>
+                            </div>
                           </div>
-                        </div>
 
-                        {/* 하단: 재료 및 규격 */}
-                        <div className="caption-meta-box">
-                          <div className="caption-medium">
-                            {item.mediumKo}
-                            {item.mediumEn && <span className="caption-sub"> ({item.mediumEn})</span>}
-                          </div>
-                          <div className="caption-size">{item.size}</div>
+                          {/* 아트페어 가격 태그 (선택 시) */}
+                          {styleMode === 'commercial' && (
+                            <div className="caption-price-tag">
+                              <span>{item.price}</span>
+                              {!item.isNfs && <span className="caption-red-dot" title="판매 가능" />}
+                            </div>
+                          )}
                         </div>
-                      </div>
-
-                      {/* 아트페어 가격 태그 (선택 시) */}
-                      {styleMode === 'commercial' && (
-                        <div className="caption-price-tag">
-                          <span>{item.price}</span>
-                          {!item.isNfs && <span className="caption-red-dot" title="판매 가능" />}
-                        </div>
-                      )}
+                      ))}
                     </div>
-                  ))}
-
-                  {/* 2. 표 형식을 완성하는 A4 빈 슬롯 (8칸 정규격 표 유지) */}
-                  {Array.from({ length: Math.max(0, 8 - captions.length) }).map((_, idx) => (
-                    <div 
-                      key={`empty-slot-${idx}`} 
-                      className="caption-card-item empty-slot"
-                    >
-                      <div className="no-print" style={{ textAlign: 'center', opacity: 0.5 }}>
-                        <span style={{ fontSize: '0.75rem', letterSpacing: '-0.3px' }}>
-                          대기 칸 {captions.length + idx + 1}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           )}
         </div>
