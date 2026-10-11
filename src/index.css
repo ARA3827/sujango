@@ -687,6 +687,122 @@ input, select, textarea {
 }
 
 /* ===================================================================
+   모바일 전용 반응형 최적화 (Mobile Responsive 640px 이하)
+=================================================================== */
+@media (max-width: 640px) {
+  /* 헤더 모바일 최적화 */
+  .header-container {
+    padding: 0.85rem 1rem;
+  }
+  .brand-title {
+    font-size: 1.25rem;
+  }
+  .header-date-badge {
+    display: none; /* 모바일에서 공간 확보 */
+  }
+
+  /* 메인 여백 및 히어로 */
+  .artflow-main {
+    padding: 1.25rem 1rem 3.5rem;
+  }
+  .dashboard-hero {
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.25rem;
+  }
+  .hero-quote {
+    font-size: 1.38rem;
+    line-height: 1.45;
+    word-break: keep-all;
+  }
+  .hero-sub {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    word-break: keep-all;
+  }
+
+  /* 대시보드 통계 및 카드 1열 스택 */
+  .dashboard-stats-strip {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+  .stat-item-box {
+    padding: 1rem;
+  }
+  .stat-value {
+    font-size: 1.25rem;
+  }
+  .tool-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .tool-card {
+    padding: 1.25rem 1.15rem;
+  }
+
+  /* 워크스페이스 상단 및 타이틀 */
+  .workspace-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .workspace-title-area h2 {
+    font-size: 1.4rem;
+  }
+  .workspace-title-area p {
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  /* 탭 가로 스크롤 지원 */
+  .tab-nav {
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    gap: 0.35rem;
+  }
+  .tab-btn {
+    padding: 0.55rem 0.85rem;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+
+  /* 폼 요소: iOS 포커스 줌 방지 (16px) 및 1열 배치 */
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+  }
+  .form-input, .form-select, .form-textarea, .output-editor {
+    font-size: 16px !important; /* iOS Safari 자동 줌인 방지 */
+  }
+  .panel-card {
+    padding: 1.15rem;
+  }
+  .panel-card-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  /* 푸터 세로 정렬 */
+  .footer-inner {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .timer-clock-display {
+    font-size: 3.2rem !important;
+  }
+}
+
+.timer-clock-display {
+  font-size: 4.5rem;
+}
+
+/* ===================================================================
    인쇄 전용 스타일 (Print CSS)
 =================================================================== */
 @media print {

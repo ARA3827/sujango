@@ -190,15 +190,17 @@ export default function FocusStudio({ onBack, onUpdateTimerStatus, onUpdateDdayS
             타이머가 울리면 컴퓨터를 닫고 작업실로 향하세요.
           </p>
 
-          <div style={{
-            fontSize: '4.5rem',
-            fontFamily: 'monospace',
-            fontWeight: 700,
-            letterSpacing: '0.04em',
-            color: timeLeft <= 60 ? '#E11D48' : '#0F172A',
-            margin: '1.5rem 0',
-            userSelect: 'none'
-          }}>
+          <div 
+            className="timer-clock-display"
+            style={{
+              fontFamily: 'monospace',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+              color: timeLeft <= 60 ? '#E11D48' : '#0F172A',
+              margin: '1.25rem 0',
+              userSelect: 'none'
+            }}
+          >
             {formatTime(timeLeft)}
           </div>
 
