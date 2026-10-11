@@ -223,6 +223,7 @@ export default function App() {
                 onBack={handleBack} 
                 onNavigateToCaption={() => navigate('caption')}
                 onOpenPricing={() => setIsPricingModalOpen(true)}
+                user={user}
               />
             )}
           </>

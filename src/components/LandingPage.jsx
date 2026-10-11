@@ -207,10 +207,10 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
               <p className="plan-desc">행정 서류와 기본적인 작품 아카이빙을 위한 무료 플랜</p>
             </div>
             <ul className="plan-features">
-              <li><CheckCircle2 size={16} color="#059669" /> 웹 최적화 규격 자동 압축 보관</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 4대 행정 서류·정산·캡션 도구 지원</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 브라우저 로컬 안전 저장</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 전체 아카이브 JSON 백업 파일 다운로드</li>
+              <li><CheckCircle2 size={16} color="#059669" /> <strong>작품 아카이브 최대 30점</strong> 안전 보관</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 웹 최적화 확인용 압축 (내 PC 브라우저 저장)</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 기기 교체 시 단일 JSON 파일 백업/복원 이동</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 4대 행정 서류·정산·캡션 도구 무제한 지원</li>
             </ul>
             <button onClick={onOpenLogin} className="btn-outline" style={{ width: '100%', marginTop: '1.5rem' }}>
               무료로 시작하기
@@ -229,14 +229,15 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
                 <span className="plan-price-num">4,900</span>
                 <span className="plan-price-unit">원 / 월 (연 49,000원)</span>
               </div>
-              <p className="plan-desc">인스타그램이 사라져도 안전한 무손실 원본 클라우드 금고</p>
+              <p className="plan-desc">어디서든 로그인 동기화 + 100GB 평생 무손실 금고</p>
             </div>
             <ul className="plan-features">
+              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>작품 무제한 등록</strong> (30점 한도 완전 해제)</li>
+              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>PC • 스마트폰 어디서나 로그인 자동 동기화</strong></li>
               <li><CheckCircle2 size={16} color="#059669" /> <strong>100GB 무손실 원본</strong> 클라우드 금고 보관</li>
               <li><CheckCircle2 size={16} color="#059669" /> <strong>99.999999999% 내구성</strong> 3중 분산 백업</li>
               <li><CheckCircle2 size={16} color="#059669" /> 도록·인쇄용 <strong>원본 해상도 즉시 다운로드</strong></li>
               <li><CheckCircle2 size={16} color="#059669" /> 갤러리·컬렉터 전용 <strong>비밀번호 도록 공유 링크</strong></li>
-              <li><CheckCircle2 size={16} color="#059669" /> 30일 무료 체험 제공 (언제든 위약금 없이 해지)</li>
             </ul>
             <button onClick={onOpenPricing} className="btn-primary" style={{ width: '100%', marginTop: '1.5rem' }}>
               👑 Pro 요금제 및 30일 무료체험 안내

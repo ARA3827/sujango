@@ -133,25 +133,25 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
             </div>
 
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.84rem', color: '#0F172A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>출강 강의계획서 & 표준 CV 약력 무제한</span>
+                <span>작품 아카이브 서고 최대 30점 보관</span>
               </li>
               <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>도록용 작가노트 & 인스타 캡션 동시 추출</span>
+                <span>웹 최적화 확인용 압축 보관 (내 PC 브라우저 안전 저장)</span>
+              </li>
+              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#059669" />
+                <span>기기 교체 시 단일 JSON 파일 백업/복원 이동</span>
+              </li>
+              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#059669" />
+                <span>출강 강의계획서 & 표준 CV 약력 & 견적서 무제한</span>
               </li>
               <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
                 <span>전시 캡션 네임택 A4 단일 PDF 일괄 인쇄</span>
-              </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Check size={16} color="#059669" />
-                <span>웹 최적화 확인용 작품 보관 (기기 내 저장)</span>
-              </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Check size={16} color="#059669" />
-                <span>내 컴퓨터 전체 데이터 단일 JSON 백업</span>
               </li>
             </ul>
 
@@ -176,7 +176,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>ArtFlow Pro</h4>
                 <Crown size={16} color="#EAB308" />
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>인스타 해킹에도 안전한 평생 무손실 금고</p>
+              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>어디서든 로그인 동기화 + 100GB 평생 무손실 금고</p>
             </div>
 
             <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '1.25rem' }}>
@@ -187,7 +187,15 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
             </div>
 
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
-              <li style={{ fontSize: '0.84rem', color: '#0F172A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.84rem', color: '#0F172A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#0284C7" />
+                <span>작품 무제한 등록 (30점 한도 완전 해제)</span>
+              </li>
+              <li style={{ fontSize: '0.84rem', color: '#0284C7', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#0284C7" />
+                <span>PC • 스마트폰 • 태블릿 어디서나 로그인 자동 동기화</span>
+              </li>
+              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
                 <span>초고화질 무손실 원본 클라우드 금고 (100GB)</span>
               </li>
@@ -197,15 +205,11 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
               </li>
               <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>대형 전시/도록 인쇄용 원본 언제든 다운로드</span>
+                <span>대형 전시/인쇄/도록용 원본 즉시 다운로드</span>
               </li>
               <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
                 <span>큐레이터·컬렉터 전용 프라이빗 도록 공유 링크</span>
-              </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Check size={16} color="#0284C7" />
-                <span>1인 예술가 전용 1:1 행정/서식 템플릿 우선 지원</span>
               </li>
             </ul>
 

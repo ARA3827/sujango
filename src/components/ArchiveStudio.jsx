@@ -17,7 +17,9 @@ import {
   Sparkles,
   ExternalLink,
   ZoomIn,
-  X
+  X,
+  Crown,
+  AlertCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { 
@@ -29,7 +31,7 @@ import {
 } from '../utils/archiveStorage';
 import { compressImage } from '../utils/imageCompressor';
 
-export default function ArchiveStudio({ onBack, onNavigateToCaption }) {
+export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPricing, user }) {
   const [artworks, setArtworks] = useState(getArtworks);
   const [selectedId, setSelectedId] = useState(() => {
     const list = getArtworks();
@@ -38,6 +40,9 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption }) {
   const [activeTab, setActiveTab] = useState('statement'); // 'statement' | 'insta' | 'blog'
   const [copied, setCopied] = useState(false);
   const [lightboxImage, setLightboxImage] = useState(null);
+
+  // 무료 30점 한도 초과 모달 상태
+  const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
 
   // 모달 상태 (새 작품 등록 / 수정)
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,6 +90,11 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption }) {
 
   // 모달 열기 (새 등록)
   const handleOpenAddModal = () => {
+    // 무료 플랜 30점 한도 검증
+    if (!user?.isPro && artworks.length >= 30) {
+      setIsLimitModalOpen(true);
+      return;
+    }
     setEditingArtwork(null);
     setModalForm({
       title: '',
@@ -249,7 +259,30 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption }) {
 
       {/* 2. 타이틀 영역 */}
       <div className="workspace-title-area" style={{ marginBottom: '1.25rem' }}>
-        <h2>나의 작품 아카이브 서고</h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+          <h2>나의 작품 아카이브 서고</h2>
+          {user?.isPro ? (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', border: '1px solid #BAE6FD', color: '#0369A1', padding: '4px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600 }}>
+              <Crown size={13} color="#0284C7" />
+              <span>Pro 멤버십: 무제한 등록 & 기기 간 실시간 클라우드 동기화 중</span>
+            </div>
+          ) : (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.8rem', color: '#64748B', background: '#F1F5F9', padding: '4px 10px', borderRadius: '999px', fontWeight: 600 }}>
+                📁 무료 보관함: <strong>{artworks.length}</strong> / 30점 (내 PC 저장)
+              </span>
+              <button 
+                onClick={onOpenPricing}
+                className="header-pricing-btn"
+                style={{ fontSize: '0.76rem', padding: '0.28rem 0.65rem' }}
+                title="무제한 등록 및 기기 간 자동 동기화 Pro 플랜 안내"
+              >
+                <Crown size={12} color="#D97706" />
+                <span>무제한 & 클라우드 동기화 Pro</span>
+              </button>
+            </div>
+          )}
+        </div>
         <p>
           인스타그램이나 SNS가 사라져도 안전합니다. 
           작품 사진, 도록용 작가노트, 캡션 명패 규격을 나만의 디지털 금고에 영구히 보관하세요.
@@ -675,6 +708,54 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption }) {
               <X size={24} />
             </button>
             <img src={lightboxImage} alt="작품 크게 보기" />
+          </div>
+        </div>
+      )}
+
+      {/* 7. 무료 30점 한도 도달 안내 모달 */}
+      {isLimitModalOpen && (
+        <div className="modal-backdrop" onClick={() => setIsLimitModalOpen(false)}>
+          <div 
+            className="modal-dialog" 
+            style={{ maxWidth: '480px', padding: '2rem 1.75rem', textAlign: 'center' }} 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#FFFBEB', color: '#D97706', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
+              <Crown size={28} />
+            </div>
+
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>
+              무료 보관 한도(30점)에 도달했습니다
+            </h3>
+
+            <p style={{ fontSize: '0.88rem', color: '#64748B', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+              무료 플랜은 최대 30점까지 브라우저에 안전하게 보관할 수 있습니다.<br />
+              <strong>작품 무제한 등록</strong>과 <strong>PC • 스마트폰 간 실시간 자동 로그인 동기화</strong>, 
+              <strong>100GB 무손실 원본 금고</strong>를 이용하시려면 Pro 멤버십으로 업그레이드해 보세요!
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLimitModalOpen(false);
+                  if (onOpenPricing) onOpenPricing();
+                }}
+                className="btn-primary"
+                style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.92rem' }}
+              >
+                <Crown size={16} color="#EAB308" />
+                <span>👑 Pro 멤버십 안내 및 30일 무료 체험</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsLimitModalOpen(false)}
+                className="btn-outline"
+                style={{ width: '100%', justifyContent: 'center', padding: '0.65rem', color: '#64748B' }}
+              >
+                다음에 하기
+              </button>
+            </div>
           </div>
         </div>
       )}
