@@ -266,7 +266,7 @@ export default function CaptionStudio({ onBack }) {
         pdf.addImage(imgData, 'PNG', posX, posY, renderWidth, renderHeight);
       }
 
-      pdf.save(`[ArtFlow]전시캡션_A4출력용_${new Date().toISOString().split('T')[0]}.pdf`);
+      pdf.save(`[Sujango]전시캡션_A4출력용_${new Date().toISOString().split('T')[0]}.pdf`);
       triggerConfetti();
     } catch (err) {
       console.error('A4 PDF 생성 실패:', err);

@@ -25,7 +25,7 @@ export default function PolicyModal({ isOpen, onClose, initialTab = 'terms' }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ShieldCheck size={20} color="#0F172A" />
             <h3 style={{ fontSize: '1.15rem', margin: 0, fontFamily: 'var(--font-serif)' }}>
-              ArtFlow 서비스 정책 및 법적 고지
+              Sujango (수장고) 서비스 정책 및 법적 고지
             </h3>
           </div>
           <button onClick={onClose} className="modal-close-btn">
@@ -89,7 +89,7 @@ export default function PolicyModal({ isOpen, onClose, initialTab = 'terms' }) {
         {/* 푸터 */}
         <div style={{ padding: '0.85rem 1.5rem', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '0 0 var(--radius-lg) var(--radius-lg)' }}>
           <span style={{ fontSize: '0.78rem', color: '#64748B' }}>
-            운영사: Ara Agent Lab (대표: '주'누나)
+            운영사: Ara Agent Lab | sujango.com
           </span>
           <button onClick={onClose} className="btn-primary" style={{ width: 'auto', padding: '0.45rem 1.25rem', fontSize: '0.85rem' }}>
             확인 및 닫기

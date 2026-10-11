@@ -98,7 +98,7 @@ export function exportArchiveBackup() {
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = `ArtFlow_작품아카이브_백업_${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `Sujango_작품수장고_백업_${new Date().toISOString().split('T')[0]}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -116,7 +116,7 @@ export function importArchiveBackup(file) {
           saveArtworks(parsed);
           resolve(parsed);
         } else {
-          reject(new Error('올바른 ArtFlow 백업 파일 형식이 아닙니다.'));
+          reject(new Error('올바른 Sujango 백업 파일 형식이 아닙니다.'));
         }
       } catch (err) {
         reject(err);

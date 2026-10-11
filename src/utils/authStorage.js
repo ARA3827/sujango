@@ -4,7 +4,7 @@ export const DEMO_USER = {
   id: 'user-ara',
   name: '김아라',
   role: '서양화가 / 회화 작가',
-  email: 'ara.kim@artflow.studio',
+  email: 'ara.kim@sujango.com',
   isPro: true,
   membership: 'Pro Artist',
   avatarUrl: ''

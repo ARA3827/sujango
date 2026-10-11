@@ -278,7 +278,7 @@ export default function App() {
                 onClick={() => setIsPricingModalOpen(true)} 
                 style={{ background: 'none', border: 'none', color: '#0284C7', fontWeight: 600, cursor: 'pointer', padding: 0, fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
               >
-                <Crown size={12} /> Pro 멤버십 안내
+                <Crown size={12} /> Sujango Pro 요금제 안내
               </button>
             </div>
             
@@ -289,7 +289,7 @@ export default function App() {
                 onClick={() => handleOpenPolicy('terms')}
                 style={{ background: 'none', border: 'none', color: '#475569', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.78rem' }}
               >
-                서비스 이용약관
+                Sujango 이용약관
               </button>
               <span>•</span>
               <button 
@@ -303,7 +303,7 @@ export default function App() {
                 onClick={() => handleOpenPolicy('refund')}
                 style={{ background: 'none', border: 'none', color: '#475569', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.78rem' }}
               >
-                구독 및 환불 규정
+                Sujango Pro 구독 및 환불 규정
               </button>
             </div>
           </div>
