@@ -429,11 +429,20 @@ export default function CaptionStudio({ onBack }) {
 
             {/* 재료 및 기법 - 표준 영문 자동 완성 프리셋 */}
             <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                <label className="form-label" style={{ margin: 0 }}>재료 및 기법 (국문)</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginBottom: '0.4rem' }}>
+                <label className="form-label" style={{ margin: 0, whiteSpace: 'nowrap', flexShrink: 0 }}>재료 및 기법 (국문)</label>
                 <select 
                   className="form-select" 
-                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', width: 'auto', border: '1px solid #CBD5E1', borderRadius: '4px', background: '#F8FAFC', cursor: 'pointer' }}
+                  style={{ 
+                    fontSize: '0.78rem', 
+                    padding: '0.25rem 0.5rem', 
+                    maxWidth: '210px', 
+                    border: '1px solid #CBD5E1', 
+                    borderRadius: '4px', 
+                    background: '#F8FAFC', 
+                    cursor: 'pointer',
+                    color: '#334155'
+                  }}
                   onChange={(e) => {
                     if (!e.target.value) return;
                     const preset = MATERIAL_PRESETS.find(p => p.ko === e.target.value);
@@ -443,7 +452,7 @@ export default function CaptionStudio({ onBack }) {
                   }}
                   value=""
                 >
-                  <option value="" disabled>⚡ 14대 표준 재료 전체보기...</option>
+                  <option value="" disabled>⚡ 14대 표준 재료 선택...</option>
                   {MATERIAL_PRESETS.map((p, idx) => (
                     <option key={idx} value={p.ko}>{p.ko} ({p.en})</option>
                   ))}
