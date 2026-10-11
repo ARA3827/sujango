@@ -124,10 +124,11 @@ export default function CaptionStudio({ onBack }) {
     try {
       setIsGeneratingPdf(true);
       
-      // 1. 순수 A4 종이 영역만 초고해상도로 캡처 (화면용 회색 테두리 및 그림자 제거)
+      // 1. 순수 A4 종이 영역만 초고해상도로 캡처 (화면용 회색 테두리 및 그림자 제거, 폰트 CORS 에러 방지)
       const imgData = await toPng(a4SheetRef.current, {
         pixelRatio: 3, // 인쇄소급 300DPI 초고해상도
         backgroundColor: '#FFFFFF',
+        skipFonts: true, // 외부 구글폰트/CDN의 CORS SecurityError 및 폰트 메트릭 왜곡 원천 차단
         style: {
           border: 'none',
           boxShadow: 'none',
