@@ -44,23 +44,8 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             ✨ 무료로 내 수장고 시작하기
           </button>
           <button onClick={onExploreGuest} className="btn-outline" style={{ padding: '0.85rem 1.5rem', fontSize: '0.95rem' }}>
-            👀 대시보드 바로 둘러보기
+            👀 수장고 둘러보기
           </button>
-        </div>
-
-        <div className="landing-trust-strip">
-          <div className="trust-item">
-            <CheckCircle2 size={16} color="#059669" />
-            <span>회원가입 없이 즉시 체험 가능</span>
-          </div>
-          <div className="trust-item">
-            <ShieldCheck size={16} color="#059669" />
-            <span>외부 서버 전송 없는 내 기기 프라이빗 저장</span>
-          </div>
-          <div className="trust-item">
-            <Download size={16} color="#059669" />
-            <span>언제든 전체 데이터 단일 파일 백업</span>
-          </div>
         </div>
       </section>
 
