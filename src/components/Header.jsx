@@ -1,7 +1,15 @@
 import React from 'react';
-import { Palette, Sparkles } from 'lucide-react';
+import { Palette, Sparkles, User, LogOut, LogIn, Eye } from 'lucide-react';
 
-export default function Header({ currentView, onGoHome }) {
+export default function Header({ 
+  currentView, 
+  onGoHome, 
+  user, 
+  onOpenLogin, 
+  onLogout,
+  isGuestExploring,
+  onExitGuest
+}) {
   const today = new Date();
   const dateStr = today.toLocaleDateString('ko-KR', {
     year: 'numeric',
@@ -13,6 +21,7 @@ export default function Header({ currentView, onGoHome }) {
   return (
     <header className="artflow-header">
       <div className="header-container">
+        {/* 좌측 브랜드 로고 */}
         <div className="brand-wrapper" onClick={onGoHome} role="button" tabIndex={0}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Palette size={22} strokeWidth={2.2} color="#0F172A" />
@@ -21,15 +30,67 @@ export default function Header({ currentView, onGoHome }) {
           <span className="brand-badge">Ara Agent Lab</span>
         </div>
 
+        {/* 우측 사용자 컨트롤 & 상태 표시 */}
         <div className="header-actions">
           <span className="header-date-badge">{dateStr}</span>
-          {currentView !== 'dashboard' && (
+
+          {/* 게스트 체험 중 안내 뱃지 */}
+          {isGuestExploring && !user && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span className="guest-badge">
+                <Eye size={12} /> 둘러보기(게스트) 모드
+              </span>
+              <button 
+                onClick={onExitGuest}
+                className="btn-outline"
+                style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+                title="서비스 소개 랜딩 페이지로 돌아가기"
+              >
+                소개 페이지로
+              </button>
+            </div>
+          )}
+
+          {/* 2-Depth 세부 화면에서 홈 복귀 버튼 */}
+          {currentView !== 'dashboard' && currentView !== 'landing' && (
             <button 
               onClick={onGoHome}
               className="btn-outline"
-              style={{ padding: '0.4rem 0.8rem', fontSize: '0.82rem' }}
+              style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}
             >
               ← 대시보드 홈
+            </button>
+          )}
+
+          {/* 로그인 상태에 따른 프로필 / 로그인 버튼 */}
+          {user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="user-profile-badge">
+                <div className="user-avatar-circle">
+                  {user.name.charAt(0)}
+                </div>
+                <div className="user-info-text">
+                  <span className="user-name">{user.name} 작가님</span>
+                  <span className="user-role">{user.membership || 'Pro'}</span>
+                </div>
+              </div>
+              <button 
+                onClick={onLogout}
+                className="btn-outline"
+                style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem', color: '#64748B' }}
+                title="로그아웃"
+              >
+                <LogOut size={13} />
+                <span className="hide-mobile">로그아웃</span>
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={onOpenLogin}
+              className="btn-primary"
+              style={{ padding: '0.4rem 0.9rem', fontSize: '0.82rem', width: 'auto' }}
+            >
+              <LogIn size={14} /> 로그인 / 시작하기
             </button>
           )}
         </div>

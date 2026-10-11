@@ -7,8 +7,17 @@ import TaxStudio from './components/TaxStudio';
 import CaptionStudio from './components/CaptionStudio';
 import ArchiveStudio from './components/ArchiveStudio';
 import NewToolModal from './components/NewToolModal';
+import LandingPage from './components/LandingPage';
+import LoginModal from './components/LoginModal';
+import { getStoredUser, saveUser, DEMO_USER } from './utils/authStorage';
+import { UserCheck, UserX, Sparkles } from 'lucide-react';
 
 export default function App() {
+  // 인증 상태 관리 (기본값: getStoredUser() 또는 null)
+  const [user, setUser] = useState(getStoredUser);
+  const [isGuestExploring, setIsGuestExploring] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
   // 브라우저 Hash 기반 URL 파싱 (뒤로가기 완벽 연동)
   const getViewFromHash = () => {
     const hash = window.location.hash.replace('#', '');
@@ -50,7 +59,22 @@ export default function App() {
     } catch (e) {}
   }, [currentView]);
 
-  // 네비게이션 함수: 브라우저 History와 연동하여 뒤로가기 클릭 시 웹사이트 밖으로 튕김 원천 차단
+  // 로그인 성공 처리
+  const handleLoginSuccess = (loggedInUser) => {
+    setUser(loggedInUser);
+    saveUser(loggedInUser);
+    setIsGuestExploring(false);
+  };
+
+  // 로그아웃 처리
+  const handleLogout = () => {
+    setUser(null);
+    saveUser(null);
+    setIsGuestExploring(false);
+    navigate('dashboard');
+  };
+
+  // 네비게이션 함수
   const navigate = (viewId) => {
     if (viewId === 'dashboard') {
       if (window.location.hash) {
@@ -66,57 +90,135 @@ export default function App() {
 
   const handleBack = () => {
     if (window.location.hash) {
-      window.history.back(); // 브라우저 이전 히스토리로 돌아가기
+      window.history.back();
     } else {
       navigate('dashboard');
     }
   };
 
+  // 비로그인 상태이고 둘러보기 모드가 아닐 때 ➔ 랜딩 페이지 표시
+  const showLanding = !user && !isGuestExploring;
+
   return (
     <div className="artflow-app">
+      {/* 🧪 간편 테스트 모드 스위처 바 */}
+      <aside className="auth-mode-test-bar" aria-label="테스트 모드 스위처">
+        <div className="test-bar-inner">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="test-bar-label">모드 전환 테스트:</span>
+            {user ? (
+              <span className="test-badge logged-in">
+                <UserCheck size={13} /> 로그인 상태 ({user.name} 작가님)
+              </span>
+            ) : isGuestExploring ? (
+              <span className="test-badge guest">
+                <Sparkles size={13} /> 비로그인 (둘러보기 모드)
+              </span>
+            ) : (
+              <span className="test-badge logged-out">
+                <UserX size={13} /> 비로그인 (서비스 소개 랜딩)
+              </span>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {user ? (
+              <button 
+                onClick={handleLogout}
+                className="test-toggle-btn"
+                title="비로그인 상태(랜딩 페이지)로 전환"
+              >
+                비로그인 화면 보기
+              </button>
+            ) : (
+              <>
+                <button 
+                  onClick={() => handleLoginSuccess(DEMO_USER)}
+                  className="test-toggle-btn primary"
+                  title="김아라 작가로 로그인한 화면 보기"
+                >
+                  로그인 화면 보기 (김아라)
+                </button>
+                {showLanding && (
+                  <button 
+                    onClick={() => setIsGuestExploring(true)}
+                    className="test-toggle-btn"
+                  >
+                    대시보드 둘러보기
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </aside>
+
       {/* 글로벌 헤더 */}
       <Header 
-        currentView={currentView} 
+        currentView={showLanding ? 'landing' : currentView} 
         onGoHome={handleBack} 
+        user={user}
+        onOpenLogin={() => setIsLoginModalOpen(true)}
+        onLogout={handleLogout}
+        isGuestExploring={isGuestExploring}
+        onExitGuest={() => setIsGuestExploring(false)}
       />
 
-      {/* 메인 뷰 컨테이너 (2-Depth 전환) */}
+      {/* 메인 뷰 컨테이너 */}
       <main className="artflow-main">
-        {currentView === 'dashboard' && (
-          <Dashboard 
-            onSelectView={(viewId) => navigate(viewId)}
-            taxSummary={taxSummary}
-            captionCount={captionCount}
-            onOpenNewToolModal={() => setIsNewToolModalOpen(true)}
+        {showLanding ? (
+          /* 비로그인: 서비스 소개 및 쇼케이스 랜딩 페이지 */
+          <LandingPage 
+            onOpenLogin={() => setIsLoginModalOpen(true)}
+            onExploreGuest={() => setIsGuestExploring(true)}
           />
-        )}
+        ) : (
+          /* 로그인 또는 게스트 둘러보기: 실제 2-Depth 올인원 워크스페이스 */
+          <>
+            {currentView === 'dashboard' && (
+              <Dashboard 
+                onSelectView={(viewId) => navigate(viewId)}
+                taxSummary={taxSummary}
+                captionCount={captionCount}
+                onOpenNewToolModal={() => setIsNewToolModalOpen(true)}
+              />
+            )}
 
-        {currentView === 'doc' && (
-          <DocStudio onBack={handleBack} />
-        )}
+            {currentView === 'doc' && (
+              <DocStudio onBack={handleBack} />
+            )}
 
-        {currentView === 'statement' && (
-          <StatementStudio onBack={handleBack} />
-        )}
+            {currentView === 'statement' && (
+              <StatementStudio onBack={handleBack} />
+            )}
 
-        {currentView === 'tax' && (
-          <TaxStudio 
-            onBack={handleBack} 
-            onUpdateSummary={(summary) => setTaxSummary(summary)}
-          />
-        )}
+            {currentView === 'tax' && (
+              <TaxStudio 
+                onBack={handleBack} 
+                onUpdateSummary={(summary) => setTaxSummary(summary)}
+              />
+            )}
 
-        {currentView === 'caption' && (
-          <CaptionStudio onBack={handleBack} />
-        )}
+            {currentView === 'caption' && (
+              <CaptionStudio onBack={handleBack} />
+            )}
 
-        {currentView === 'archive' && (
-          <ArchiveStudio 
-            onBack={handleBack} 
-            onNavigateToCaption={() => navigate('caption')}
-          />
+            {currentView === 'archive' && (
+              <ArchiveStudio 
+                onBack={handleBack} 
+                onNavigateToCaption={() => navigate('caption')}
+              />
+            )}
+          </>
         )}
       </main>
+
+      {/* 로그인 모달 */}
+      <LoginModal 
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
 
       {/* 새 도구 아이디어 상자 모달 */}
       <NewToolModal 
