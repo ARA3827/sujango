@@ -83,7 +83,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest }) {
           </div>
           <ul className="comparison-list">
             <li>✅ <strong>SNS가 폭파되어도 안전한</strong> 작가 본인 소유의 영구 디지털 서고</li>
-            <li>✅ 20MB 고화질 사진도 <strong>0.2초 만에 웹 최적화로 자동 다이어트 압축</strong></li>
+            <li>✅ 20MB 고화질 사진도 <strong>웹 최적화로 가볍게 자동 다이어트 압축</strong></li>
             <li>✅ 작품 사진을 누르면 <strong>도록용 작가노트와 미술관 캡션 명패가 한눈에</strong></li>
             <li>✅ 클릭 한 번으로 <strong>전체 데이터를 내 PC에 파일로 안전하게 백업</strong></li>
           </ul>
@@ -174,7 +174,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest }) {
               로그인하면 모든 도구를 제한 없이 이용하고 나만의 작품 기록장을 만들 수 있습니다.
             </p>
             <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: '#0284C7' }}>
-              <span>1초 만에 무료 시작</span>
+              <span>간편하게 무료 시작</span>
               <ArrowRight size={16} />
             </div>
           </div>

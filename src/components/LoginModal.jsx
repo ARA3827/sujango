@@ -92,7 +92,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Sparkles size={16} color="#38BDF8" />
-              <span>김아라 작가 계정으로 1초 입장</span>
+              <span>김아라 작가 계정으로 바로 입장</span>
             </div>
             <ArrowRight size={16} />
           </button>
