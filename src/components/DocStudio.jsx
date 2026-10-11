@@ -11,6 +11,7 @@ export default function DocStudio({ onBack }) {
     courseName: '나만의 색을 찾는 현대 유화 & 아크릴 기초',
     target: '성인취미',
     duration: '4주',
+    classTime: '매주 토요일 14:00 ~ 16:00', // 수업 시간대 (몇 시 수업인지)
     sessionMinutes: '120',
     materialsBudget: '25,000',
     genre: '서양화 (유화/아크릴)',
@@ -60,6 +61,7 @@ export default function DocStudio({ onBack }) {
 • 강좌명: ${lectureForm.courseName}
 • 예술 장르: ${lectureForm.genre}
 • 교육 대상: ${lectureForm.target}
+• 수업 시간: ${lectureForm.classTime || '협의 후 결정 (예: 매주 토요일 14:00 ~ 16:00)'}
 • 총 교육 기간: ${lectureForm.duration} (회당 ${lectureForm.sessionMinutes}분)
 • 1인당 재료비: ${lectureForm.materialsBudget}원
 • 담당 강사: ${lectureForm.instructorName}
@@ -263,6 +265,38 @@ ${cvForm.collections.trim()}
                   <option value="8주">8주 심화 아카데미</option>
                   <option value="12주">12주 학기제 강좌</option>
                 </select>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                <label className="form-label" style={{ margin: 0 }}>수업 시간 (요일 및 몇 시 수업인지)</label>
+                <span style={{ fontSize: '0.75rem', color: '#64748B' }}>예: 매주 토요일 14:00 ~ 16:00</span>
+              </div>
+              <input 
+                type="text" 
+                className="form-input" 
+                placeholder="예: 매주 토요일 14:00 ~ 16:00 (오후 2시 ~ 4시)"
+                value={lectureForm.classTime}
+                onChange={(e) => setLectureForm({...lectureForm, classTime: e.target.value})}
+              />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '0.45rem' }}>
+                {[
+                  '매주 토요일 14:00 ~ 16:00',
+                  '평일 오전 10:00 ~ 12:00',
+                  '평일 오후 14:00 ~ 16:00',
+                  '평일 저녁 19:00 ~ 21:00',
+                  '일요일 오전 10:30 ~ 12:30'
+                ].map((timePreset, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="tag-chip"
+                    onClick={() => setLectureForm({...lectureForm, classTime: timePreset})}
+                  >
+                    + {timePreset}
+                  </button>
+                ))}
               </div>
             </div>
 
