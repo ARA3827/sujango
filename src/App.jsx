@@ -4,24 +4,26 @@ import Dashboard from './components/Dashboard';
 import DocStudio from './components/DocStudio';
 import StatementStudio from './components/StatementStudio';
 import TaxStudio from './components/TaxStudio';
-import FocusStudio from './components/FocusStudio';
+import CaptionStudio from './components/CaptionStudio';
 import NewToolModal from './components/NewToolModal';
 
 export default function App() {
   // 브라우저 Hash 기반 URL 파싱 (뒤로가기 완벽 연동)
   const getViewFromHash = () => {
     const hash = window.location.hash.replace('#', '');
-    const validViews = ['doc', 'statement', 'tax', 'focus'];
+    const validViews = ['doc', 'statement', 'tax', 'caption'];
     return validViews.includes(hash) ? hash : 'dashboard';
   };
 
   const [currentView, setCurrentView] = useState(getViewFromHash);
   const [taxSummary, setTaxSummary] = useState({ totalIncome: 0, pendingAmount: 1200000 });
-  const [ddaySummary, setDdaySummary] = useState({ 
-    nextDday: { title: '시민 아카데미 4주차 출강 강의계획서 제출' }, 
-    daysLeft: 9 
+  const [captionCount, setCaptionCount] = useState(() => {
+    try {
+      const saved = localStorage.getItem('artflow_captions');
+      if (saved) return JSON.parse(saved).length;
+    } catch (e) {}
+    return 3;
   });
-  const [timerDone, setTimerDone] = useState(false);
   const [isNewToolModalOpen, setIsNewToolModalOpen] = useState(false);
 
   // 브라우저 뒤로가기 / 앞으로가기 (popstate) 이벤트 감지
@@ -39,11 +41,18 @@ export default function App() {
     };
   }, []);
 
+  // 캡션 수 실시간 동기화
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('artflow_captions');
+      if (saved) setCaptionCount(JSON.parse(saved).length);
+    } catch (e) {}
+  }, [currentView]);
+
   // 네비게이션 함수: 브라우저 History와 연동하여 뒤로가기 클릭 시 웹사이트 밖으로 튕김 원천 차단
   const navigate = (viewId) => {
     if (viewId === 'dashboard') {
       if (window.location.hash) {
-        // 브라우저 히스토리 뒤로가기 지원
         window.history.pushState(null, '', window.location.pathname + window.location.search);
       }
       setCurrentView('dashboard');
@@ -76,8 +85,7 @@ export default function App() {
           <Dashboard 
             onSelectView={(viewId) => navigate(viewId)}
             taxSummary={taxSummary}
-            ddaySummary={ddaySummary}
-            timerDone={timerDone}
+            captionCount={captionCount}
             onOpenNewToolModal={() => setIsNewToolModalOpen(true)}
           />
         )}
@@ -97,12 +105,8 @@ export default function App() {
           />
         )}
 
-        {currentView === 'focus' && (
-          <FocusStudio 
-            onBack={handleBack} 
-            onUpdateTimerStatus={(status) => setTimerDone(status)}
-            onUpdateDdaySummary={(summary) => setDdaySummary(summary)}
-          />
+        {currentView === 'caption' && (
+          <CaptionStudio onBack={handleBack} />
         )}
       </main>
 

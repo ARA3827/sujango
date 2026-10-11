@@ -803,10 +803,144 @@ input, select, textarea {
 }
 
 /* ===================================================================
+   전시 캡션 네임택 스타일 (Caption Studio)
+=================================================================== */
+.caption-print-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .caption-print-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.caption-card-item {
+  background: #FFFFFF;
+  border: 1px dashed #CBD5E1;
+  border-radius: var(--radius-sm);
+  padding: 1.25rem 1.5rem;
+  position: relative;
+  page-break-inside: avoid;
+  transition: all var(--transition-fast);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.caption-card-item:hover {
+  border-color: #0F172A;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 1. 클래식 미술관형 (명조) */
+.caption-card-item.classic {
+  font-family: var(--font-serif);
+}
+
+.caption-card-item.classic .caption-title-ko {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 0.2rem;
+}
+
+/* 2. 모던 미니멀형 (산세리프) */
+.caption-card-item.modern {
+  font-family: var(--font-sans);
+}
+
+.caption-card-item.modern .caption-title-ko {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 0.2rem;
+}
+
+.caption-card-header {
+  margin-bottom: 0.5rem;
+}
+
+.caption-artist-ko {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin-right: 0.5rem;
+}
+
+.caption-artist-en {
+  font-size: 0.82rem;
+  color: #64748B;
+  font-style: italic;
+}
+
+.caption-year {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: #64748B;
+  margin-left: 0.5rem;
+}
+
+.caption-title-en {
+  font-size: 0.85rem;
+  color: #64748B;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+
+.caption-meta-box {
+  font-size: 0.84rem;
+  color: #334155;
+  line-height: 1.5;
+  margin-top: 0.35rem;
+}
+
+.caption-meta-box .caption-sub {
+  color: #64748B;
+  font-size: 0.8rem;
+}
+
+.caption-size {
+  font-size: 0.82rem;
+  color: #64748B;
+  margin-top: 0.15rem;
+}
+
+.caption-price-tag {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #F1F5F9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #0F172A;
+}
+
+.caption-red-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #E11D48;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.caption-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #F8FAFC;
+}
+
+/* ===================================================================
    인쇄 전용 스타일 (Print CSS)
 =================================================================== */
 @media print {
-  .artflow-header, .artflow-footer, .workspace-top-bar, .panel-card:not(.printable), .btn-primary, .btn-outline, .tab-nav {
+  .artflow-header, .artflow-footer, .workspace-top-bar, .panel-card.no-print, .btn-primary, .btn-outline, .tab-nav, .no-print {
     display: none !important;
   }
   body, .artflow-app, .artflow-main {
@@ -814,11 +948,22 @@ input, select, textarea {
     padding: 0 !important;
     margin: 0 !important;
   }
-  .printable {
+  .printable, .printable-caption-container {
     box-shadow: none !important;
     border: none !important;
     width: 100% !important;
     padding: 0 !important;
+    background: transparent !important;
+  }
+  .caption-print-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.5cm !important;
+    padding: 0.5cm !important;
+  }
+  .caption-card-item {
+    border: 0.5pt dashed #94A3B8 !important; /* 가위/칼 자르기용 절취선 */
+    box-shadow: none !important;
+    padding: 1.2cm 1.4cm !important;
   }
   .output-box {
     border: none !important;

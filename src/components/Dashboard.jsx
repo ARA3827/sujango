@@ -3,19 +3,17 @@ import {
   FileText, 
   PenTool, 
   Receipt, 
-  Calendar, 
+  Tag, 
   Plus, 
   ArrowRight,
-  Clock,
-  CheckCircle2,
-  AlertCircle
+  Layers,
+  Sparkles
 } from 'lucide-react';
 
 export default function Dashboard({ 
   onSelectView, 
   taxSummary = { totalIncome: 0, pendingAmount: 0 },
-  ddaySummary = { nextDday: null, daysLeft: null },
-  timerDone = false,
+  captionCount = 3,
   onOpenNewToolModal
 }) {
   const tools = [
@@ -32,7 +30,7 @@ export default function Dashboard({
       title: '작가노트 & SNS OSMU',
       tag: '원소스 멀티유즈',
       icon: <PenTool size={22} />,
-      desc: '작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그, 블로그 후기를 동시에 추출합니다.',
+      desc: '작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그, 블로그 후기를 동시에 추출하고 직접 수정합니다.',
       actionText: '콘텐츠 생성하기'
     },
     {
@@ -44,12 +42,12 @@ export default function Dashboard({
       actionText: '장부 확인하기'
     },
     {
-      id: 'focus',
-      title: '창작 몰입 & 마감 캘린더',
-      tag: '루틴 & D-Day',
-      icon: <Calendar size={22} />,
-      desc: '공모전/전시 마감 D-Day를 한눈에 파악하고, 행정 업무를 하루 15분 만에 끝내는 타임박스 타이머로 창작 몰입을 지킵니다.',
-      actionText: '일정/타이머 보기'
+      id: 'caption',
+      title: '전시 캡션 네임택 출력기',
+      tag: '전시 & 아트페어',
+      icon: <Tag size={22} />,
+      desc: '작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고, 자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.',
+      actionText: '캡션 명패 만들기'
     }
   ];
 
@@ -62,7 +60,7 @@ export default function Dashboard({
           서류, 세금, SNS 행정은 아트플로우가 대신합니다.
         </h1>
         <p className="hero-sub">
-          복잡한 로그인과 API 연동 없이, 1인 창작자에게 꼭 필요한 도구를 한곳에서 1초 만에 복사하여 활용하세요.
+          복잡한 로그인과 API 연동 없이, 1인 창작자에게 꼭 필요한 도구를 한곳에서 1초 만에 복사하고 출력하세요.
         </p>
       </section>
 
@@ -78,33 +76,23 @@ export default function Dashboard({
           </div>
         </div>
 
-        <div className="stat-item-box" onClick={() => onSelectView('focus')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">가장 빠른 마감 D-Day</div>
-          <div className="stat-value" style={{ color: ddaySummary.daysLeft !== null && ddaySummary.daysLeft <= 3 ? '#E11D48' : '#111827' }}>
-            {ddaySummary.daysLeft !== null 
-              ? (ddaySummary.daysLeft === 0 ? 'D-Day 오늘!' : ddaySummary.daysLeft > 0 ? `D-${ddaySummary.daysLeft}` : `D+${Math.abs(ddaySummary.daysLeft)} 지남`)
-              : '등록된 일정 없음'}
+        <div className="stat-item-box" onClick={() => onSelectView('caption')} style={{ cursor: 'pointer' }}>
+          <div className="stat-label">준비된 전시 캡션 명패</div>
+          <div className="stat-value" style={{ color: '#0F172A' }}>
+            {captionCount}점 보관 중
           </div>
           <div className="stat-sub">
-            {ddaySummary.nextDday ? ddaySummary.nextDday.title : '새 마감 일정 추가 가능'}
+            A4 절취선 일괄 인쇄 준비 완료
           </div>
         </div>
 
-        <div className="stat-item-box" onClick={() => onSelectView('focus')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">오늘의 15분 행정 타임박스</div>
-          <div className="stat-value" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {timerDone ? (
-              <span style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <CheckCircle2 size={20} /> 완료
-              </span>
-            ) : (
-              <span style={{ color: '#4B5563', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Clock size={20} /> 미실시
-              </span>
-            )}
+        <div className="stat-item-box" onClick={() => onSelectView('doc')} style={{ cursor: 'pointer' }}>
+          <div className="stat-label">행정 서류 원클릭 빌더</div>
+          <div className="stat-value" style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Layers size={20} /> 서류 3종 지원
           </div>
           <div className="stat-sub">
-            {timerDone ? '창작 모드로 전환 완료' : '하루 15분만 서류 정리하기'}
+            강의계획서 • 작가 CV • 간이 견적서
           </div>
         </div>
       </div>
