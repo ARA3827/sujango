@@ -55,7 +55,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           </div>
           <div className="trust-item">
             <ShieldCheck size={16} color="#059669" />
-            <span>내 컴퓨터에 100% 안전 저장 (개인정보 유출 제로)</span>
+            <span>외부 서버 전송 없는 내 기기 프라이빗 저장</span>
           </div>
           <div className="trust-item">
             <Download size={16} color="#059669" />
@@ -253,7 +253,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           </div>
           <div className="legal-shield-grid">
             <div className="shield-item">
-              <div className="shield-item-title">⚖️ 100% 작가 저작권 보호</div>
+              <div className="shield-item-title">⚖️ 작가 저작권 전액 귀속 원칙</div>
               <p className="shield-item-desc">
                 업로드된 모든 작품 이미지와 작가노트의 지식재산권은 전적으로 작가 본인에게 귀속되며 상업적으로 이용되지 않습니다.
               </p>
