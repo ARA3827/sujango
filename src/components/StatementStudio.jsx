@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
-import { Copy, Check, Sparkles, Camera, BookOpen, Share2 } from 'lucide-react';
+import { 
+  Copy, 
+  Check, 
+  Sparkles, 
+  Camera, 
+  BookOpen, 
+  Share2, 
+  Edit3, 
+  Eye, 
+  RotateCcw 
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function StatementStudio({ onBack }) {
   const [activeTab, setActiveTab] = useState('statement'); // 'statement' | 'insta' | 'blog'
   const [copied, setCopied] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false); // 수정 모드 토글 (선택사항)
 
   // 입력 상태
   const [artwork, setArtwork] = useState({
@@ -16,8 +27,15 @@ export default function StatementStudio({ onBack }) {
     inspiration: '비 내린 다음 날 이른 새벽, 작업실 창가에 드리운 푸른 그림자와 어둠을 가르는 미세한 빛의 경계에서 시작되었습니다.'
   });
 
-  // 결과물 상태
+  // 현재 편집 가능한 결과물 상태
   const [results, setResults] = useState({
+    statement: '',
+    insta: '',
+    blog: ''
+  });
+
+  // 최초 생성된 AI 초안 보관용 (초안 복원 기능)
+  const [originalResults, setOriginalResults] = useState({
     statement: '',
     insta: '',
     blog: ''
@@ -79,13 +97,34 @@ ${hashtags}`;
 그림은 제 손을 떠나는 순간부터 관람객 여러분의 것이 된다고 믿습니다. 
 이 작품 앞에 섰을 때, 하루의 분주함을 잠시 내려놓고 깊은 고요와 위로를 느끼실 수 있기를 진심으로 바랍니다.`;
 
-    setResults({
+    const generated = {
       statement: statementText,
       insta: instaText,
       blog: blogText
-    });
+    };
 
+    setResults(generated);
+    setOriginalResults(generated);
     triggerConfetti();
+  };
+
+  // 실시간 텍스트 수정 핸들러
+  const handleTextChange = (newVal) => {
+    setResults(prev => ({
+      ...prev,
+      [activeTab]: newVal
+    }));
+  };
+
+  // 원본 초안으로 되돌리기
+  const handleResetToOriginal = () => {
+    if (!originalResults[activeTab]) return;
+    if (window.confirm('AI가 생성했던 최초 초안으로 되돌리시겠습니까? (수정한 내용은 지워집니다)')) {
+      setResults(prev => ({
+        ...prev,
+        [activeTab]: originalResults[activeTab]
+      }));
+    }
   };
 
   const handleCopy = (text) => {
@@ -108,6 +147,10 @@ ${hashtags}`;
     }
   };
 
+  // 현재 텍스트 및 수정 여부 판별
+  const currentText = results[activeTab] || '';
+  const isModified = originalResults[activeTab] && results[activeTab] !== originalResults[activeTab];
+
   return (
     <div className="workspace-wrapper">
       <div className="workspace-top-bar">
@@ -118,7 +161,7 @@ ${hashtags}`;
 
       <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
         <h2>작가노트 & SNS OSMU 스튜디오</h2>
-        <p>작품 키워드 3개만 넣으세요. 도록용 미술평론 작가노트, 인스타그램 감성 피드, 블로그 제작 후기로 즉시 변환해 드립니다.</p>
+        <p>작품 키워드 3개만 넣으세요. 도록용 미술평론 작가노트, 인스타그램 감성 피드, 블로그 제작 후기로 즉시 변환하고 자유롭게 다듬을 수 있습니다.</p>
       </div>
 
       <div className="workspace-grid">
@@ -194,8 +237,9 @@ ${hashtags}`;
           </button>
         </div>
 
-        {/* 출력 패널 */}
+        {/* 출력 및 수정 패널 */}
         <div className="panel-card">
+          {/* 상단 탭 내비게이션 */}
           <div className="tab-nav" style={{ marginBottom: '1rem' }}>
             <button 
               className={`tab-btn ${activeTab === 'statement' ? 'active' : ''}`}
@@ -220,32 +264,128 @@ ${hashtags}`;
             </button>
           </div>
 
-          <div className="panel-card-title">
-            <span>
-              {activeTab === 'statement' && '미술평론풍 작가노트 (도록/공모전 제출용)'}
-              {activeTab === 'insta' && '인스타그램 줄바꿈 캡션 + 추천 해시태그 20선'}
-              {activeTab === 'blog' && '블로그 / 뉴스레터 비하인드 스토리'}
-            </span>
-            {results[activeTab] && (
-              <button 
-                className={`btn-subtle-copy ${copied ? 'copied' : ''}`}
-                onClick={() => handleCopy(results[activeTab])}
-              >
-                {copied ? <Check size={14} /> : <Copy size={14} />}
-                {copied ? '복사 완료!' : '전체 1초 복사'}
-              </button>
+          {/* 타이틀 및 액션 컨트롤 바 */}
+          <div className="panel-card-title" style={{ flexWrap: 'wrap', gap: '8px' }}>
+            <div>
+              <span>
+                {activeTab === 'statement' && '미술평론풍 작가노트'}
+                {activeTab === 'insta' && '인스타그램 캡션'}
+                {activeTab === 'blog' && '블로그 비하인드 스토리'}
+              </span>
+              {currentText && (
+                <span className="char-counter-badge" style={{ marginLeft: '8px' }}>
+                  ({currentText.length.toLocaleString()}자)
+                </span>
+              )}
+            </div>
+
+            {currentText && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {/* 수정한 경우 원본 복원 버튼 */}
+                {isModified && (
+                  <button 
+                    onClick={handleResetToOriginal}
+                    className="btn-outline"
+                    style={{ fontSize: '0.78rem', padding: '0.3rem 0.6rem', color: '#6B7280' }}
+                    title="초안으로 복원"
+                  >
+                    <RotateCcw size={13} /> 초안 복원
+                  </button>
+                )}
+
+                {/* 보기 모드 vs 직접 수정 모드 토글 (선택사항) */}
+                <button
+                  onClick={() => setIsEditMode(!isEditMode)}
+                  className="btn-outline"
+                  style={{
+                    fontSize: '0.78rem',
+                    padding: '0.35rem 0.7rem',
+                    background: isEditMode ? '#0F172A' : '#FFFFFF',
+                    color: isEditMode ? '#FFFFFF' : '#111827',
+                    borderColor: '#0F172A',
+                    fontWeight: 600
+                  }}
+                >
+                  {isEditMode ? (
+                    <>
+                      <Eye size={13} /> 보기 모드로 전환
+                    </>
+                  ) : (
+                    <>
+                      <Edit3 size={13} /> ✍️ 직접 수정하기 (선택)
+                    </>
+                  )}
+                </button>
+
+                {/* 전체 1초 복사 버튼 */}
+                <button 
+                  className={`btn-subtle-copy ${copied ? 'copied' : ''}`}
+                  onClick={() => handleCopy(currentText)}
+                >
+                  {copied ? <Check size={14} /> : <Copy size={14} />}
+                  {copied ? '복사 완료!' : '전체 1초 복사'}
+                </button>
+              </div>
             )}
           </div>
 
-          {results[activeTab] ? (
-            <div className={`output-box ${activeTab === 'statement' ? 'serif' : ''}`}>
-              {results[activeTab]}
+          {/* 텍스트 뷰 (보기 모드 / 수정 모드) */}
+          {currentText ? (
+            <div>
+              {isEditMode ? (
+                <div>
+                  <div style={{
+                    fontSize: '0.8rem',
+                    color: '#059669',
+                    marginBottom: '0.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <span>✍️ <strong>수정 모드 활성화:</strong> 원하시는 문구나 어휘를 자유롭게 고치세요. 고친 내용이 그대로 복사됩니다.</span>
+                  </div>
+                  <textarea 
+                    className={`output-editor ${activeTab === 'statement' ? 'serif' : ''}`}
+                    value={currentText}
+                    onChange={(e) => handleTextChange(e.target.value)}
+                    placeholder="내용을 자유롭게 수정해 보세요..."
+                  />
+                </div>
+              ) : (
+                <div 
+                  className={`output-box ${activeTab === 'statement' ? 'serif' : ''}`}
+                  onDoubleClick={() => setIsEditMode(true)}
+                  title="더블클릭하면 바로 직접 수정할 수 있습니다"
+                  style={{ cursor: 'text' }}
+                >
+                  {currentText}
+                </div>
+              )}
+
+              {/* 하단 친절한 힌트 바 */}
+              <div style={{ 
+                marginTop: '0.75rem', 
+                fontSize: '0.78rem', 
+                color: '#9CA3AF',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span>
+                  {isEditMode 
+                    ? '✨ 수정이 끝나면 상단의 [보기 모드로 전환] 또는 [전체 1초 복사]를 누르세요.' 
+                    : '💡 내용에 나만의 어휘를 보태고 싶다면 상단의 [✍️ 직접 수정하기]를 누르세요.'}
+                </span>
+                {isModified && (
+                  <span style={{ color: '#D97706', fontWeight: 600 }}>● 수정된 내용 적용됨</span>
+                )}
+              </div>
             </div>
           ) : (
             <div className="output-box" style={{ color: '#9CA3AF', textAlign: 'center', padding: '3.5rem 1rem' }}>
               좌측의 작품 정보와 키워드를 입력한 후<br />
               <strong>[3대 콘텐츠 동시 생성하기]</strong> 버튼을 누르시면<br />
-              작가노트, 인스타 캡션, 블로그 글이 한 번에 완성됩니다.
+              작가노트, 인스타 캡션, 블로그 글이 한 번에 완성되며 <strong>직접 수정도 가능</strong>합니다.
             </div>
           )}
         </div>
