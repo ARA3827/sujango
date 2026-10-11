@@ -226,7 +226,7 @@ export default function CaptionStudio({ onBack }) {
       <div className="workspace-title-area" style={{ marginBottom: '1.25rem' }}>
         <h2>전시 캡션 네임택 출력기</h2>
         <p>
-          각 캡션마다 단정한 <strong>테두리 박스</strong>가 둘러져 있어 박스를 따라 칼이나 가위로 오리면 명패가 완성됩니다. 
+          A4 한 페이지에 <strong>2열 4행 표 형식</strong>으로 정렬되어, <strong>옅은 회색 테두리 선</strong>을 따라 자와 칼을 대고 일직선으로 오려내면 정갈한 명패가 완성됩니다. 
           상단의 <strong>[📄 A4 인쇄용 PDF 다운로드]</strong> 버튼을 눌러 출력하세요.
         </p>
       </div>
@@ -386,9 +386,9 @@ export default function CaptionStudio({ onBack }) {
         {/* 우측: 선명한 테두리 박스가 있는 A4 실물 크기 프리뷰 */}
         <div className="panel-card printable-caption-container" style={{ padding: '1rem' }}>
           <div className="panel-card-title no-print" style={{ marginBottom: '0.75rem' }}>
-            <span>A4 인쇄 미리보기 ({captions.length}점 등록됨)</span>
-            <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600 }}>
-              📏 각 캡션 테두리를 따라 반듯하게 오려 사용하세요
+            <span>A4 인쇄 미리보기 (2열 4행 표 형식 / {captions.length}점 등록됨)</span>
+            <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>
+              ✂️ 옅은 회색 테두리 선을 따라 반듯하게 오려 사용하세요
             </span>
           </div>
 
@@ -401,6 +401,7 @@ export default function CaptionStudio({ onBack }) {
             <div className="a4-sheet-container">
               <div className="a4-sheet-preview" ref={a4SheetRef}>
                 <div className="caption-print-grid">
+                  {/* 1. 등록된 캡션 카드 목록 (옅은 회색 직각 테두리 박스) */}
                   {captions.map((item) => (
                     <div 
                       key={item.id} 
@@ -450,6 +451,20 @@ export default function CaptionStudio({ onBack }) {
                           {!item.isNfs && <span className="caption-red-dot" title="판매 가능" />}
                         </div>
                       )}
+                    </div>
+                  ))}
+
+                  {/* 2. 표 형식을 완성하는 A4 빈 슬롯 (8칸 정규격 표 유지) */}
+                  {Array.from({ length: Math.max(0, 8 - captions.length) }).map((_, idx) => (
+                    <div 
+                      key={`empty-slot-${idx}`} 
+                      className="caption-card-item empty-slot"
+                    >
+                      <div className="no-print" style={{ textAlign: 'center', opacity: 0.5 }}>
+                        <span style={{ fontSize: '0.75rem', letterSpacing: '-0.3px' }}>
+                          대기 칸 {captions.length + idx + 1}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
