@@ -893,7 +893,48 @@ input, select, textarea {
 }
 
 .caption-card-item:hover {
-  border-color: #94A3B8; /* 호버 시 약간 선명해져 편집 용이 */
+  border-color: #64748B;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 캡션 수정 모드 선택 상태 (하이라이트) */
+.caption-card-item.is-editing {
+  border: 1.5px solid #2563EB !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+  background: #F8FAFC !important;
+}
+
+/* 수정 중 뱃지 (미리보기 화면용) */
+.caption-editing-badge {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  background: #2563EB;
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  z-index: 5;
+}
+
+/* 재료기법 원클릭 퀵 태그 칩 */
+.tag-chip {
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  color: #475569;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tag-chip:hover {
+  background: #E2E8F0;
+  border-color: #CBD5E1;
+  color: #0F172A;
 }
 
 /* 표 형식을 완성하는 빈 칸 (대기 슬롯) */

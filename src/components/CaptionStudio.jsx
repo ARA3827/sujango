@@ -4,9 +4,28 @@ import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import confetti from 'canvas-confetti';
 
+// 신진/취미/프로 작가 필수 14대 표준 재료기법 국/영문 프리셋 DB
+const MATERIAL_PRESETS = [
+  { ko: '캔버스에 유채', en: 'Oil on canvas' },
+  { ko: '캔버스에 아크릴', en: 'Acrylic on canvas' },
+  { ko: '캔버스에 유채, 혼합재료', en: 'Oil and mixed media on linen' },
+  { ko: '캔버스에 혼합재료', en: 'Mixed media on canvas' },
+  { ko: '패널에 아크릴, 혼합재료', en: 'Mixed media on wood panel' },
+  { ko: '한지에 먹, 안료', en: 'Ink and pigment on Korean paper' },
+  { ko: '한지에 수묵채색', en: 'Ink and color on Korean paper' },
+  { ko: '장지에 채색', en: 'Color on thick Korean paper (Jangji)' },
+  { ko: '종이에 수채', en: 'Watercolor on paper' },
+  { ko: '종이에 과슈', en: 'Gouache on paper' },
+  { ko: '종이에 오일파스텔', en: 'Oil pastel on paper' },
+  { ko: '종이에 연필, 목탄', en: 'Pencil and charcoal on paper' },
+  { ko: '디지털 드로잉, 아카이벌 피그먼트 프린트', en: 'Digital drawing, archival pigment print' },
+  { ko: '도자, 백자토, 유약', en: 'Ceramic, porcelain, glaze' }
+];
+
 export default function CaptionStudio({ onBack }) {
   const [styleMode, setStyleMode] = useState('classic'); // 'classic' | 'modern' | 'commercial'
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [editingId, setEditingId] = useState(null); // 수정 중인 캡션 ID
 
   // 1페이지당 최대 6개 (2열 3행: 텍스트가 길어져도 세로 공간이 넉넉한 황금 비율)
   const ITEMS_PER_PAGE = 6;
@@ -65,7 +84,7 @@ export default function CaptionStudio({ onBack }) {
     ];
   });
 
-  // 새 캡션 입력 폼 상태
+  // 새 캡션 입력/수정 폼 상태
   const [form, setForm] = useState({
     artistKo: '김아라',
     artistEn: 'Ara Kim',
@@ -88,24 +107,47 @@ export default function CaptionStudio({ onBack }) {
     }
   };
 
-  const handleAdd = (e) => {
+  // 등록 및 수정 완료 핸들러
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.titleKo.trim()) {
       alert('작품 제목을 입력해주세요.');
       return;
     }
 
-    const newItem = {
-      id: Date.now(),
-      ...form,
-      price: form.isNfs ? 'NFS (비매품)' : form.price || '별도 문의'
-    };
+    const calculatedPrice = form.isNfs ? 'NFS (비매품)' : form.price || '별도 문의';
 
-    saveCaptions([...captions, newItem]);
+    if (editingId) {
+      // 1. 기존 캡션 오타/내용 수정
+      const updatedList = captions.map((c) => {
+        if (c.id === editingId) {
+          return {
+            ...c,
+            ...form,
+            price: calculatedPrice
+          };
+        }
+        return c;
+      });
+      saveCaptions(updatedList);
+      setEditingId(null);
+    } else {
+      // 2. 새 캡션 추가
+      const newItem = {
+        id: Date.now(),
+        ...form,
+        price: calculatedPrice
+      };
+      saveCaptions([...captions, newItem]);
+    }
+
+    // 폼 초기화 (작가명은 유지)
     setForm({
-      ...form,
+      artistKo: form.artistKo || '김아라',
+      artistEn: form.artistEn || 'Ara Kim',
       titleKo: '',
       titleEn: '',
+      year: new Date().getFullYear().toString(),
       mediumKo: '',
       mediumEn: '',
       size: '',
@@ -116,7 +158,42 @@ export default function CaptionStudio({ onBack }) {
     triggerConfetti();
   };
 
+  // 미리보기 카드 클릭 시 좌측 폼으로 데이터 불러오기 (수정 모드 진입)
+  const handleEditClick = (item) => {
+    setEditingId(item.id);
+    setForm({
+      artistKo: item.artistKo,
+      artistEn: item.artistEn || '',
+      titleKo: item.titleKo,
+      titleEn: item.titleEn || '',
+      year: item.year || new Date().getFullYear().toString(),
+      mediumKo: item.mediumKo || '',
+      mediumEn: item.mediumEn || '',
+      size: item.size || '',
+      price: item.isNfs ? '' : (item.price === 'NFS (비매품)' ? '' : item.price),
+      isNfs: item.isNfs || item.price?.includes('NFS')
+    });
+  };
+
+  // 수정 취소
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setForm({
+      artistKo: form.artistKo || '김아라',
+      artistEn: form.artistEn || 'Ara Kim',
+      titleKo: '',
+      titleEn: '',
+      year: new Date().getFullYear().toString(),
+      mediumKo: '',
+      mediumEn: '',
+      size: '',
+      price: '',
+      isNfs: false
+    });
+  };
+
   const handleDelete = (id) => {
+    if (editingId === id) setEditingId(null);
     saveCaptions(captions.filter(c => c.id !== id));
   };
 
@@ -270,14 +347,16 @@ export default function CaptionStudio({ onBack }) {
       </div>
 
       <div className="workspace-grid">
-        {/* 좌측: 새 캡션 추가 폼 */}
+        {/* 좌측: 새 캡션 추가 및 오타 수정 폼 */}
         <div className="panel-card no-print">
           <div className="panel-card-title">
-            <span>새 작품 캡션 등록</span>
-            <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 400 }}>테두리 규격 자동 생성</span>
+            <span>{editingId ? '✏️ 캡션 오타 / 내용 수정' : '새 작품 캡션 등록'}</span>
+            <span style={{ fontSize: '0.78rem', color: editingId ? '#2563EB' : '#6B7280', fontWeight: editingId ? 600 : 400 }}>
+              {editingId ? '수정 후 [수정 완료] 클릭' : '테두리 규격 자동 생성'}
+            </span>
           </div>
 
-          <form onSubmit={handleAdd}>
+          <form onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">작가명 (국문)</label>
@@ -348,8 +427,44 @@ export default function CaptionStudio({ onBack }) {
               </div>
             </div>
 
+            {/* 재료 및 기법 - 표준 영문 자동 완성 프리셋 */}
             <div className="form-group">
-              <label className="form-label">재료 및 기법 (국문)</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                <label className="form-label" style={{ margin: 0 }}>재료 및 기법 (국문)</label>
+                <select 
+                  className="form-select" 
+                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', width: 'auto', border: '1px solid #CBD5E1', borderRadius: '4px', background: '#F8FAFC', cursor: 'pointer' }}
+                  onChange={(e) => {
+                    if (!e.target.value) return;
+                    const preset = MATERIAL_PRESETS.find(p => p.ko === e.target.value);
+                    if (preset) {
+                      setForm(prev => ({ ...prev, mediumKo: preset.ko, mediumEn: preset.en }));
+                    }
+                  }}
+                  value=""
+                >
+                  <option value="" disabled>⚡ 14대 표준 재료 전체보기...</option>
+                  {MATERIAL_PRESETS.map((p, idx) => (
+                    <option key={idx} value={p.ko}>{p.ko} ({p.en})</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 인기 재료 원클릭 퀵 칩 */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '0.5rem' }}>
+                {MATERIAL_PRESETS.slice(0, 5).map((p, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="tag-chip"
+                    onClick={() => setForm(prev => ({ ...prev, mediumKo: p.ko, mediumEn: p.en }))}
+                    title={`${p.ko} (${p.en}) 국/영문 세트 자동 입력`}
+                  >
+                    + {p.ko.replace('캔버스에 ', '')}
+                  </button>
+                ))}
+              </div>
+
               <input 
                 type="text" 
                 className="form-input" 
@@ -361,7 +476,7 @@ export default function CaptionStudio({ onBack }) {
             </div>
 
             <div className="form-group">
-              <label className="form-label">재료 및 기법 (영문 병기)</label>
+              <label className="form-label">재료 및 기법 (영문 병기 - 자동완성 또는 직접 입력)</label>
               <input 
                 type="text" 
                 className="form-input" 
@@ -393,9 +508,20 @@ export default function CaptionStudio({ onBack }) {
               />
             </div>
 
-            <button type="submit" className="btn-primary">
-              <Plus size={16} /> 캡션 목록에 추가하기
-            </button>
+            {editingId ? (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button type="submit" className="btn-primary" style={{ flex: 1, background: '#0F172A' }}>
+                  💾 캡션 수정 완료
+                </button>
+                <button type="button" onClick={handleCancelEdit} className="btn-outline">
+                  취소
+                </button>
+              </div>
+            ) : (
+              <button type="submit" className="btn-primary">
+                <Plus size={16} /> 캡션 목록에 추가하기
+              </button>
+            )}
           </form>
         </div>
 
@@ -427,23 +553,38 @@ export default function CaptionStudio({ onBack }) {
                     ref={(el) => { if (el) pageRefs.current[pIdx] = el; }}
                   >
                     <div className="caption-print-grid">
-                      {pageItems.map((item) => (
-                        <div 
-                          key={item.id} 
-                          className={`caption-card-item ${styleMode}`}
-                        >
-                          {/* 카드 삭제용 미니멀 X 버튼 (인쇄/PDF 시 자동 제외) */}
-                          <button 
-                            onClick={() => handleDelete(item.id)}
-                            className="caption-card-delete-btn no-print"
-                            title="이 캡션 삭제"
+                      {pageItems.map((item) => {
+                        const isCurrentEditing = item.id === editingId;
+                        return (
+                          <div 
+                            key={item.id} 
+                            className={`caption-card-item ${styleMode} ${isCurrentEditing ? 'is-editing' : ''}`}
+                            onClick={() => handleEditClick(item)}
+                            title="클릭 시 좌측 입력창에서 오타/내용을 바로 수정할 수 있습니다"
+                            style={{ cursor: 'pointer' }}
                           >
-                            <X size={13} />
-                          </button>
+                            {/* 카드 삭제용 미니멀 X 버튼 (인쇄/PDF 시 자동 제외) */}
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(item.id);
+                              }}
+                              className="caption-card-delete-btn no-print"
+                              title="이 캡션 삭제"
+                            >
+                              <X size={13} />
+                            </button>
 
-                          <div className="caption-card-content">
-                            {/* 상단: 작가 정보 및 작품 제목 */}
-                            <div>
+                            {/* 수정 중 뱃지 (인쇄 시 자동 제외) */}
+                            {isCurrentEditing && (
+                              <div className="caption-editing-badge no-print">
+                                ✏️ 수정 중
+                              </div>
+                            )}
+
+                            <div className="caption-card-content">
+                              {/* 상단: 작가 정보 및 작품 제목 */}
+                              <div>
                               <div className="caption-card-header">
                                 <span className="caption-artist-ko">{item.artistKo}</span>
                                 {item.artistEn && <span className="caption-artist-en">{item.artistEn}</span>}
@@ -478,7 +619,8 @@ export default function CaptionStudio({ onBack }) {
                             </div>
                           )}
                         </div>
-                      ))}
+                      );
+                    })}
                     </div>
                   </div>
                 </div>
