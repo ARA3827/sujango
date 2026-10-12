@@ -113,58 +113,6 @@ export default function App() {
 
   return (
     <div className="artflow-app">
-      {/* 🧪 간편 테스트 모드 스위처 바 */}
-      <aside className="auth-mode-test-bar" aria-label="테스트 모드 스위처">
-        <div className="test-bar-inner">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="test-bar-label">모드 전환 테스트:</span>
-            {user ? (
-              <span className="test-badge logged-in">
-                <UserCheck size={13} /> 로그인 상태 ({user.name} 작가님)
-              </span>
-            ) : isGuestExploring ? (
-              <span className="test-badge guest">
-                <Sparkles size={13} /> 비로그인 (둘러보기 모드)
-              </span>
-            ) : (
-              <span className="test-badge logged-out">
-                <UserX size={13} /> 비로그인 (서비스 소개 랜딩)
-              </span>
-            )}
-          </div>
-
-          <div style={{ display: 'flex', gap: '6px' }}>
-            {user ? (
-              <button 
-                onClick={handleLogout}
-                className="test-toggle-btn"
-                title="비로그인 상태(랜딩 페이지)로 전환"
-              >
-                비로그인 화면 보기
-              </button>
-            ) : (
-              <>
-                <button 
-                  onClick={() => handleLoginSuccess(DEMO_USER)}
-                  className="test-toggle-btn primary"
-                  title="김아라 작가로 로그인한 화면 보기"
-                >
-                  로그인 화면 보기 (김아라)
-                </button>
-                {showLanding && (
-                  <button 
-                    onClick={() => setIsGuestExploring(true)}
-                    className="test-toggle-btn"
-                  >
-                    대시보드 둘러보기
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </aside>
-
       {/* 글로벌 헤더 */}
       <Header 
         currentView={showLanding ? 'landing' : currentView} 
