@@ -63,6 +63,11 @@ export function loginWithKakao(onSuccess, onError) {
       window.Kakao.init(key);
     }
 
+    if (!window.Kakao.Auth || typeof window.Kakao.Auth.login !== 'function') {
+      onError?.('카카오 SDK 초기화 중입니다. 잠시 후 다시 시도해 주세요.');
+      return;
+    }
+
     window.Kakao.Auth.login({
       scope: 'profile_nickname,profile_image',
       success: function (authObj) {
@@ -89,17 +94,18 @@ export function loginWithKakao(onSuccess, onError) {
           },
           fail: function (error) {
             console.error('Kakao profile request error:', error);
-            onError?.('사용자 정보를 가져오지 못했습니다.');
+            onError?.(error?.msg || '카카오 사용자 정보를 가져오지 못했습니다.');
           }
         });
       },
       fail: function (err) {
         console.error('Kakao login fail:', err);
-        onError?.(err?.error_description || '카카오 로그인에 실패했습니다.');
+        const errMsg = err?.error_description || err?.msg || '카카오 로그인에 실패했습니다. (카카오 로그인 활성화 상태를 확인해 주세요)';
+        onError?.(errMsg);
       }
     });
   } catch (e) {
     console.error('Kakao login error:', e);
-    onError?.('카카오 로그인 창을 띄우지 못했습니다. 도메인 설정을 확인해 주세요.');
+    onError?.(`카카오 로그인 오류: ${e.message || '도메인 및 활성화 설정을 확인해 주세요.'}`);
   }
 }
