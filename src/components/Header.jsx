@@ -78,8 +78,17 @@ export default function Header({
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div className="user-profile-badge">
-                <div className="user-avatar-circle">
-                  {user.name.charAt(0)}
+                <div className="user-avatar-circle" style={{ overflow: 'hidden' }}>
+                  {user.avatarUrl ? (
+                    <img 
+                      src={user.avatarUrl} 
+                      alt={user.name} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    user.name.charAt(0)
+                  )}
                 </div>
                 <div className="user-info-text">
                   <span className="user-name">{user.name} 작가님</span>
