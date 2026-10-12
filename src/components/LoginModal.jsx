@@ -184,23 +184,24 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
               gap: '10px',
               padding: '0.85rem 1rem',
               background: '#FEE500',
-              color: '#191919',
+              color: '#000000',
               borderRadius: '8px',
               border: 'none',
               fontWeight: 600,
-              fontSize: '0.92rem',
+              fontSize: '0.95rem',
               cursor: 'pointer',
               boxShadow: '0 1px 3px rgba(0, 0, 0, 0.08)',
-              transition: 'all 0.15s ease'
+              transition: 'all 0.15s ease',
+              letterSpacing: '-0.01em'
             }}
             onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#FDD800'}
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#FEE500'}
           >
-            {/* 카카오 심볼 아이콘 SVG */}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#191919">
+            {/* 카카오 공식 심볼 아이콘 SVG */}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#000000" style={{ flexShrink: 0 }}>
               <path d="M12 3C6.48 3 2 6.58 2 11c0 2.8 1.8 5.26 4.54 6.64-.17.65-.67 2.47-.77 2.85-.12.47.17.46.36.33.25-.17 2.92-2 4.09-2.8.58.08 1.17.12 1.78.12 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/>
             </svg>
-            <span>카카오로 시작하기</span>
+            <span style={{ fontWeight: 600 }}>카카오 로그인</span>
           </button>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
             <button
