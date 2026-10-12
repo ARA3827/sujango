@@ -12,6 +12,7 @@ import LoginModal from './components/LoginModal';
 import PolicyModal from './components/PolicyModal';
 import PricingModal from './components/PricingModal';
 import { getStoredUser, saveUser, DEMO_USER } from './utils/authStorage';
+import { syncUserProfile } from './utils/supabaseClient';
 import { UserCheck, UserX, Sparkles, Crown } from 'lucide-react';
 
 export default function App() {
@@ -76,10 +77,18 @@ export default function App() {
     } catch (e) {}
   }, [currentView]);
 
+  // 초기 로드 시 기존 로그인 작가 프로필 동기화
+  useEffect(() => {
+    if (user) {
+      syncUserProfile(user);
+    }
+  }, [user]);
+
   // 로그인 성공 처리
   const handleLoginSuccess = (loggedInUser) => {
     setUser(loggedInUser);
     saveUser(loggedInUser);
+    syncUserProfile(loggedInUser);
     setIsGuestExploring(false);
   };
 

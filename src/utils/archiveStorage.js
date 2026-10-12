@@ -1,5 +1,7 @@
+import { supabase, isSupabaseConfigured } from './supabaseClient';
+import { getStoredUser } from './authStorage';
+
 // 초기 기본 시연용 미술관 샘플 작품 데이터 2점 (한국 현대미술 서양화)
-// 단색화/추상 텍스처를 형상화한 단아한 인라인 SVG 캔버스 이미지 포함
 const DEFAULT_ARTWORKS = [
   {
     id: 'art-1',
@@ -35,7 +37,7 @@ const DEFAULT_ARTWORKS = [
 
 const STORAGE_KEY = 'artflow_artworks';
 
-// 1. 전체 작품 목록 가져오기
+// 1. 전체 작품 목록 가져오기 (동기 로컬 캐시 즉시 반환)
 export function getArtworks() {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
@@ -53,7 +55,7 @@ export function getArtworks() {
   return DEFAULT_ARTWORKS;
 }
 
-// 2. 전체 저장
+// 2. 로컬스토리지 저장
 export function saveArtworks(artworks) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(artworks));
@@ -62,34 +64,141 @@ export function saveArtworks(artworks) {
   }
 }
 
-// 3. 단일 작품 추가 또는 업데이트
+// 3. 단일 작품 추가 또는 업데이트 (로컬 즉시 저장 + Supabase 클라우드 비동기 동기화)
 export function saveSingleArtwork(artwork) {
   const list = getArtworks();
   const index = list.findIndex(item => item.id === artwork.id);
+  let savedItem;
   
   if (index >= 0) {
-    list[index] = { ...list[index], ...artwork, updatedAt: new Date().toISOString().split('T')[0] };
+    savedItem = { ...list[index], ...artwork, updatedAt: new Date().toISOString().split('T')[0] };
+    list[index] = savedItem;
   } else {
-    const newItem = {
+    savedItem = {
       ...artwork,
       id: artwork.id || 'art-' + Date.now(),
       createdAt: new Date().toISOString().split('T')[0]
     };
-    list.unshift(newItem); // 최신 작품을 맨 앞으로
+    list.unshift(savedItem); // 최신 작품을 맨 앞으로
   }
   
   saveArtworks(list);
+
+  // Supabase 클라우드 비동기 백업
+  if (isSupabaseConfigured() && supabase) {
+    const user = getStoredUser();
+    const userEmail = user?.email || 'guest@sujango.local';
+    
+    // 금액 숫자 추출
+    const rawPrice = parseInt(String(savedItem.price || '').replace(/[^0-9]/g, '')) || 0;
+
+    supabase
+      .from('artworks')
+      .upsert({
+        user_email: userEmail,
+        title: savedItem.title || '무제',
+        year: savedItem.year || '',
+        medium: savedItem.medium || '',
+        price: rawPrice,
+        status: savedItem.isNfs ? '비매품' : '보관중',
+        image_url: savedItem.imageUrl || '',
+        notes: JSON.stringify({
+          client_id: savedItem.id,
+          size: savedItem.size,
+          statement: savedItem.statement,
+          instaCaption: savedItem.instaCaption,
+          blogStory: savedItem.blogStory,
+          artist: savedItem.artist
+        })
+      })
+      .then(({ error }) => {
+        if (error) console.warn('[Supabase] Artwork sync notice:', error.message);
+        else console.log('[Supabase] Artwork synced to cloud successfully.');
+      })
+      .catch(err => console.warn('[Supabase] Artwork sync error:', err));
+  }
+
   return list;
 }
 
-// 4. 단일 작품 삭제
+// 4. 단일 작품 삭제 (로컬 + Supabase 클라우드)
 export function deleteArtwork(id) {
   const list = getArtworks().filter(item => item.id !== id);
   saveArtworks(list);
+
+  if (isSupabaseConfigured() && supabase) {
+    const user = getStoredUser();
+    const userEmail = user?.email || 'guest@sujango.local';
+    
+    // Supabase 상에서도 삭제 시도
+    supabase
+      .from('artworks')
+      .delete()
+      .match({ user_email: userEmail })
+      .filter('notes', 'ilike', `%"client_id":"${id}"%`)
+      .then(({ error }) => {
+        if (error) console.warn('[Supabase] Delete notice:', error.message);
+      })
+      .catch(err => console.warn('[Supabase] Delete error:', err));
+  }
+
   return list;
 }
 
-// 5. 전체 데이터 백업 JSON 다운로드
+// 5. Supabase 클라우드에서 최신 작품 목록 불러오기 & 동기화
+export async function syncArtworksFromSupabase() {
+  if (!isSupabaseConfigured() || !supabase) return getArtworks();
+  
+  const user = getStoredUser();
+  if (!user?.email) return getArtworks();
+
+  try {
+    const { data, error } = await supabase
+      .from('artworks')
+      .select('*')
+      .eq('user_email', user.email)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[Supabase] Failed to fetch artworks:', error);
+      return getArtworks();
+    }
+
+    if (data && data.length > 0) {
+      const cloudArtworks = data.map(item => {
+        let extra = {};
+        try {
+          if (item.notes) extra = JSON.parse(item.notes);
+        } catch (_) {}
+
+        return {
+          id: extra.client_id || item.id,
+          title: item.title,
+          artist: extra.artist || user.name || '작가',
+          year: item.year || '',
+          medium: item.medium || '',
+          size: extra.size || '',
+          isNfs: item.status === '비매품',
+          price: item.price ? Number(item.price).toLocaleString() + '원' : '가격 협의',
+          imageUrl: item.image_url || '',
+          statement: extra.statement || '',
+          instaCaption: extra.instaCaption || '',
+          blogStory: extra.blogStory || '',
+          createdAt: item.created_at ? item.created_at.split('T')[0] : ''
+        };
+      });
+
+      saveArtworks(cloudArtworks);
+      return cloudArtworks;
+    }
+  } catch (err) {
+    console.warn('[Supabase] Cloud sync error:', err);
+  }
+
+  return getArtworks();
+}
+
+// 6. 전체 데이터 백업 JSON 다운로드
 export function exportArchiveBackup() {
   const data = getArtworks();
   const jsonStr = JSON.stringify(data, null, 2);
@@ -105,7 +214,7 @@ export function exportArchiveBackup() {
   URL.revokeObjectURL(url);
 }
 
-// 6. 백업 JSON 파일로부터 복원
+// 7. 백업 JSON 파일로부터 복원
 export function importArchiveBackup(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

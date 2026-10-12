@@ -27,7 +27,8 @@ import {
   saveSingleArtwork, 
   deleteArtwork, 
   exportArchiveBackup, 
-  importArchiveBackup 
+  importArchiveBackup,
+  syncArtworksFromSupabase 
 } from '../utils/archiveStorage';
 import { compressImage } from '../utils/imageCompressor';
 
@@ -70,6 +71,15 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
   // 텍스트 인라인 수정 상태
   const [isEditingText, setIsEditingText] = useState(false);
   const [editedText, setEditedText] = useState('');
+
+  // Supabase 클라우드 데이터 동기화
+  useEffect(() => {
+    syncArtworksFromSupabase().then(cloudList => {
+      if (cloudList && cloudList.length > 0) {
+        setArtworks(cloudList);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (currentArt) {
