@@ -163,7 +163,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
               Sujango (수장고) 시작하기
             </h3>
             <p style={{ fontSize: '0.82rem', color: '#64748B', margin: '4px 0 0 0' }}>
-              창작자를 위한 프라이빗 수장고에 1초 만에 로그인하세요.
+              소셜 계정으로 안전하고 간편하게 로그인하세요.
             </p>
           </div>
           <button onClick={onClose} className="modal-close-btn" aria-label="닫기">
@@ -171,7 +171,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
           </button>
         </div>
 
-        {/* 1. 카카오 1초 간편 로그인 버튼 */}
+        {/* 1. 카카오 간편 로그인 버튼 */}
         <div style={{ marginBottom: '0.75rem' }}>
           <button
             type="button"
