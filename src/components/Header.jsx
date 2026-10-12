@@ -64,15 +64,17 @@ export default function Header({
             </button>
           )}
 
-          {/* Pro 요금제 및 보관 서비스 안내 버튼 */}
-          <button
-            onClick={onOpenPricing}
-            className="header-pricing-btn"
-            title="Sujango Pro 멤버십 및 100GB 작품 원본 금고 요금제 안내"
-          >
-            <Crown size={14} color="#D97706" />
-            <span>Pro 멤버십</span>
-          </button>
+          {/* 실제 Pro 멤버십 유료 회원에게만 표시 */}
+          {user && user.isPro && (
+            <div
+              className="header-pricing-btn"
+              style={{ cursor: 'default' }}
+              title="Sujango Pro 멤버십 회원"
+            >
+              <Crown size={14} color="#D97706" />
+              <span>Pro 멤버십</span>
+            </div>
+          )}
 
           {/* 로그인 상태에 따른 프로필 / 로그인 버튼 */}
           {user ? (
@@ -92,7 +94,7 @@ export default function Header({
                 </div>
                 <div className="user-info-text">
                   <span className="user-name">{user.name} 작가님</span>
-                  <span className="user-role">{user.membership || 'Pro'}</span>
+                  <span className="user-role">{user.membership || (user.isPro ? 'Pro' : 'Free')}</span>
                 </div>
               </div>
               <button 
@@ -111,7 +113,7 @@ export default function Header({
               className="btn-primary"
               style={{ padding: '0.4rem 0.9rem', fontSize: '0.82rem', width: 'auto' }}
             >
-              <LogIn size={14} /> 로그인 / 시작하기
+              <LogIn size={14} /> 로그인
             </button>
           )}
         </div>
