@@ -29,7 +29,6 @@ export default function Header({
             <span className="brand-title">Sujango</span>
           </div>
           <span className="brand-badge">수장고</span>
-          <span className="brand-badge hide-mobile" style={{ background: 'transparent', color: '#64748B', padding: 0 }}>Ara Agent Lab</span>
         </div>
 
         {/* 우측 사용자 컨트롤 & 상태 표시 */}

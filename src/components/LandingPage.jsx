@@ -30,8 +30,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
         </div>
 
         <h1 className="landing-hero-title">
-          오롯이 창작에만 몰입하세요.<br />
-          서류, 세금, 아카이브는 수장고(Sujango)가 지킵니다.
+          작가님은 오롯이 창작에만 몰입하세요.
         </h1>
 
         <p className="landing-hero-sub">
