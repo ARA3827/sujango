@@ -69,7 +69,7 @@ export function loginWithKakao(onSuccess, onError) {
     }
 
     window.Kakao.Auth.login({
-      scope: 'profile_nickname,profile_image',
+      throughTalk: false,
       success: function (authObj) {
         // 사용자 정보 요청
         window.Kakao.API.request({
