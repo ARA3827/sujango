@@ -52,7 +52,12 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const v = getViewFromHash();
-      setCurrentView(v);
+      if (!user && v !== 'dashboard') {
+        setCurrentView('dashboard');
+        setIsLoginModalOpen(true);
+      } else {
+        setCurrentView(v);
+      }
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -61,7 +66,7 @@ export default function App() {
       window.removeEventListener('popstate', handlePopState);
       window.removeEventListener('hashchange', handlePopState);
     };
-  }, []);
+  }, [user]);
 
   // 캡션 수 실시간 동기화
   useEffect(() => {
@@ -86,8 +91,14 @@ export default function App() {
     navigate('dashboard');
   };
 
-  // 네비게이션 함수
+  // 네비게이션 함수 (비로그인 접근 차단 로그인 월 적용)
   const navigate = (viewId) => {
+    // 비로그인(게스트) 상태에서 세부 작업공간(서류, 정산, 작가노트 등) 진입 시 ➔ 로그인 모달 강제 팝업
+    if (!user && viewId !== 'dashboard') {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
     if (viewId === 'dashboard') {
       if (window.location.hash) {
         window.history.pushState(null, '', window.location.pathname + window.location.search);
