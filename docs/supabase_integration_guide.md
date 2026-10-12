@@ -20,3 +20,12 @@
 
 ## 4. RLS (Row Level Security) 정책
 - 초기 개발 단계에서는 익명/인증 사용자 읽기 및 쓰기를 허용하고, 실운영 진입 시 사용자 소유권(UUID/email) 기준 격리 정책 적용.
+
+## 5. 프론트엔드 하이브리드 동기화 아키텍처
+1. **로컬 우선 즉각 반응(Optimistic Local First)**:
+   - 로컬스토리지에 즉시 저장하여 네트워크 지연 없이 0ms UX 제공.
+2. **클라우드 비동기 영구 보관(Background Cloud Sync)**:
+   - `saveSingleArtwork`: 로컬 저장 즉시 Supabase `artworks` 테이블에 백그라운드 upsert.
+   - `deleteArtwork`: 로컬 삭제 즉시 Supabase에서도 비동기 삭제.
+   - `syncArtworksFromSupabase`: 앱 진입 시 클라우드에서 최신 데이터를 가져와 동기화.
+   - `syncUserProfile`: 소셜 로그인 성공 시 Supabase `profiles` 테이블에 사용자 메타데이터 자동 등록.
