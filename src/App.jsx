@@ -221,55 +221,67 @@ export default function App() {
         onClose={() => setIsNewToolModalOpen(false)} 
       />
 
-      {/* 공식 미니멀 푸터 (법적 고지 완비) */}
-      <footer className="artflow-footer">
-        <div className="footer-inner">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      {/* 공식 미니멀 푸터 (전자상거래법 & 카드사 심사 법적 고지 완비) */}
+      <footer className="artflow-footer" style={{ borderTop: '1px solid #E2E8F0', background: '#F8FAFC', padding: '2.5rem 1.5rem 3rem' }}>
+        <div className="footer-inner" style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          
+          {/* 상단 1행: 브랜드 & 약관 바로가기 */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #E2E8F0', paddingBottom: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <strong>Sujango</strong>
+              <strong style={{ fontSize: '0.95rem', color: '#0F172A', fontFamily: 'var(--font-serif)' }}>Sujango</strong>
               <span style={{ fontSize: '0.8rem', color: '#64748B' }}>수장고</span>
               <span style={{ color: '#CBD5E1' }}>•</span>
               <span style={{ fontSize: '0.8rem', color: '#0284C7', fontWeight: 600 }}>sujango.com</span>
               <span style={{ color: '#CBD5E1' }}>|</span>
-              <span>창작자를 위한 프라이빗 디지털 수장고</span>
-              <span style={{ color: '#CBD5E1' }}>|</span>
-              <button 
-                onClick={() => setIsPricingModalOpen(true)} 
-                style={{ background: 'none', border: 'none', color: '#0284C7', fontWeight: 600, cursor: 'pointer', padding: 0, fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '3px' }}
-              >
-                <Crown size={12} /> Sujango Pro 요금제 안내
-              </button>
+              <span style={{ fontSize: '0.8rem', color: '#64748B' }}>창작자를 위한 프라이빗 디지털 수장고</span>
             </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.78rem', color: '#64748B', flexWrap: 'wrap' }}>
-              <span>운영사: Ara Agent Lab</span>
-              <span>•</span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.78rem' }}>
               <button 
                 onClick={() => handleOpenPolicy('terms')}
-                style={{ background: 'none', border: 'none', color: '#475569', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.78rem' }}
+                style={{ background: 'none', border: 'none', color: '#475569', fontWeight: 500, cursor: 'pointer', padding: 0 }}
               >
-                Sujango 이용약관
+                이용약관
               </button>
-              <span>•</span>
+              <span style={{ color: '#CBD5E1' }}>•</span>
               <button 
                 onClick={() => handleOpenPolicy('privacy')}
-                style={{ background: 'none', border: 'none', color: '#475569', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.78rem' }}
+                style={{ background: 'none', border: 'none', color: '#0F172A', fontWeight: 700, cursor: 'pointer', padding: 0 }}
               >
                 개인정보 처리방침
               </button>
-              <span>•</span>
+              <span style={{ color: '#CBD5E1' }}>•</span>
               <button 
                 onClick={() => handleOpenPolicy('refund')}
-                style={{ background: 'none', border: 'none', color: '#475569', textDecoration: 'underline', cursor: 'pointer', padding: 0, fontSize: '0.78rem' }}
+                style={{ background: 'none', border: 'none', color: '#475569', fontWeight: 500, cursor: 'pointer', padding: 0 }}
               >
-                Sujango Pro 구독 및 환불 규정
+                구독 및 환불 규정
               </button>
             </div>
           </div>
 
-          <div style={{ textAlign: 'right', fontSize: '0.78rem', color: '#94A3B8' }}>
-            Ara Agent Lab © {new Date().getFullYear()} Sujango (sujango.com) • All Rights Reserved.
+          {/* 중단 2행: 전자상거래법 법적 필수 사업자 등록 정보 */}
+          <div style={{ fontSize: '0.75rem', color: '#64748B', lineHeight: 1.7, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
+              <span><strong>상호:</strong> Ara Agent Lab</span>
+              <span><strong>대표자:</strong> 한서희</span>
+              <span><strong>사업자등록번호:</strong> 133-16-68446</span>
+              <span><strong>통신판매업신고:</strong> 신고 준비 중</span>
+              <span><strong>개인정보보호책임자:</strong> 한서희</span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
+              <span><strong>사업장 소재지:</strong> 경기도 화성시 병점구 효행로(진안동,메디피아) 1069. 601-P215호</span>
+              <span><strong>고객센터:</strong> <a href="mailto:digitalnote38@gmail.com" style={{ color: '#0284C7', textDecoration: 'none' }}>digitalnote38@gmail.com</a></span>
+              <span><strong>호스팅 서비스:</strong> Vercel Inc.</span>
+            </div>
           </div>
+
+          {/* 하단 3행: 카피라이트 */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', fontSize: '0.72rem', color: '#94A3B8', paddingTop: '0.5rem' }}>
+            <span>Ara Agent Lab © {new Date().getFullYear()} Sujango (sujango.com) • All Rights Reserved.</span>
+            <span>수장고는 1인 창작 예술가의 안전한 작품 보관과 행정 업무를 지원합니다.</span>
+          </div>
+
         </div>
       </footer>
     </div>
