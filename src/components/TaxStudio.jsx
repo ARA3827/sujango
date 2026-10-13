@@ -161,8 +161,8 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
       </div>
 
       <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
-        <h2>예술소득 & 3.3% 안심 정산소</h2>
-        <p>복잡한 원천징수와 수수료 계산을 한 번에 끝내고, 떼인 돈 없는 미수금 관리와 5월 종합소득세를 대비하세요.</p>
+        <h2>창작 수입 장부</h2>
+        <p>출강비·특강료·작품 판매금의 실수령액을 확인하고, 입금 여부와 미수금을 깔끔하게 기록하세요.</p>
       </div>
 
       {/* 요약 카드 그리드 */}
@@ -192,7 +192,7 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
         {/* 새 항목 등록 폼 */}
         <div className="panel-card">
           <div className="panel-card-title">
-            <span>새 정산 내역 등록</span>
+            <span>새 수입 내역 등록</span>
             <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 400 }}>자동 실수령액 산출</span>
           </div>
 
@@ -280,7 +280,7 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
             )}
 
             <button type="submit" className="btn-primary">
-              <Plus size={16} /> 정산 장부에 기록하기
+              <Plus size={16} /> 수입 장부에 기록하기
             </button>
           </form>
         </div>
@@ -288,7 +288,7 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
         {/* 내역 테이블 패널 */}
         <div className="panel-card">
           <div className="panel-card-title">
-            <span>정산 관리 대장</span>
+            <span>수입 관리 대장</span>
             <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 400 }}>
               상태 클릭: ⚪ 미청구 ➔ 🟡 청구완료 ➔ 🟢 입금완료
             </span>
@@ -309,7 +309,7 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
                 {incomes.length === 0 ? (
                   <tr>
                     <td colSpan="5" style={{ textAlign: 'center', padding: '2.5rem', color: '#9CA3AF' }}>
-                      등록된 정산 내역이 없습니다.
+                      등록된 수입 내역이 없습니다.
                     </td>
                   </tr>
                 ) : (
