@@ -640,52 +640,21 @@ export function InspoVaultView({ onBack }) {
               </div>
             </div>
 
-            <div className="inspo-modal-footer">
+            <div className="inspo-modal-footer" style={{ justifyContent: 'flex-end' }}>
               <button
                 type="button"
-                className="inspo-action-btn delete-btn"
-                style={{ padding: '7px 12px', fontSize: '13px' }}
-                onClick={() => {
-                  handleDeleteQuote(selectedQuote.id);
-                  setSelectedQuote(null);
+                className="btn-primary"
+                style={{
+                  padding: '8px 26px',
+                  fontSize: '13.5px',
+                  fontWeight: '600',
+                  backgroundColor: '#0F172A',
+                  whiteSpace: 'nowrap'
                 }}
+                onClick={() => setSelectedQuote(null)}
               >
-                <Trash2 size={14} />
-                <span>문장 삭제</span>
+                완료
               </button>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <button
-                  type="button"
-                  className="inspo-action-btn"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '7px 14px',
-                    fontSize: '13px',
-                    whiteSpace: 'nowrap'
-                  }}
-                  onClick={() => handleCopyQuote(selectedQuote)}
-                >
-                  <Copy size={14} />
-                  <span>문장 복사</span>
-                </button>
-                <button
-                  type="button"
-                  className="btn-primary"
-                  style={{
-                    padding: '7px 20px',
-                    fontSize: '13.5px',
-                    fontWeight: '600',
-                    backgroundColor: '#0F172A',
-                    whiteSpace: 'nowrap'
-                  }}
-                  onClick={() => setSelectedQuote(null)}
-                >
-                  확인
-                </button>
-              </div>
             </div>
           </div>
         </div>
