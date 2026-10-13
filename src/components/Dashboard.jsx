@@ -42,7 +42,7 @@ export default function Dashboard({
       title: '영감노트/밑줄',
       tag: '창작 영감 & 문장',
       icon: <Sparkles size={22} style={{ color: '#059669' }} />,
-      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 1초 만에 파싱합니다.',
+      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 깔끔하게 정리하여 가져옵니다.',
       actionText: '영감노트 열기'
     },
     {
@@ -140,7 +140,7 @@ export default function Dashboard({
             {inspoCount}개 보관 중
           </div>
           <div className="stat-sub">
-            문장 카드 • 카톡 1초 파싱
+            문장 카드 • 카톡 대화 불러오기
           </div>
         </div>
       </div>

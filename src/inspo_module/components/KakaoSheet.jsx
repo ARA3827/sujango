@@ -104,7 +104,7 @@ export function KakaoSheet({ onClose, onImportBatch }) {
               cursor: "pointer"
             }}
           >
-            실시간 챗봇 연동 팁
+            간편 가져오기 가이드 (3단계)
           </button>
         </div>
 
@@ -223,34 +223,96 @@ export function KakaoSheet({ onClose, onImportBatch }) {
               )}
             </div>
           ) : (
-            <div style={{ fontSize: "13px", lineHeight: "1.6", color: "var(--text-main)" }}>
+            <div style={{ fontSize: "13.5px", lineHeight: "1.65", color: "var(--text-main)", padding: "4px 2px" }}>
               <div style={{
-                backgroundColor: "#FFFBEB",
-                border: "1px solid #FDE68A",
+                backgroundColor: "#F0FDF4",
+                border: "1px solid #BBF7D0",
                 borderRadius: "8px",
-                padding: "10px 12px",
-                marginBottom: "14px",
-                fontSize: "12px",
-                color: "#92400E"
+                padding: "12px 14px",
+                marginBottom: "16px",
+                fontSize: "13px",
+                color: "#166534",
+                fontWeight: "600"
               }}>
-                <strong>⚠️ 카톡 '나와의 채팅'은 왜 실시간 API가 없을까요?</strong><br />
-                카카오는 개인정보 보호를 위해 일반 개인 채팅방에 대한 웹훅을 제공하지 않습니다.
+                💬 1단계, 2단계, 3단계만 실행하면 카톡 메시지를 간편하게 가져올 수 있어요!
               </div>
 
-              <h4 style={{ fontWeight: "700", marginBottom: "8px", color: "var(--primary-green)" }}>
-                가장 완벽한 현실적 연동법:
-              </h4>
-              <ol style={{ paddingLeft: "18px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                <li>
-                  <strong>카카오 비즈니스 무료 채널 1개 개설</strong> (누구나 1분 완료)
-                </li>
-                <li>
-                  채널을 내 카톡 최상단에 <strong>상단 고정(Pin)</strong>
-                </li>
-                <li>
-                  나와의 채팅에 보내듯, 그 채널에 책 문장이나 영화 대사를 툭 전송하면 카드로 자동 생성!
-                </li>
-              </ol>
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                  <div style={{
+                    minWidth: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    backgroundColor: "var(--primary-green)",
+                    color: "#ffffff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "12px",
+                    fontWeight: "700"
+                  }}>1</div>
+                  <div>
+                    <strong style={{ color: "#1E293B" }}>카카오톡 대화방 열기</strong>
+                    <p style={{ margin: "2px 0 0 0", fontSize: "12.5px", color: "var(--text-sub)" }}>
+                      문장이나 대사를 모아둔 카톡 <strong>'나와의 채팅'</strong> 또는 메모 대화방으로 들어갑니다.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                  <div style={{
+                    minWidth: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    backgroundColor: "var(--primary-green)",
+                    color: "#ffffff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "12px",
+                    fontWeight: "700"
+                  }}>2</div>
+                  <div>
+                    <strong style={{ color: "#1E293B" }}>대화 내용 내보내기</strong>
+                    <p style={{ margin: "2px 0 0 0", fontSize: "12.5px", color: "var(--text-sub)" }}>
+                      채팅방 우측 상단 메뉴(≡) ➔ [설정 ⚙️] ➔ [대화 내용 내보내기] ➔ <strong>[텍스트만 보내기]</strong>를 눌러 텍스트 파일(.txt)을 저장합니다.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                  <div style={{
+                    minWidth: "24px",
+                    height: "24px",
+                    borderRadius: "50%",
+                    backgroundColor: "var(--primary-green)",
+                    color: "#ffffff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "12px",
+                    fontWeight: "700"
+                  }}>3</div>
+                  <div>
+                    <strong style={{ color: "#1E293B" }}>파일 불러오기 & 영감 카드 담기</strong>
+                    <p style={{ margin: "2px 0 0 0", fontSize: "12.5px", color: "var(--text-sub)" }}>
+                      저장된 텍스트 파일을 왼쪽 <strong>[대화 파일 불러오기]</strong>에 넣으면, 좋은 문장만 자동으로 정돈되어 영감노트에 담깁니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{
+                marginTop: "18px",
+                padding: "10px 12px",
+                backgroundColor: "#F8FAFC",
+                border: "1px solid #E2E8F0",
+                borderRadius: "8px",
+                fontSize: "12px",
+                color: "#64748B"
+              }}>
+                💡 <strong>꿀팁:</strong> 카카오 비즈니스 무료 채널을 하나 만들어 카톡 상단에 고정해두면, 읽던 책이나 영상 속 문장을 메모하듯 편하게 모아둘 수 있습니다.
+              </div>
             </div>
           )}
         </div>
