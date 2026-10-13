@@ -82,7 +82,72 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
         </div>
 
         <div className="landing-feature-grid">
-          {/* 기능 1 */}
+          {/* 기능 1: 영감 노트 */}
+          <div className="feature-showcase-card" onClick={onExploreGuest}>
+            <div className="feature-icon-box" style={{ background: '#ECFDF5', color: '#059669' }}>
+              <Sparkles size={24} />
+            </div>
+            <h4>✨ 영감 노트</h4>
+            <p>
+              책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고
+              카카오톡 대화를 깔끔하게 정리하여 가져옵니다.
+            </p>
+            <div className="feature-tag">창작 영감 & 문장</div>
+          </div>
+
+          {/* 기능 2: 작가노트 & SNS */}
+          <div className="feature-showcase-card" onClick={onExploreGuest}>
+            <div className="feature-icon-box" style={{ background: '#FDF4FF', color: '#A855F7' }}>
+              <PenTool size={24} />
+            </div>
+            <h4>✍️ 작가노트 & SNS</h4>
+            <p>
+              작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그,
+              블로그 후기를 동시에 추출하고 직접 수정합니다.
+            </p>
+            <div className="feature-tag">AI 글 생성</div>
+          </div>
+
+          {/* 기능 3: 전시 캡션 출력기 */}
+          <div className="feature-showcase-card" onClick={onExploreGuest}>
+            <div className="feature-icon-box" style={{ background: '#F8FAFC', color: '#0F172A' }}>
+              <Tag size={24} />
+            </div>
+            <h4>🏛️ 전시 캡션 출력기</h4>
+            <p>
+              작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고,
+              자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.
+            </p>
+            <div className="feature-tag">전시 & 아트페어</div>
+          </div>
+
+          {/* 기능 4: 서류·출강 스튜디오 */}
+          <div className="feature-showcase-card" onClick={onExploreGuest}>
+            <div className="feature-icon-box" style={{ background: '#F0FDF4', color: '#15803D' }}>
+              <FileText size={24} />
+            </div>
+            <h4>📄 서류·출강 스튜디오</h4>
+            <p>
+              출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를
+              공문서 규격으로 자동 완성합니다.
+            </p>
+            <div className="feature-tag">행정 서류</div>
+          </div>
+
+          {/* 기능 5: 창작 가계부 */}
+          <div className="feature-showcase-card" onClick={onExploreGuest}>
+            <div className="feature-icon-box" style={{ background: '#FFFBEB', color: '#D97706' }}>
+              <Receipt size={24} />
+            </div>
+            <h4>💰 창작 가계부</h4>
+            <p>
+              출강·작품 수입과 재료비 지출을 한눈에 관리하고,
+              A4 지출 정산 증빙서를 인쇄 및 PDF로 저장합니다.
+            </p>
+            <div className="feature-tag">수입 & 지출 증빙</div>
+          </div>
+
+          {/* 기능 6: 나의 작품 디지털 수장고 */}
           <div className="feature-showcase-card" onClick={onExploreGuest}>
             <div className="feature-icon-box" style={{ background: '#EFF6FF', color: '#2563EB' }}>
               <Archive size={24} />
@@ -93,73 +158,6 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
               스마트폰 사진도 깃털처럼 가볍게 자동 압축 보관됩니다.
             </p>
             <div className="feature-tag">프라이빗 영구 보존</div>
-          </div>
-
-          {/* 기능 2 */}
-          <div className="feature-showcase-card" onClick={onExploreGuest}>
-            <div className="feature-icon-box" style={{ background: '#F8FAFC', color: '#0F172A' }}>
-              <Tag size={24} />
-            </div>
-            <h4>🏛️ 전시 캡션 출력기</h4>
-            <p>
-              벽면 부착용 캡션을 14대 표준 재료기법 국/영문 프리셋으로 생성하고,
-              단정한 테두리 선을 따라 칼로 자를 수 있게 A4 단일 PDF로 일괄 인쇄합니다.
-            </p>
-            <div className="feature-tag">A4 규격 단일 PDF</div>
-          </div>
-
-          {/* 기능 3 */}
-          <div className="feature-showcase-card" onClick={onExploreGuest}>
-            <div className="feature-icon-box" style={{ background: '#FDF4FF', color: '#A855F7' }}>
-              <PenTool size={24} />
-            </div>
-            <h4>✍️ 작가노트 & SNS</h4>
-            <p>
-              작품 키워드 3개만 넣으면 도록용 심층 평론 작가노트, 인스타 감성 캡션+태그,
-              블로그 비하인드 스토리가 완성되며 자유롭게 다듬을 수 있습니다.
-            </p>
-            <div className="feature-tag">1작품 3대 콘텐츠 동시 추출</div>
-          </div>
-
-          {/* 기능 4 */}
-          <div className="feature-showcase-card" onClick={onExploreGuest}>
-            <div className="feature-icon-box" style={{ background: '#ECFDF5', color: '#059669' }}>
-              <FileText size={24} />
-            </div>
-            <h4>📄 출강 강의계획서 & CV 정리기</h4>
-            <p>
-              수업 시간대와 커리큘럼이 포함된 출강 계획서, 국공립 미술관 규격의
-              표준 전시 약력(CV)을 공문서 양식으로 단정하게 생성합니다.
-            </p>
-            <div className="feature-tag">교육청 / 문화재단 규격</div>
-          </div>
-
-          {/* 기능 5 */}
-          <div className="feature-showcase-card" onClick={onExploreGuest}>
-            <div className="feature-icon-box" style={{ background: '#FFFBEB', color: '#D97706' }}>
-              <Receipt size={24} />
-            </div>
-            <h4>💰 예술소득 & 3.3% 안심 정산소</h4>
-            <p>
-              출강료 3.3%, 특강 8.8%, 갤러리 위탁판매 40% 수수료 실수령액을 즉시 계산하고
-              미청구/미수금을 한눈에 확인하여 5월 종소세를 완벽 대비합니다.
-            </p>
-            <div className="feature-tag">원천징수 & 미수금 관리</div>
-          </div>
-
-          {/* 안내 카드 */}
-          <div className="feature-showcase-card callout" onClick={onOpenLogin}>
-            <div className="feature-icon-box" style={{ background: '#0F172A', color: '#FFFFFF' }}>
-              <Sparkles size={24} />
-            </div>
-            <h4>🚀 지금 바로 시작해 보세요</h4>
-            <p>
-              로그인하면 모든 도구를 제한 없이 이용하고 나만의 작품 기록장을 만들 수 있습니다.
-            </p>
-            <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600, color: '#0284C7' }}>
-              <span>간편하게 무료 시작</span>
-              <ArrowRight size={16} />
-            </div>
           </div>
         </div>
       </section>
