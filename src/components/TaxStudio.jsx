@@ -88,6 +88,9 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
       // 갤러리 위탁 수수료 40% 공제
       const commission = Math.round(raw * 0.40);
       return { tax: commission, net: raw - commission };
+    } else if (type === 'personal') {
+      // 개인 직거래 (공제 없음 0%)
+      return { tax: 0, net: raw };
     }
     return { tax: 0, net: raw };
   };
@@ -218,6 +221,7 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
                   <option value="business">출강/외주 (사업소득 3.3%)</option>
                   <option value="other">1회성 특강/자문 (기타소득 8.8%)</option>
                   <option value="gallery">갤러리 위탁판매 (수수료 40% 공제)</option>
+                  <option value="personal">개인 거래 / 직거래 (공제 없음 0%)</option>
                 </select>
               </div>
             </div>
@@ -266,7 +270,7 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
                   return (
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748B', marginBottom: '4px' }}>
-                        <span>공제액 ({newEntry.type === 'business' ? '3.3%' : newEntry.type === 'other' ? '8.8%' : '수수료 40%'}):</span>
+                        <span>공제액 ({newEntry.type === 'business' ? '3.3%' : newEntry.type === 'other' ? '8.8%' : newEntry.type === 'gallery' ? '수수료 40%' : '수수료 0%'}):</span>
                         <span>-{tax.toLocaleString()}원</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#0F172A', fontSize: '0.98rem' }}>
@@ -319,7 +323,7 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
                       <td>
                         <div style={{ fontWeight: 600 }}>{item.title}</div>
                         <div style={{ fontSize: '0.76rem', color: '#6B7280' }}>
-                          {item.client} • {item.type === 'business' ? '사업 3.3%' : item.type === 'other' ? '기타 8.8%' : '위탁수수료'}
+                          {item.client} • {item.type === 'business' ? '사업 3.3%' : item.type === 'other' ? '기타 8.8%' : item.type === 'gallery' ? '위탁수수료' : '개인직거래'}
                         </div>
                       </td>
                       <td style={{ fontWeight: 700 }}>
