@@ -71,11 +71,11 @@ export default function Dashboard({
     },
     {
       id: 'tax',
-      title: '창작 수입 장부',
-      tag: '수입 & 미수금',
+      title: '창작 가계부',
+      tag: '수입 & 지출 증빙',
       icon: <Receipt size={22} />,
-      desc: '출강비·특강료·작품 판매금의 실수령액을 확인하고, 입금 여부와 미수금을 깔끔하게 기록하세요.',
-      actionText: '장부 확인하기'
+      desc: '출강·작품 수입과 재료비 지출을 한눈에 관리하고, A4 지출 정산 증빙서를 인쇄 및 PDF로 저장합니다.',
+      actionText: '가계부 열기'
     }
   ];
 
