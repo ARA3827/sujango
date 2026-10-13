@@ -207,7 +207,7 @@ ${hashtags}`;
       </div>
 
       <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
-        <h2>작가노트 & SNS OSMU 스튜디오</h2>
+        <h2>작가노트 & SNS 스튜디오</h2>
         <p>작품 키워드 3개만 넣으세요. 도록용 미술평론 작가노트, 인스타그램 감성 피드, 블로그 제작 후기로 즉시 변환하고 자유롭게 다듬을 수 있습니다.</p>
       </div>
 

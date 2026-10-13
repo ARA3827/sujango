@@ -403,7 +403,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                 className="btn-outline"
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                <Tag size={15} /> 이 작품 캡션 네임택 출력하기
+                <Tag size={15} /> 이 작품 캡션 명패 출력하기
               </button>
             )}
           </div>

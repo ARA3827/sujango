@@ -39,23 +39,23 @@ export default function Dashboard({
   const tools = [
     {
       id: 'inspo',
-      title: '영감(靈感)노트',
+      title: '영감 노트',
       tag: '창작 영감 & 문장',
       icon: <Sparkles size={22} style={{ color: '#059669' }} />,
       desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 깔끔하게 정리하여 가져옵니다.',
-      actionText: '영감노트 열기'
+      actionText: '영감 노트 열기'
     },
     {
       id: 'statement',
-      title: '작가노트 & SNS OSMU',
-      tag: '원소스 멀티유즈',
+      title: '작가노트 & SNS',
+      tag: 'AI 글 생성',
       icon: <PenTool size={22} />,
       desc: '작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그, 블로그 후기를 동시에 추출하고 직접 수정합니다.',
-      actionText: '콘텐츠 생성하기'
+      actionText: '작가노트 쓰기'
     },
     {
       id: 'caption',
-      title: '전시 캡션 네임택 출력기',
+      title: '전시 캡션 출력기',
       tag: '전시 & 아트페어',
       icon: <Tag size={22} />,
       desc: '작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고, 자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.',
@@ -134,7 +134,7 @@ export default function Dashboard({
         </div>
 
         <div className="stat-item-box" onClick={() => onSelectView('inspo')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">✨ 영감(靈感)노트</div>
+          <div className="stat-label">✨ 영감 노트</div>
           <div className="stat-value" style={{ color: '#0D9488' }}>
             {inspoCount}개 보관 중
           </div>

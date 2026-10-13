@@ -242,7 +242,7 @@ export function InspoVaultView({ onBack }) {
 
       {/* 2. 타이틀 영역 */}
       <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
-        <h2>영감(靈感)노트</h2>
+        <h2>영감 노트</h2>
         <p>책, 영화, 일상에서 마주친 생각과 문장을 차곡차곡 기록하고, 카카오톡 메모도 간편하게 가져오세요.</p>
       </div>
 

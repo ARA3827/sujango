@@ -317,7 +317,7 @@ export default function CaptionStudio({ onBack }) {
       </div>
 
       <div className="workspace-title-area" style={{ marginBottom: '1.25rem' }}>
-        <h2>전시 캡션 네임택 출력기</h2>
+        <h2>전시 캡션 출력기</h2>
         <p>
           각 작품마다 독립된 <strong>옅은 회색 테두리 박스</strong>가 둘러져 있어 선을 따라 자와 칼을 대고 오려내면 명패가 완성됩니다. 
           가로는 2열로 반듯하게 고정되고 세로는 글자 길이에 맞춰 유연하게 조정되며, 작품이 많아지면 자동으로 A4 다음 장이 생성됩니다.

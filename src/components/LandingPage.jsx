@@ -100,7 +100,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             <div className="feature-icon-box" style={{ background: '#F8FAFC', color: '#0F172A' }}>
               <Tag size={24} />
             </div>
-            <h4>🏛️ 전시 캡션 네임택 출력기</h4>
+            <h4>🏛️ 전시 캡션 출력기</h4>
             <p>
               벽면 부착용 캡션을 14대 표준 재료기법 국/영문 프리셋으로 생성하고,
               단정한 테두리 선을 따라 칼로 자를 수 있게 A4 단일 PDF로 일괄 인쇄합니다.
@@ -113,7 +113,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             <div className="feature-icon-box" style={{ background: '#FDF4FF', color: '#A855F7' }}>
               <PenTool size={24} />
             </div>
-            <h4>✍️ 작가노트 & SNS OSMU</h4>
+            <h4>✍️ 작가노트 & SNS</h4>
             <p>
               작품 키워드 3개만 넣으면 도록용 심층 평론 작가노트, 인스타 감성 캡션+태그,
               블로그 비하인드 스토리가 완성되며 자유롭게 다듬을 수 있습니다.
@@ -191,7 +191,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
               <li><CheckCircle2 size={16} color="#059669" /> 웹 최적화 확인용 압축 보관 (내 PC 브라우저 안전 저장)</li>
               <li><CheckCircle2 size={16} color="#059669" /> 기기 교체 시 단일 JSON 파일 백업/복원 이동</li>
               <li><CheckCircle2 size={16} color="#059669" /> 출강 강의계획서 & 표준 CV 약력 & 견적서 무제한</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 전시 캡션 네임택 A4 단일 PDF 일괄 인쇄</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 전시 캡션 A4 단일 PDF 일괄 인쇄</li>
             </ul>
             <button onClick={onOpenLogin} className="btn-outline" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center' }}>
               작품 30점 무료 이용

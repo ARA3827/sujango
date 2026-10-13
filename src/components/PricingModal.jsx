@@ -154,7 +154,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
               </li>
               <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>전시 캡션 네임택 A4 단일 PDF 일괄 인쇄</span>
+                <span>전시 캡션 A4 단일 PDF 일괄 인쇄</span>
               </li>
             </ul>
 
