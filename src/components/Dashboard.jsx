@@ -39,7 +39,7 @@ export default function Dashboard({
   const tools = [
     {
       id: 'inspo',
-      title: '영감노트/밑줄',
+      title: '영감(靈感)노트',
       tag: '창작 영감 & 문장',
       icon: <Sparkles size={22} style={{ color: '#059669' }} />,
       desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 깔끔하게 정리하여 가져옵니다.',
@@ -135,7 +135,7 @@ export default function Dashboard({
         </div>
 
         <div className="stat-item-box" onClick={() => onSelectView('inspo')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">✨ 영감노트/밑줄 보관함</div>
+          <div className="stat-label">✨ 영감(靈感)노트</div>
           <div className="stat-value" style={{ color: '#0D9488' }}>
             {inspoCount}개 보관 중
           </div>

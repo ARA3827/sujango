@@ -46,7 +46,7 @@ export function InspoVaultView({ onBack }) {
 
   // 2. 입력 폼 상태
   const [newText, setNewText] = useState('');
-  const [newCategory, setNewCategory] = useState('uncategorized');
+  const [newCategory, setNewCategory] = useState('book');
   const [newSource, setNewSource] = useState('');
   const [newThought, setNewThought] = useState('');
 
@@ -62,11 +62,10 @@ export function InspoVaultView({ onBack }) {
 
   // 카테고리별 개수 산출
   const categoryCounts = useMemo(() => {
-    const counts = { all: quotes.length, uncategorized: 0, book: 0, movie: 0, tv: 0, thought: 0, favorites: 0 };
+    const counts = { all: quotes.length, book: 0, movie: 0, tv: 0, thought: 0, favorites: 0 };
     quotes.forEach((q) => {
-      const cat = q.category || 'uncategorized';
+      const cat = q.category || 'thought';
       if (counts[cat] !== undefined) counts[cat]++;
-      else counts.uncategorized++;
       if (q.isFavorite) counts.favorites++;
     });
     return counts;
@@ -78,7 +77,7 @@ export function InspoVaultView({ onBack }) {
     if (showOnlyFavorites) {
       result = result.filter((q) => q.isFavorite);
     } else if (currentCategory !== 'all') {
-      result = result.filter((q) => (q.category || 'uncategorized') === currentCategory);
+      result = result.filter((q) => (q.category || 'thought') === currentCategory);
     }
 
     if (searchQuery.trim()) {
@@ -121,7 +120,7 @@ export function InspoVaultView({ onBack }) {
     setNewText('');
     setNewSource('');
     setNewThought('');
-    setNewCategory('uncategorized');
+    setNewCategory('book');
 
     try {
       confetti({
@@ -176,7 +175,7 @@ export function InspoVaultView({ onBack }) {
       case 'movie': return '영화';
       case 'tv': return '드라마';
       case 'thought': return '생각';
-      default: return '미분류';
+      default: return '기록';
     }
   };
 
@@ -220,8 +219,8 @@ export function InspoVaultView({ onBack }) {
 
       {/* 2. 타이틀 영역 */}
       <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
-        <h2>영감(靈感)노트 / 밑줄</h2>
-        <p>책·영화 속 밑줄과 일상에서 스친 단상을 수집하고, 창작에 필요한 생각의 조각들을 한곳에 차곡차곡 모아두세요.</p>
+        <h2>영감(靈感)노트</h2>
+        <p>책, 영화, 일상에서 마주친 생각과 문장을 차곡차곡 기록하고, 카카오톡 메모도 간편하게 가져오세요.</p>
       </div>
 
       {/* 3. 데스크톱 2열 표준 워크스페이스 그리드 */}
@@ -243,7 +242,7 @@ export function InspoVaultView({ onBack }) {
               <textarea
                 className="form-input"
                 style={{
-                  minHeight: '120px',
+                  minHeight: '130px',
                   fontFamily: "var(--font-serif, 'Gowun Batang', 'Noto Serif KR', serif)",
                   fontSize: '14.5px',
                   lineHeight: '1.6',
@@ -264,7 +263,6 @@ export function InspoVaultView({ onBack }) {
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                 >
-                  <option value="uncategorized">미분류</option>
                   <option value="book">책</option>
                   <option value="movie">영화</option>
                   <option value="tv">드라마</option>
@@ -308,62 +306,21 @@ export function InspoVaultView({ onBack }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '6px',
-                fontSize: '14px',
+                fontSize: '14.5px',
                 fontWeight: '600',
                 backgroundColor: '#0F172A'
               }}
             >
-              <Plus size={16} />
-              <span>영감 카드로 담기</span>
+              <Check size={16} />
+              <span>저장</span>
             </button>
           </form>
-
-          {/* 카카오톡 불러오기 안내 배너 */}
-          <div style={{
-            marginTop: '24px',
-            padding: '16px',
-            backgroundColor: '#F8FAFC',
-            border: '1px solid #E2E8F0',
-            borderRadius: '8px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-              <MessageSquare size={16} color="#0284C7" />
-              <strong style={{ fontSize: '13.5px', color: '#1E293B' }}>카카오톡 '나와의 채팅'에 모아둔 글이 있나요?</strong>
-            </div>
-            <p style={{ fontSize: '12px', color: '#64748B', lineHeight: '1.6', margin: '0 0 12px 0' }}>
-              카카오톡 채팅방 메뉴에서 [대화 내용 내보내기 (.txt)]를 실행한 뒤 불러오면, 텍스트 속 문장들을 깔끔하게 정리하여 수장고로 가져올 수 있습니다.
-            </p>
-            <button
-              type="button"
-              onClick={() => setIsKakaoSheetOpen(true)}
-              style={{
-                width: '100%',
-                padding: '8px',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #CBD5E1',
-                borderRadius: '6px',
-                fontSize: '12.5px',
-                fontWeight: '600',
-                color: '#334155',
-                cursor: 'pointer'
-              }}
-            >
-              카톡 대화 파일 / 텍스트 가져오기
-            </button>
-          </div>
         </div>
 
         {/* ========================================================
-            우측 열: 수집된 영감 보관함 (Panel Card)
+            우측 열: 수집된 영감 보관함 피드 (Panel Card)
            ======================================================== */}
         <div className="panel-card">
-          <div className="panel-card-title">
-            <span>수집된 영감 보관함</span>
-            <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 400 }}>
-              총 {quotes.length}개 중 {filteredQuotes.length}개 표시
-            </span>
-          </div>
-
           {/* 카테고리 칩 필터 바 */}
           <div className="inspo-filter-chips-row">
             <button
@@ -428,24 +385,12 @@ export function InspoVaultView({ onBack }) {
 
             <button
               type="button"
-              className={`inspo-chip-btn ${!showOnlyFavorites && currentCategory === 'uncategorized' ? 'active' : ''}`}
-              onClick={() => {
-                setShowOnlyFavorites(false);
-                setCurrentCategory('uncategorized');
-              }}
-            >
-              <span>미분류</span>
-              <span style={{ opacity: 0.7, fontSize: '11px' }}>{categoryCounts.uncategorized}</span>
-            </button>
-
-            <button
-              type="button"
               className={`inspo-chip-btn favorite-chip ${showOnlyFavorites ? 'active' : ''}`}
               onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+              title="즐겨찾기한 영감 모아보기"
             >
               <Heart size={12} fill={showOnlyFavorites ? '#FFFFFF' : '#E11D48'} />
-              <span>보관함</span>
-              <span style={{ opacity: 0.7, fontSize: '11px' }}>{categoryCounts.favorites}</span>
+              <span>즐겨찾기</span>
             </button>
           </div>
 
