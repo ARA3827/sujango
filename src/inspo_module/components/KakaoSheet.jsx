@@ -49,35 +49,35 @@ export function KakaoSheet({ onClose, onImportBatch }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="sheet-container" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 1000, overflowY: 'auto', padding: '20px 10px' }}>
+      <div className="inspo-modal-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px' }}>
         {/* 헤더 */}
-        <div className="sheet-header" style={{ backgroundColor: "#FEE500", color: "#3C1E1E" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div className="inspo-modal-header">
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <span style={{ fontSize: "16px" }}>💬</span>
-            <strong style={{ fontSize: "14px" }}>카카오톡 연동 센터</strong>
+            <strong style={{ fontSize: "15px", fontWeight: "700" }}>카카오톡 대화 가져오기</strong>
           </div>
           <button
             type="button"
             onClick={onClose}
-            style={{ background: "none", border: "none", cursor: "pointer", color: "#3C1E1E" }}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "#94A3B8" }}
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
 
         {/* 탭 버튼 */}
-        <div style={{ display: "flex", borderBottom: "1px solid var(--border-color)", backgroundColor: "#FAF8F3" }}>
+        <div style={{ display: "flex", borderBottom: "1px solid #E2E8F0", backgroundColor: "#F8FAFC" }}>
           <button
             type="button"
             onClick={() => setTab("import")}
             style={{
               flex: 1,
-              padding: "10px",
-              fontSize: "13px",
+              padding: "12px",
+              fontSize: "13.5px",
               fontWeight: tab === "import" ? "700" : "500",
-              color: tab === "import" ? "var(--primary-green)" : "var(--text-sub)",
-              borderBottom: tab === "import" ? "2px solid var(--primary-green)" : "none",
+              color: tab === "import" ? "#0F172A" : "#64748B",
+              borderBottom: tab === "import" ? "2.5px solid #0F172A" : "none",
               background: "none",
               borderTop: "none",
               borderLeft: "none",
@@ -92,11 +92,11 @@ export function KakaoSheet({ onClose, onImportBatch }) {
             onClick={() => setTab("guide")}
             style={{
               flex: 1,
-              padding: "10px",
-              fontSize: "13px",
+              padding: "12px",
+              fontSize: "13.5px",
               fontWeight: tab === "guide" ? "700" : "500",
-              color: tab === "guide" ? "var(--primary-green)" : "var(--text-sub)",
-              borderBottom: tab === "guide" ? "2px solid var(--primary-green)" : "none",
+              color: tab === "guide" ? "#0F172A" : "#64748B",
+              borderBottom: tab === "guide" ? "2.5px solid #0F172A" : "none",
               background: "none",
               borderTop: "none",
               borderLeft: "none",
@@ -109,7 +109,7 @@ export function KakaoSheet({ onClose, onImportBatch }) {
         </div>
 
         {/* 바디 */}
-        <div className="sheet-body">
+        <div style={{ padding: "20px 22px", maxHeight: "75vh", overflowY: "auto" }}>
           {tab === "import" ? (
             <div>
               {candidates.length === 0 ? (
@@ -318,13 +318,23 @@ export function KakaoSheet({ onClose, onImportBatch }) {
         </div>
 
         {/* 푸터 */}
-        <div className="sheet-footer">
-          <button type="button" className="btn-form-cancel" onClick={onClose}>
+        <div className="inspo-modal-footer">
+          <button 
+            type="button" 
+            className="inspo-action-btn" 
+            style={{ padding: "7px 16px", fontSize: "13px" }}
+            onClick={onClose}
+          >
             닫기
           </button>
           {candidates.length > 0 && tab === "import" && (
-            <button type="button" className="btn-form-submit" onClick={handleConfirm}>
-              선택한 {selectedIds.size}개 카드로 담기
+            <button 
+              type="button" 
+              className="btn-primary" 
+              style={{ padding: "8px 18px", fontSize: "13px", backgroundColor: "#0F172A" }}
+              onClick={handleConfirm}
+            >
+              선택한 {selectedIds.size}개 영감 카드로 담기
             </button>
           )}
         </div>
