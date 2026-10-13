@@ -84,11 +84,10 @@ export default function Dashboard({
       {/* 1. 히어로 인트로 */}
       <section className="dashboard-hero">
         <h1 className="hero-quote">
-          오롯이 작업에만 몰입하세요.<br />
-          서류, 세금, SNS 행정은 수장고(Sujango)가 대신합니다.
+          작가님은 오롯이 창작에만 몰입하세요.
         </h1>
         <p className="hero-sub">
-          창작자를 위한 프라이빗 디지털 수장고. 꼭 필요한 도구를 한곳에서 간편하게 복사하고 출력하세요.
+          마음을 울린 영감의 기록부터 소중한 작품 보관까지, 세월이 흘러도 변치 않는 나만의 디지털 수장고에서 안전하게 관리하세요.
         </p>
       </section>
 

@@ -34,8 +34,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
         </h1>
 
         <p className="landing-hero-sub">
-          복잡한 미술관 제출 서류 양식부터 3.3% 원천징수 계산, 
-          그리고 세월이 흘러도 변치 않는 나만의 디지털 작품 포트폴리오까지 한곳에서 관리하세요.
+          마음을 울린 영감의 기록부터 소중한 작품 보관까지, 세월이 흘러도 변치 않는 나만의 디지털 수장고에서 안전하게 관리하세요.
         </p>
 
         <div className="landing-hero-cta" style={{ justifyContent: 'center' }}>
