@@ -132,9 +132,35 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
   });
 
   const receiptFileInputRef = useRef(null);
+  const modalReceiptInputRef = useRef(null);
 
   // A4 증빙서 인쇄 모달 상태
   const [printExpenseItem, setPrintExpenseItem] = useState(null);
+
+  // 모달 내에서 직접 영수증 업로드 & 실시간 저장
+  const handleModalReceiptUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !printExpenseItem) return;
+
+    try {
+      const compressedData = await compressImage(file, 800, 0.85);
+      const updated = { ...printExpenseItem, receiptUrl: compressedData };
+      setPrintExpenseItem(updated);
+      setExpenses(prev => prev.map(exp => exp.id === printExpenseItem.id ? updated : exp));
+    } catch (err) {
+      alert('영수증 이미지 처리 실패: ' + err.message);
+    } finally {
+      if (modalReceiptInputRef.current) modalReceiptInputRef.current.value = '';
+    }
+  };
+
+  // 모달 내에서 영수증 사진 삭제 (빈칸 점선 박스로 복원)
+  const handleRemoveModalReceipt = () => {
+    if (!printExpenseItem) return;
+    const updated = { ...printExpenseItem, receiptUrl: '' };
+    setPrintExpenseItem(updated);
+    setExpenses(prev => prev.map(exp => exp.id === printExpenseItem.id ? updated : exp));
+  };
 
   // LocalStorage 영구 동기화
   useEffect(() => {
@@ -984,7 +1010,16 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
                 </tbody>
               </table>
 
-              {/* 하단 영수증 증빙 영역 (하이브리드: 이미지 업로드형 vs 실물 부착형) */}
+              {/* 숨겨진 모달 영수증 파일 입력창 */}
+              <input 
+                type="file" 
+                ref={modalReceiptInputRef} 
+                accept="image/*" 
+                style={{ display: 'none' }} 
+                onChange={handleModalReceiptUpload} 
+              />
+
+              {/* 하단 영수증 증빙 영역 (클릭 시 사진 업로드 & 미첨부 시 점선 빈칸 인쇄) */}
               <div style={{
                 border: '1.5px solid #111827',
                 borderRadius: '4px',
@@ -998,10 +1033,41 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
                 marginBottom: '20px'
               }}>
                 {printExpenseItem.receiptUrl ? (
-                  /* 1. 영수증 이미지가 있는 경우 (디지털 원스톱 합성) */
+                  /* 1. 영수증 이미지가 있는 경우 */
                   <div style={{ width: '100%', textAlign: 'center' }}>
-                    <div style={{ fontSize: '12px', color: '#64748B', fontWeight: '600', marginBottom: '10px', letterSpacing: '1px' }}>
-                      【 카드 매출전표 / 온라인 결제 영수증 캡처 증빙 】
+                    <div className="no-print" style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '10px' }}>
+                      <button
+                        type="button"
+                        onClick={() => modalReceiptInputRef.current?.click()}
+                        style={{
+                          fontSize: '11.5px',
+                          color: '#0284C7',
+                          backgroundColor: '#F0F9FF',
+                          border: '1px solid #BAE6FD',
+                          padding: '3px 10px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontWeight: '500'
+                        }}
+                      >
+                        사진 변경
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRemoveModalReceipt}
+                        style={{
+                          fontSize: '11.5px',
+                          color: '#EF4444',
+                          backgroundColor: '#FEF2F2',
+                          border: '1px solid #FECACA',
+                          padding: '3px 10px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontWeight: '500'
+                        }}
+                      >
+                        사진 삭제 (빈칸 복원)
+                      </button>
                     </div>
                     <img 
                       src={printExpenseItem.receiptUrl} 
@@ -1017,26 +1083,41 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
                     />
                   </div>
                 ) : (
-                  /* 2. 영수증 이미지가 없는 경우 (실물 영수증 부착용 점선 박스) */
-                  <div style={{
-                    width: '95%',
-                    height: '320px',
-                    border: '2px dashed #94A3B8',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#64748B',
-                    backgroundColor: '#F8FAFC'
-                  }}>
-                    <Receipt size={36} color="#94A3B8" style={{ marginBottom: '8px' }} />
-                    <strong style={{ fontSize: '14px', color: '#334155' }}>
-                      【 실물 영수증 원본 부착 위치 】
+                  /* 2. 영수증 이미지가 없는 경우 (클릭 시 이미지 업로드, 미업로드 시 깨끗한 점선 빈칸 인쇄) */
+                  <div 
+                    onClick={() => modalReceiptInputRef.current?.click()}
+                    className="receipt-dropzone-box"
+                    style={{
+                      width: '95%',
+                      height: '320px',
+                      border: '1.5px dashed #94A3B8',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#64748B',
+                      backgroundColor: '#F8FAFC',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.borderColor = '#0284C7';
+                      e.currentTarget.style.backgroundColor = '#F0F9FF';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.borderColor = '#94A3B8';
+                      e.currentTarget.style.backgroundColor = '#F8FAFC';
+                    }}
+                    title="클릭하여 영수증 사진을 바로 첨부하세요"
+                  >
+                    <Receipt size={34} color="#0284C7" className="no-print" style={{ marginBottom: '8px' }} />
+                    <strong className="receipt-box-label" style={{ fontSize: '14px', color: '#334155', letterSpacing: '1px' }}>
+                      【 영수증 부착 위치 】
                     </strong>
-                    <p style={{ fontSize: '12px', color: '#64748B', marginTop: '6px' }}>
-                      여기에 신용카드 매출전표 또는 세금계산서 원본을 풀칠하여 부착하세요.
-                    </p>
+                    <span className="no-print" style={{ fontSize: '12px', color: '#0284C7', marginTop: '6px', fontWeight: '500' }}>
+                      클릭하여 사진 첨부 (미첨부 시 빈칸으로 인쇄)
+                    </span>
                   </div>
                 )}
               </div>

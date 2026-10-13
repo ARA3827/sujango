@@ -1153,6 +1153,39 @@ input, select, textarea {
     font-size: 11pt !important;
     color: #000000 !important;
   }
+
+  /* A4 지출 정산 증빙서 인쇄 최적화 */
+  .modal-overlay {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+  .printable-sheet-modal {
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+  .printable-a4-document {
+    padding: 0.5cm 0 !important;
+    width: 100% !important;
+    background: transparent !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  .receipt-dropzone-box {
+    background: #FFFFFF !important;
+    border: 1.5pt dashed #94A3B8 !important;
+    height: 9.5cm !important;
+  }
+  .receipt-box-label {
+    color: #94A3B8 !important;
+    font-size: 11pt !important;
+  }
 }
 
 /* ==========================================================================
