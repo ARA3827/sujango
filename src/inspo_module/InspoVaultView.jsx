@@ -536,16 +536,16 @@ export function InspoVaultView({ onBack }) {
       </div>
 
       {/* ========================================================
-          4. 🔍 문장 상세 및 생각한줌 수정 모달 (중앙 다이얼로그)
+          4. 🔍 문장 상세 및 전체 내용(영감 본문/출처/메모) 수정 모달
          ======================================================== */}
       {selectedQuote && (
         <div className="modal-overlay" onClick={() => setSelectedQuote(null)} style={{ zIndex: 1000, overflowY: 'auto', padding: '20px 10px' }}>
-          <div className="inspo-modal-dialog" onClick={(e) => e.stopPropagation()}>
+          <div className="inspo-modal-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '620px' }}>
             <div className="inspo-modal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <BookOpen size={16} color="#38BDF8" />
-                <span style={{ fontSize: '14.5px', fontWeight: '700' }}>
-                  {getCategoryLabel(selectedQuote.category)} 속 영감 문장
+                <Edit3 size={16} color="#38BDF8" />
+                <span style={{ fontSize: '15px', fontWeight: '700' }}>
+                  영감 문장 & 내용 수정
                 </span>
               </div>
               <button
@@ -558,36 +558,77 @@ export function InspoVaultView({ onBack }) {
             </div>
 
             <div className="inspo-modal-body">
-              <div style={{
-                padding: '20px',
-                backgroundColor: '#F8FAFC',
-                border: '1px solid #E2E8F0',
-                borderRadius: '8px',
-                marginBottom: '18px'
-              }}>
-                <p style={{
-                  fontFamily: "var(--font-serif, 'Gowun Batang', 'Noto Serif KR', serif)",
-                  fontSize: '16px',
-                  lineHeight: '1.7',
-                  color: '#0F172A',
-                  margin: '0 0 10px 0',
-                  whiteSpace: 'pre-line'
-                }}>
-                  “{formatSentenceBreak(selectedQuote.text)}”
-                </p>
-                <div style={{ fontSize: '13px', color: '#64748B', fontWeight: '600' }}>
-                  {selectedQuote.workTitle ? `- 《${selectedQuote.workTitle}》` : ''}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <span>💭 생각한줌 메모</span>
-                  <span style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 400 }}>(입력 즉시 자동 저장됩니다)</span>
+              {/* 1. 영감 문장 본문 수정 (Textarea) */}
+              <div className="form-group" style={{ marginBottom: '14px' }}>
+                <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>마음에 남은 영감 문장 <span style={{ color: '#EF4444' }}>*</span></span>
+                  <span style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 400 }}>수정 즉시 실시간 저장</span>
                 </label>
                 <textarea
                   className="form-input"
-                  style={{ minHeight: '90px', fontSize: '14px', lineHeight: '1.6' }}
+                  style={{
+                    minHeight: '120px',
+                    fontFamily: "var(--font-serif, 'Gowun Batang', 'Noto Serif KR', serif)",
+                    fontSize: '15px',
+                    lineHeight: '1.65',
+                    padding: '12px'
+                  }}
+                  value={selectedQuote.text || ''}
+                  onChange={(e) => {
+                    const updated = { ...selectedQuote, text: e.target.value };
+                    setSelectedQuote(updated);
+                    setQuotes((prev) => prev.map((q) => (q.id === selectedQuote.id ? updated : q)));
+                  }}
+                  placeholder="마음에 남은 문장이나 대사를 입력하세요."
+                  required
+                />
+              </div>
+
+              {/* 2. 어디에서 (카테고리) & 출처 (작품명) 2열 수정 */}
+              <div className="form-row" style={{ marginBottom: '14px' }}>
+                <div className="form-group">
+                  <label className="form-label">어디에서</label>
+                  <select
+                    className="form-select"
+                    value={selectedQuote.category || 'book'}
+                    onChange={(e) => {
+                      const updated = { ...selectedQuote, category: e.target.value };
+                      setSelectedQuote(updated);
+                      setQuotes((prev) => prev.map((q) => (q.id === selectedQuote.id ? updated : q)));
+                    }}
+                  >
+                    <option value="book">책</option>
+                    <option value="movie">영화</option>
+                    <option value="tv">드라마</option>
+                    <option value="thought">생각/일상</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">출처 (작품명·페이지 등)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={selectedQuote.workTitle || ''}
+                    onChange={(e) => {
+                      const updated = { ...selectedQuote, workTitle: e.target.value };
+                      setSelectedQuote(updated);
+                      setQuotes((prev) => prev.map((q) => (q.id === selectedQuote.id ? updated : q)));
+                    }}
+                    placeholder="예: 《헤어질 결심》, 128p"
+                  />
+                </div>
+              </div>
+
+              {/* 3. 생각한줌 메모 수정 */}
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span>💭 생각한줌 메모</span>
+                  <span style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 400 }}>· 선택 기록</span>
+                </label>
+                <textarea
+                  className="form-input"
+                  style={{ minHeight: '80px', fontSize: '13.5px', lineHeight: '1.6' }}
                   value={selectedQuote.userThought || ''}
                   onChange={(e) => {
                     const updated = { ...selectedQuote, userThought: e.target.value };
@@ -603,28 +644,43 @@ export function InspoVaultView({ onBack }) {
               <button
                 type="button"
                 className="inspo-action-btn delete-btn"
+                style={{ padding: '7px 12px', fontSize: '13px' }}
                 onClick={() => {
                   handleDeleteQuote(selectedQuote.id);
                   setSelectedQuote(null);
                 }}
               >
-                <Trash2 size={13} />
+                <Trash2 size={14} />
                 <span>문장 삭제</span>
               </button>
 
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <button
                   type="button"
                   className="inspo-action-btn"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '7px 14px',
+                    fontSize: '13px',
+                    whiteSpace: 'nowrap'
+                  }}
                   onClick={() => handleCopyQuote(selectedQuote)}
                 >
-                  <Copy size={13} />
+                  <Copy size={14} />
                   <span>문장 복사</span>
                 </button>
                 <button
                   type="button"
                   className="btn-primary"
-                  style={{ padding: '6px 16px', fontSize: '13px', backgroundColor: '#0F172A' }}
+                  style={{
+                    padding: '7px 20px',
+                    fontSize: '13.5px',
+                    fontWeight: '600',
+                    backgroundColor: '#0F172A',
+                    whiteSpace: 'nowrap'
+                  }}
                   onClick={() => setSelectedQuote(null)}
                 >
                   확인
