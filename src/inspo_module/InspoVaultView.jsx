@@ -156,8 +156,8 @@ export function InspoVaultView({ onBack }) {
         <header className="app-header">
           <div className="app-brand">
             <h1 className="app-brand-title">
-              <span>📦</span>
-              <span>영감 수장고</span>
+              <span>📖</span>
+              <span>영감노트/밑줄</span>
             </h1>
             <p className="app-brand-subtitle">
               창작자를 위한 밑줄 & 생각한줌 보관함 · {quotes.length}개의 영감

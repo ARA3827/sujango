@@ -39,19 +39,11 @@ export default function Dashboard({
   const tools = [
     {
       id: 'inspo',
-      title: '영감 수장고 (Inspo Vault)',
+      title: '영감노트/밑줄',
       tag: '창작 영감 & 문장',
       icon: <Sparkles size={22} style={{ color: '#059669' }} />,
       desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 1초 만에 파싱합니다.',
-      actionText: '영감 서랍 열기'
-    },
-    {
-      id: 'doc',
-      title: '서류·출강 스튜디오',
-      tag: '행정 서류',
-      icon: <FileText size={22} />,
-      desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 공문서 규격으로 자동 완성합니다.',
-      actionText: '서류 작성하기'
+      actionText: '영감노트 열기'
     },
     {
       id: 'statement',
@@ -62,20 +54,28 @@ export default function Dashboard({
       actionText: '콘텐츠 생성하기'
     },
     {
-      id: 'tax',
-      title: '예술소득 & 3.3% 정산소',
-      tag: '세금 & 정산',
-      icon: <Receipt size={22} />,
-      desc: '출강비 3.3%, 특강 기타소득 8.8%, 갤러리 위탁판매 실수령액을 자동 계산하고 미수금과 5월 종합소득세를 관리합니다.',
-      actionText: '장부 확인하기'
-    },
-    {
       id: 'caption',
       title: '전시 캡션 네임택 출력기',
       tag: '전시 & 아트페어',
       icon: <Tag size={22} />,
       desc: '작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고, 자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.',
       actionText: '캡션 명패 만들기'
+    },
+    {
+      id: 'doc',
+      title: '서류·출강 스튜디오',
+      tag: '행정 서류',
+      icon: <FileText size={22} />,
+      desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 공문서 규격으로 자동 완성합니다.',
+      actionText: '서류 작성하기'
+    },
+    {
+      id: 'tax',
+      title: '예술소득 & 3.3% 정산소',
+      tag: '세금 & 정산',
+      icon: <Receipt size={22} />,
+      desc: '출강비 3.3%, 특강 기타소득 8.8%, 갤러리 위탁판매 실수령액을 자동 계산하고 미수금과 5월 종합소득세를 관리합니다.',
+      actionText: '장부 확인하기'
     }
   ];
 
@@ -135,7 +135,7 @@ export default function Dashboard({
         </div>
 
         <div className="stat-item-box" onClick={() => onSelectView('inspo')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">✨ 영감 수장고 보관함</div>
+          <div className="stat-label">✨ 영감노트/밑줄 보관함</div>
           <div className="stat-value" style={{ color: '#0D9488' }}>
             {inspoCount}개 보관 중
           </div>
