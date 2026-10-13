@@ -254,7 +254,6 @@ export function InspoVaultView({ onBack }) {
         <div className="panel-card">
           <div className="panel-card-title">
             <span>새 영감·문장 기록</span>
-            <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 400 }}>자동 줄바꿈 정리</span>
           </div>
 
           <form onSubmit={handleAddQuote}>
@@ -273,7 +272,7 @@ export function InspoVaultView({ onBack }) {
                 }}
                 value={newText}
                 onChange={(e) => setNewText(e.target.value)}
-                placeholder="마음을 울린 문장이나 대사를 적어보세요. 마침표 뒤는 자동으로 읽기 편하게 정돈됩니다."
+                placeholder="마음을 울린 문장이나 대사를 기록해 보세요"
                 required
               />
             </div>
@@ -560,9 +559,8 @@ export function InspoVaultView({ onBack }) {
             <div className="inspo-modal-body">
               {/* 1. 영감 문장 본문 수정 (Textarea) */}
               <div className="form-group" style={{ marginBottom: '14px' }}>
-                <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>마음에 남은 영감 문장 <span style={{ color: '#EF4444' }}>*</span></span>
-                  <span style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 400 }}>수정 즉시 실시간 저장</span>
+                <label className="form-label">
+                  마음에 남은 영감 문장 <span style={{ color: '#EF4444' }}>*</span>
                 </label>
                 <textarea
                   className="form-input"
@@ -579,7 +577,7 @@ export function InspoVaultView({ onBack }) {
                     setSelectedQuote(updated);
                     setQuotes((prev) => prev.map((q) => (q.id === selectedQuote.id ? updated : q)));
                   }}
-                  placeholder="마음에 남은 문장이나 대사를 입력하세요."
+                  placeholder="마음을 울린 문장이나 대사를 기록해 보세요"
                   required
                 />
               </div>
