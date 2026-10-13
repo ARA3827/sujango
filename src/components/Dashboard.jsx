@@ -20,11 +20,31 @@ export default function Dashboard({
   onOpenNewToolModal
 }) {
   const [artworks, setArtworks] = useState([]);
+  const [inspoCount, setInspoCount] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sujango_inspo_vault_v1');
+      if (saved) return JSON.parse(saved).length;
+    } catch (e) {}
+    return 0;
+  });
 
   useEffect(() => {
     setArtworks(getArtworks());
+    try {
+      const saved = localStorage.getItem('sujango_inspo_vault_v1');
+      if (saved) setInspoCount(JSON.parse(saved).length);
+    } catch (e) {}
   }, []);
+
   const tools = [
+    {
+      id: 'inspo',
+      title: '영감 수장고 (Inspo Vault)',
+      tag: '창작 영감 & 문장',
+      icon: <Sparkles size={22} style={{ color: '#059669' }} />,
+      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 1초 만에 파싱합니다.',
+      actionText: '영감 서랍 열기'
+    },
     {
       id: 'doc',
       title: '서류·출강 스튜디오',
@@ -111,6 +131,16 @@ export default function Dashboard({
           </div>
           <div className="stat-sub">
             강의계획서 • 작가 CV • 간이 견적서
+          </div>
+        </div>
+
+        <div className="stat-item-box" onClick={() => onSelectView('inspo')} style={{ cursor: 'pointer' }}>
+          <div className="stat-label">✨ 영감 수장고 보관함</div>
+          <div className="stat-value" style={{ color: '#0D9488' }}>
+            {inspoCount}개 보관 중
+          </div>
+          <div className="stat-sub">
+            문장 카드 • 카톡 1초 파싱
           </div>
         </div>
       </div>

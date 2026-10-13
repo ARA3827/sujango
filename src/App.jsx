@@ -6,6 +6,7 @@ import StatementStudio from './components/StatementStudio';
 import TaxStudio from './components/TaxStudio';
 import CaptionStudio from './components/CaptionStudio';
 import ArchiveStudio from './components/ArchiveStudio';
+import InspoVaultView from './inspo_module/InspoVaultView';
 import NewToolModal from './components/NewToolModal';
 import LandingPage from './components/LandingPage';
 import LoginModal from './components/LoginModal';
@@ -34,7 +35,7 @@ export default function App() {
   // 브라우저 Hash 기반 URL 파싱 (뒤로가기 완벽 연동)
   const getViewFromHash = () => {
     const hash = window.location.hash.replace('#', '');
-    const validViews = ['doc', 'statement', 'tax', 'caption', 'archive'];
+    const validViews = ['doc', 'statement', 'tax', 'caption', 'archive', 'inspo'];
     return validViews.includes(hash) ? hash : 'dashboard';
   };
 
@@ -193,6 +194,10 @@ export default function App() {
                 onOpenPricing={() => setIsPricingModalOpen(true)}
                 user={user}
               />
+            )}
+
+            {currentView === 'inspo' && (
+              <InspoVaultView onBack={handleBack} />
             )}
           </>
         )}

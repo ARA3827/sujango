@@ -12,7 +12,7 @@ import "./inspo_styles.css";
 
 const STORAGE_KEY = "sujango_inspo_vault_v1";
 
-export function InspoVaultView() {
+export function InspoVaultView({ onBack }) {
   const [quotes, setQuotes] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -126,7 +126,32 @@ export function InspoVaultView() {
   };
 
   return (
-    <div className="inspo-vault-container" style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+    <div className="inspo-vault-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", padding: "16px 8px 40px 8px" }}>
+      {onBack && (
+        <div style={{ maxWidth: "520px", width: "100%", marginBottom: "12px", display: "flex", justifyContent: "flex-start" }}>
+          <button
+            type="button"
+            onClick={onBack}
+            className="back-btn"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              background: "#ffffff",
+              border: "1px solid #e2e8f0",
+              borderRadius: "8px",
+              padding: "7px 14px",
+              fontSize: "13px",
+              fontWeight: "600",
+              color: "#334155",
+              cursor: "pointer",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.03)"
+            }}
+          >
+            ← 메인 대시보드로
+          </button>
+        </div>
+      )}
       <div className="mobile-app-shell">
         <header className="app-header">
           <div className="app-brand">
@@ -140,6 +165,17 @@ export function InspoVaultView() {
           </div>
 
           <div className="app-header-actions">
+            {onBack && (
+              <button
+                type="button"
+                className="header-icon-btn"
+                onClick={onBack}
+                title="메인 대시보드로 돌아가기"
+                style={{ fontSize: "14px", color: "var(--text-secondary)" }}
+              >
+                ✕
+              </button>
+            )}
             <button
               type="button"
               className="header-icon-btn"
