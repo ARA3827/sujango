@@ -24,6 +24,7 @@ import { getFeedbacks } from '../utils/feedbackStorage';
 
 export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing }) {
   const [feedbacks, setFeedbacks] = useState([]);
+  const [billingCycle, setBillingCycle] = useState('yearly'); // 'yearly' | 'monthly'
 
   useEffect(() => {
     setFeedbacks(getFeedbacks());
@@ -229,6 +230,54 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           </p>
         </div>
 
+        {/* 결제 주기 선택 스위치 (월간 결제 vs 연간 결제 20% 할인) */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2.25rem' }}>
+          <div style={{ background: '#F1F5F9', padding: '4px', borderRadius: '10px', display: 'flex', gap: '4px', border: '1px solid #E2E8F0' }}>
+            <button
+              type="button"
+              onClick={() => setBillingCycle('monthly')}
+              style={{
+                padding: '0.45rem 1.25rem',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '0.86rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                background: billingCycle === 'monthly' ? '#FFFFFF' : 'transparent',
+                color: billingCycle === 'monthly' ? '#0F172A' : '#64748B',
+                boxShadow: billingCycle === 'monthly' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              월간 결제
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingCycle('yearly')}
+              style={{
+                padding: '0.45rem 1.25rem',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '0.86rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                background: billingCycle === 'yearly' ? '#FFFFFF' : 'transparent',
+                color: billingCycle === 'yearly' ? '#0F172A' : '#64748B',
+                boxShadow: billingCycle === 'yearly' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>연간 결제</span>
+              <span style={{ fontSize: '0.72rem', background: '#ECFDF5', color: '#059669', padding: '2px 7px', borderRadius: '4px', fontWeight: 700 }}>
+                20% 할인
+              </span>
+            </button>
+          </div>
+        </div>
+
         <div className="landing-pricing-grid">
           {/* 1. 무료 플랜 */}
           <div className="landing-pricing-card">
@@ -273,10 +322,18 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
                 <Crown size={18} color="#0284C7" />
               </div>
               <div className="plan-price-wrap" style={{ marginTop: '0.5rem' }}>
-                <span className="plan-price-num">7,900</span>
-                <span className="plan-price-unit">원 / 월 (연 94,800원 기준)</span>
+                <span className="plan-price-num">
+                  {billingCycle === 'yearly' ? '7,900' : '9,900'}
+                </span>
+                <span className="plan-price-unit">
+                  {billingCycle === 'yearly' ? '원 / 월 (연 94,800원 일괄 결제)' : '원 / 월 (월간 정기 구독)'}
+                </span>
               </div>
-              <p className="plan-desc">개인 작가를 위한 100GB 초고화질 무손실 원본 보관 (월간 구독 시 9,900원)</p>
+              <p className="plan-desc">
+                {billingCycle === 'yearly'
+                  ? '개인 작가를 위한 100GB 초고화질 무손실 원본 보관 (연간 20% 할인)'
+                  : '개인 작가를 위한 100GB 초고화질 무손실 원본 보관 (부담 없는 월간 결제)'}
+              </p>
             </div>
 
             <div className="plan-capacity-box">
@@ -314,10 +371,18 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
                 <Crown size={18} color="#7C3AED" />
               </div>
               <div className="plan-price-wrap" style={{ marginTop: '0.5rem' }}>
-                <span className="plan-price-num">23,200</span>
-                <span className="plan-price-unit">원 / 월 (연 278,400원 기준)</span>
+                <span className="plan-price-num">
+                  {billingCycle === 'yearly' ? '23,200' : '29,000'}
+                </span>
+                <span className="plan-price-unit">
+                  {billingCycle === 'yearly' ? '원 / 월 (연 278,400원 일괄 결제)' : '원 / 월 (월간 정기 구독)'}
+                </span>
               </div>
-              <p className="plan-desc">영상•설치•대형 프로젝트 작가 및 작업실 전용 (월간 구독 시 29,000원)</p>
+              <p className="plan-desc">
+                {billingCycle === 'yearly'
+                  ? '영상•설치•대형 프로젝트 작가 및 작업실 전용 (연간 20% 할인)'
+                  : '영상•설치•대형 프로젝트 작가 및 작업실 전용 (부담 없는 월간 결제)'}
+              </p>
             </div>
 
             <div className="plan-capacity-box studio">
