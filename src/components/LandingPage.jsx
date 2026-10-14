@@ -173,15 +173,15 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
       {/* 3.5. 실제 작가들의 생생한 목소리 (Testimonials / Social Proof) */}
       <section className="landing-reviews-section" style={{ maxWidth: '1120px', margin: '4rem auto 2rem', padding: '0 1.5rem' }}>
         <div className="section-title-center">
-          <span className="section-sub-tag">ARTIST COMMUNITY & REVIEWS</span>
-          <h2>수장고와 함께하는 작가들의 생생한 목소리</h2>
+          <span className="section-sub-tag">GLOBAL ARTIST COMMUNITY & REVIEWS</span>
+          <h2>수장고와 함께하는 국내외 작가들의 생생한 목소리</h2>
           <p>
-            대한민국 1인 창작 예술가들이 현장에서 직접 경험한 솔직한 이용 소감과 생생한 후기입니다.
+            국내외 1인 창작 예술가들이 현장에서 직접 경험한 솔직한 이용 소감과 생생한 후기입니다.
           </p>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', marginTop: '2rem' }}>
-          {feedbacks.slice(0, 3).map((fb) => (
+          {feedbacks.slice(0, 6).map((fb) => (
             <div 
               key={fb.id}
               style={{

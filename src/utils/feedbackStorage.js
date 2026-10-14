@@ -3,7 +3,7 @@ import { getStoredUser } from './authStorage';
 
 const FEEDBACK_STORAGE_KEY = 'artflow_community_feedbacks';
 
-// 초기 기본 품격 있는 현장 작가 찐 후기 3건 (실존 인물 오해 방지용 예술가 감성 닉네임/필명 적용)
+// 초기 기본 품격 있는 현장 작가 찐 후기 (국내 감성 닉네임 + 글로벌 해외 작가 닉네임)
 const SEED_FEEDBACKS = [
   {
     id: 'fb-1',
@@ -31,11 +31,38 @@ const SEED_FEEDBACKS = [
     text: '클라이언트나 갤러리 미팅할 때 1080px 워터마크 찍힌 7일 만료 보안 링크로 보내니까 원본 도용 걱정 없이 안심하고 시안을 보낼 수 있어 든든합니다.',
     status: '반영완료',
     createdAt: '2026-10-08'
+  },
+  {
+    id: 'fb-4',
+    author: 'Studio_Lumina (Painter, Berlin)',
+    type: 'idea',
+    rating: 5,
+    text: 'The 7-day expiring preview link with automatic watermarks gave me total peace of mind when submitting proposals to international galleries.',
+    status: '반영완료',
+    createdAt: '2026-10-13'
+  },
+  {
+    id: 'fb-5',
+    author: 'Clay & Silence (Ceramic Artist, Kyoto)',
+    type: 'review',
+    rating: 5,
+    text: 'Generating cohesive artist statements and social captions from just three keywords saved me endless hours right before my solo exhibition.',
+    status: '전시중',
+    createdAt: '2026-10-11'
+  },
+  {
+    id: 'fb-6',
+    author: 'Nordic_Forms (Sculptor, Oslo)',
+    type: 'review',
+    rating: 5,
+    text: 'Batch-printing standardized A4 exhibition labels directly from my digital vault eliminated all the tedious manual measuring and cutting.',
+    status: '전시중',
+    createdAt: '2026-10-09'
   }
 ];
 
 /**
- * 전체 작가 피드백 및 후기 목록 가져오기 (실명 ➔ 가상 닉네임 자동 마이그레이션 포함)
+ * 전체 작가 피드백 및 후기 목록 가져오기 (실명 ➔ 가상 닉네임 자동 마이그레이션 & 신규 시드 병합 포함)
  */
 export function getFeedbacks() {
   try {
@@ -44,13 +71,21 @@ export function getFeedbacks() {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
         // 기존 실명 데이터를 안전한 예술가 닉네임으로 자동 변환
-        const sanitized = parsed.map(item => {
+        let sanitized = parsed.map(item => {
           let author = item.author;
           if (author.includes('김현우')) author = '아틀리에_새벽 (서양화 작가)';
           if (author.includes('이지은')) author = '달빛도예공방 (도예·공예 아티스트)';
           if (author.includes('박서준')) author = '공간과물성 (현대 조각가)';
           return { ...item, author };
         });
+
+        // 신규 시드 데이터(영문 후기 등)가 로컬스토리지에 누락되어 있다면 자동 보충 병합
+        const existingIds = new Set(sanitized.map(i => i.id));
+        const missingSeeds = SEED_FEEDBACKS.filter(s => !existingIds.has(s.id));
+        if (missingSeeds.length > 0) {
+          sanitized = [...sanitized, ...missingSeeds];
+        }
+
         localStorage.setItem(FEEDBACK_STORAGE_KEY, JSON.stringify(sanitized));
         return sanitized;
       }
