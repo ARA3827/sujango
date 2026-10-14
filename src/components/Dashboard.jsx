@@ -97,57 +97,45 @@ export default function Dashboard({
         </p>
       </section>
 
-      {/* 2. 빠른 상태 요약 스트립 (3-Stat Strip) */}
-      <div className="dashboard-stats-strip">
-        <div className="stat-item-box" onClick={() => onSelectView('tax')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">이번 달 확인된 미수금</div>
-          <div className="stat-value" style={{ color: user && taxSummary.pendingAmount > 0 ? '#D97706' : '#111827' }}>
-            {user ? `${taxSummary.pendingAmount.toLocaleString()}원` : '0원'}
-          </div>
-          <div className="stat-sub">
-            {user 
-              ? (taxSummary.pendingAmount > 0 ? '입금 확인 필요한 항목 있음' : '모든 정산 완료')
-              : '게스트 체험 모드 (미수금 없음)'}
+      {/* 2. 빠른 상태 요약 슬림 스트립 (1열 콤팩트 바) */}
+      <div className="dashboard-stats-strip slim">
+        <div className="stat-item-box slim" onClick={() => onSelectView('tax')} style={{ cursor: 'pointer' }} title="창작 가계부 및 미수금 정산 열기">
+          <div className="stat-slim-icon" style={{ background: '#FEF3C7', color: '#D97706' }}>💰</div>
+          <div className="stat-slim-info">
+            <span className="stat-slim-label">미수금 정산</span>
+            <span className="stat-slim-value" style={{ color: user && taxSummary.pendingAmount > 0 ? '#D97706' : '#0F172A' }}>
+              {user ? `${taxSummary.pendingAmount.toLocaleString()}원` : '0원 (체험)'}
+            </span>
           </div>
         </div>
 
-        <div className="stat-item-box" onClick={() => onSelectView('caption')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">준비된 전시 캡션 명패</div>
-          <div className="stat-value" style={{ color: '#0F172A' }}>
-            {user ? `${captionCount}점 보관 중` : '샘플 2점 지원'}
-          </div>
-          <div className="stat-sub">
-            A4 절취선 일괄 인쇄 준비 완료
-          </div>
-        </div>
-
-        <div className="stat-item-box" onClick={() => onSelectView('archive')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">📁 내 작품 디지털 수장고</div>
-          <div className="stat-value" style={{ color: '#0284C7' }}>
-            {user ? `${artworks.length}점 보관 중` : '샘플 2점 체험'}
-          </div>
-          <div className="stat-sub">
-            {user ? '사진 • 작가노트 영구 보존' : '비공개 신작 로그인 시 보존'}
+        <div className="stat-item-box slim" onClick={() => onSelectView('caption')} style={{ cursor: 'pointer' }} title="전시 캡션 명패 만들기">
+          <div className="stat-slim-icon" style={{ background: '#F1F5F9', color: '#334155' }}>🏷️</div>
+          <div className="stat-slim-info">
+            <span className="stat-slim-label">전시 캡션 명패</span>
+            <span className="stat-slim-value">
+              {user ? `${captionCount}점 준비` : '샘플 2점'}
+            </span>
           </div>
         </div>
 
-        <div className="stat-item-box" onClick={() => onSelectView('doc')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">행정 서류 공문서 빌더</div>
-          <div className="stat-value" style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Layers size={20} /> 서류 3종 지원
-          </div>
-          <div className="stat-sub">
-            강의계획서 • 작가 CV • 간이 견적서
+        <div className="stat-item-box slim" onClick={() => onSelectView('doc')} style={{ cursor: 'pointer' }} title="행정 서류 공문서 빌더">
+          <div className="stat-slim-icon" style={{ background: '#ECFDF5', color: '#059669' }}>📄</div>
+          <div className="stat-slim-info">
+            <span className="stat-slim-label">공문서 빌더</span>
+            <span className="stat-slim-value" style={{ color: '#059669' }}>
+              서류 3종 지원
+            </span>
           </div>
         </div>
 
-        <div className="stat-item-box" onClick={() => onSelectView('inspo')} style={{ cursor: 'pointer' }}>
-          <div className="stat-label">✨ 영감 노트</div>
-          <div className="stat-value" style={{ color: '#0D9488' }}>
-            {user ? `${inspoCount}개 보관 중` : '샘플 2개 체험'}
-          </div>
-          <div className="stat-sub">
-            문장 카드 • 카톡 대화 불러오기
+        <div className="stat-item-box slim" onClick={() => onSelectView('inspo')} style={{ cursor: 'pointer' }} title="영감 노트 열기">
+          <div className="stat-slim-icon" style={{ background: '#F0FDFA', color: '#0D9488' }}>✨</div>
+          <div className="stat-slim-info">
+            <span className="stat-slim-label">영감 노트</span>
+            <span className="stat-slim-value" style={{ color: '#0D9488' }}>
+              {user ? `${inspoCount}개 보관` : '샘플 2개'}
+            </span>
           </div>
         </div>
       </div>
