@@ -161,15 +161,20 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
             </button>
           </div>
 
-          {/* 2. Pro 플랜 (100GB) */}
-          <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+          {/* 2. Pro 플랜 (100GB - 추천 플랜) */}
+          <div style={{ background: '#FFFFFF', border: '2px solid #0F172A', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)' }}>
+            <div style={{ position: 'absolute', top: '-11px', right: '16px', background: '#0F172A', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 700, padding: '2px 10px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Crown size={11} color="#EAB308" />
+              <span>작가 추천</span>
+            </div>
+
             <div style={{ marginBottom: '1rem' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0284C7', background: '#E0F2FE', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '6px' }}>
                 100GB 클라우드 금고
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>Sujango Pro</h4>
-                <Crown size={16} color="#EAB308" />
+                <Crown size={16} color="#0284C7" />
               </div>
               <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>개인 작가를 위한 100GB 초고화질 무손실 원본 보관</p>
             </div>
@@ -217,21 +222,17 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
             <button 
               type="button" 
               onClick={handleStartFreeTrial}
-              className="btn-outline" 
-              style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.88rem', fontWeight: 700, borderColor: '#0284C7', color: '#0284C7' }}
+              className="btn-primary" 
+              style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', background: '#0F172A' }}
               disabled={isUpgrading}
             >
-              <span>{user?.isPro ? 'Pro 이용 중' : 'Pro 30일 무료 체험'}</span>
+              <Crown size={16} color="#EAB308" />
+              <span>{user?.isPro ? 'Pro 이용 중' : 'Pro 시작하기'}</span>
             </button>
           </div>
 
-          {/* 3. Studio 플랜 (500GB - 추천 플랜) */}
-          <div style={{ background: '#FFFFFF', border: '2px solid #0F172A', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)' }}>
-            <div style={{ position: 'absolute', top: '-11px', right: '16px', background: '#0F172A', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 700, padding: '2px 10px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Sparkles size={11} color="#EAB308" />
-              <span>스튜디오 추천</span>
-            </div>
-
+          {/* 3. Studio 플랜 (500GB) */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ marginBottom: '1rem' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7C3AED', background: '#F3E8FF', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '6px' }}>
                 500GB 대용량 금고
@@ -290,11 +291,10 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
             <button 
               type="button" 
               onClick={handleStartFreeTrial}
-              className="btn-primary" 
-              style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', background: '#0F172A' }}
+              className="btn-outline" 
+              style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.88rem', fontWeight: 700, borderColor: '#7C3AED', color: '#7C3AED' }}
               disabled={isUpgrading}
             >
-              <Crown size={16} color="#EAB308" />
               <span>Studio 플랜 시작하기</span>
             </button>
           </div>

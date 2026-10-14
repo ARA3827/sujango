@@ -313,8 +313,11 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             </button>
           </div>
 
-          {/* 2. Pro 플랜 (100GB) */}
-          <div className="landing-pricing-card">
+          {/* 2. Pro 플랜 (100GB - 추천 플랜) */}
+          <div className="landing-pricing-card featured">
+            <div className="pricing-popular-tag">
+              <Crown size={13} /> 작가 추천
+            </div>
             <div className="pricing-card-header">
               <span className="plan-badge-pro">100GB 클라우드 금고</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -354,16 +357,14 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
               <li><CheckCircle2 size={16} color="#059669" /> 큐레이터 전용 <strong>프라이빗 도록 공유 링크</strong></li>
               <li><CheckCircle2 size={16} color="#059669" /> 3중 분산 데이터센터 안전 보관 (11 9s)</li>
             </ul>
-            <button onClick={onOpenPricing} className="btn-outline" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center', borderColor: '#0284C7', color: '#0284C7', fontWeight: 600 }}>
-              Pro 30일 무료 체험
+            <button onClick={onOpenPricing} className="btn-primary" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center', background: '#0F172A' }}>
+              <Crown size={16} color="#EAB308" />
+              <span>Pro 시작하기</span>
             </button>
           </div>
 
-          {/* 3. Studio 플랜 (500GB - 추천 플랜) */}
-          <div className="landing-pricing-card featured">
-            <div className="pricing-popular-tag">
-              <Sparkles size={12} color="#EAB308" /> 스튜디오 추천
-            </div>
+          {/* 3. Studio 플랜 (500GB) */}
+          <div className="landing-pricing-card">
             <div className="pricing-card-header">
               <span className="plan-badge-studio">500GB 대용량 금고</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -403,8 +404,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
               <li><CheckCircle2 size={16} color="#059669" /> 클라이언트 실시간 피드백 및 리뷰 수합</li>
               <li><CheckCircle2 size={16} color="#059669" /> 3중 분산 데이터센터 안전 보관 (11 9s)</li>
             </ul>
-            <button onClick={onOpenPricing} className="btn-primary" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center', background: '#0F172A' }}>
-              <Crown size={16} color="#EAB308" />
+            <button onClick={onOpenPricing} className="btn-outline" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center', borderColor: '#7C3AED', color: '#7C3AED', fontWeight: 600 }}>
               <span>Studio 플랜 시작하기</span>
             </button>
           </div>
