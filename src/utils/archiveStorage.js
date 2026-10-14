@@ -37,8 +37,17 @@ const DEFAULT_ARTWORKS = [
 
 const STORAGE_KEY = 'artflow_artworks';
 
-// 1. 전체 작품 목록 가져오기 (동기 로컬 캐시 즉시 반환)
-export function getArtworks() {
+// 1. 전체 작품 목록 가져오기 (비로그인/게스트 시에는 개인 데이터 유출 방지를 위해 샘플 2점만 반환)
+export function getArtworks(user = null) {
+  // 현재 로그인 사용자 확인
+  const currentUser = user || getStoredUser();
+
+  // 비로그인(게스트 둘러보기) 상태라면, 이전 작가의 개인 등록 작품을 절대 노출하지 않고 순수 기본 체험 샘플(DEFAULT_ARTWORKS)만 반환!
+  if (!currentUser) {
+    return DEFAULT_ARTWORKS;
+  }
+
+  // 로그인 상태인 경우, 실제 저장된 개인 작품 목록 불러오기
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     if (data) {
@@ -50,7 +59,8 @@ export function getArtworks() {
   } catch (e) {
     console.error('Failed to load artworks:', e);
   }
-  // 기본 샘플 데이터 저장 및 반환
+
+  // 데이터가 없을 때 기본 샘플 저장 및 반환
   saveArtworks(DEFAULT_ARTWORKS);
   return DEFAULT_ARTWORKS;
 }

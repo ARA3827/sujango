@@ -17,10 +17,12 @@ export default function Dashboard({
   onSelectView, 
   taxSummary = { totalIncome: 0, pendingAmount: 0 },
   captionCount = 3,
-  onOpenNewToolModal
+  onOpenNewToolModal,
+  user = null
 }) {
   const [artworks, setArtworks] = useState([]);
   const [inspoCount, setInspoCount] = useState(() => {
+    if (!user) return 2; // 게스트 모드 기본 샘플 개수
     try {
       const saved = localStorage.getItem('sujango_inspo_vault_v1');
       if (saved) return JSON.parse(saved).length;
@@ -29,12 +31,16 @@ export default function Dashboard({
   });
 
   useEffect(() => {
-    setArtworks(getArtworks());
-    try {
-      const saved = localStorage.getItem('sujango_inspo_vault_v1');
-      if (saved) setInspoCount(JSON.parse(saved).length);
-    } catch (e) {}
-  }, []);
+    setArtworks(getArtworks(user));
+    if (user) {
+      try {
+        const saved = localStorage.getItem('sujango_inspo_vault_v1');
+        if (saved) setInspoCount(JSON.parse(saved).length);
+      } catch (e) {}
+    } else {
+      setInspoCount(2);
+    }
+  }, [user]);
 
   const tools = [
     {
@@ -95,18 +101,20 @@ export default function Dashboard({
       <div className="dashboard-stats-strip">
         <div className="stat-item-box" onClick={() => onSelectView('tax')} style={{ cursor: 'pointer' }}>
           <div className="stat-label">이번 달 확인된 미수금</div>
-          <div className="stat-value" style={{ color: taxSummary.pendingAmount > 0 ? '#D97706' : '#111827' }}>
-            {taxSummary.pendingAmount.toLocaleString()}원
+          <div className="stat-value" style={{ color: user && taxSummary.pendingAmount > 0 ? '#D97706' : '#111827' }}>
+            {user ? `${taxSummary.pendingAmount.toLocaleString()}원` : '0원'}
           </div>
           <div className="stat-sub">
-            {taxSummary.pendingAmount > 0 ? '입금 확인 필요한 항목 있음' : '모든 정산 완료'}
+            {user 
+              ? (taxSummary.pendingAmount > 0 ? '입금 확인 필요한 항목 있음' : '모든 정산 완료')
+              : '게스트 체험 모드 (미수금 없음)'}
           </div>
         </div>
 
         <div className="stat-item-box" onClick={() => onSelectView('caption')} style={{ cursor: 'pointer' }}>
           <div className="stat-label">준비된 전시 캡션 명패</div>
           <div className="stat-value" style={{ color: '#0F172A' }}>
-            {captionCount}점 보관 중
+            {user ? `${captionCount}점 보관 중` : '샘플 2점 지원'}
           </div>
           <div className="stat-sub">
             A4 절취선 일괄 인쇄 준비 완료
@@ -116,10 +124,10 @@ export default function Dashboard({
         <div className="stat-item-box" onClick={() => onSelectView('archive')} style={{ cursor: 'pointer' }}>
           <div className="stat-label">📁 내 작품 디지털 수장고</div>
           <div className="stat-value" style={{ color: '#0284C7' }}>
-            {artworks.length}점 보관 중
+            {user ? `${artworks.length}점 보관 중` : '샘플 2점 체험'}
           </div>
           <div className="stat-sub">
-            사진 • 작가노트 영구 보존
+            {user ? '사진 • 작가노트 영구 보존' : '비공개 신작 로그인 시 보존'}
           </div>
         </div>
 
@@ -136,7 +144,7 @@ export default function Dashboard({
         <div className="stat-item-box" onClick={() => onSelectView('inspo')} style={{ cursor: 'pointer' }}>
           <div className="stat-label">✨ 영감 노트</div>
           <div className="stat-value" style={{ color: '#0D9488' }}>
-            {inspoCount}개 보관 중
+            {user ? `${inspoCount}개 보관 중` : '샘플 2개 체험'}
           </div>
           <div className="stat-sub">
             문장 카드 • 카톡 대화 불러오기
@@ -149,11 +157,17 @@ export default function Dashboard({
         <div className="archive-board-header">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span className="archive-board-title">📁 나의 작품 디지털 수장고</span>
-              <span className="archive-board-count">총 {artworks.length}점 보관 중</span>
+              <span className="archive-board-title">
+                {user ? '📁 나의 작품 디지털 수장고' : '📁 디지털 수장고 (체험용 샘플 도록)'}
+              </span>
+              <span className="archive-board-count">
+                {user ? `총 ${artworks.length}점 보관 중` : '샘플 2점 체험 중'}
+              </span>
             </div>
             <p style={{ fontSize: '0.83rem', color: '#64748B', margin: '4px 0 0 0' }}>
-              세월이 흘러도 변치 않는 나만의 프라이빗 디지털 수장고. 작품을 클릭하면 상세 도록과 작가노트, 캡션을 바로 열람할 수 있습니다.
+              {user 
+                ? '세월이 흘러도 변치 않는 나만의 프라이빗 디지털 수장고. 작품을 클릭하면 상세 도록과 작가노트, 캡션을 바로 열람할 수 있습니다.'
+                : '둘러보기(게스트) 모드입니다. 작가님의 소중한 개인 작품과 정산 기록을 안전하게 관리하시려면 로그인해 주세요.'}
             </p>
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

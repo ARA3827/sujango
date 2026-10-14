@@ -115,12 +115,16 @@ export default function App() {
     setIsGuestExploring(false);
   };
 
-  // 로그아웃 처리
+  // 로그아웃 처리: 모든 개인 세션 및 둘러보기 상태 완전 초기화 ➔ 무조건 서비스 소개 랜딩 페이지로 복귀
   const handleLogout = () => {
     setUser(null);
     saveUser(null);
     setIsGuestExploring(false);
-    navigate('dashboard');
+    setSelectedArtworkId(null);
+    if (window.location.hash) {
+      window.history.pushState(null, '', window.location.pathname);
+    }
+    setCurrentView('dashboard');
   };
 
   // 네비게이션 함수 (비로그인 접근 차단 로그인 월 적용 및 특정 작품 ID 연동)
@@ -195,6 +199,7 @@ export default function App() {
                 captionCount={captionCount}
                 onOpenNewToolModal={() => setIsNewToolModalOpen(true)}
                 onOpenPricing={() => setIsPricingModalOpen(true)}
+                user={user}
               />
             )}
 
