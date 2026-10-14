@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Palette, 
   Sparkles, 
@@ -16,10 +16,18 @@ import {
   Download,
   Crown,
   HardDrive,
-  FileCheck
+  FileCheck,
+  Star,
+  Quote
 } from 'lucide-react';
+import { getFeedbacks } from '../utils/feedbackStorage';
 
 export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing }) {
+  const [feedbacks, setFeedbacks] = useState([]);
+
+  useEffect(() => {
+    setFeedbacks(getFeedbacks());
+  }, []);
   return (
     <div className="landing-wrapper">
       {/* 1. 히어로 섹션 */}
@@ -159,6 +167,55 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             </p>
             <div className="feature-tag">프라이빗 영구 보존</div>
           </div>
+        </div>
+      </section>
+
+      {/* 3.5. 실제 작가들의 생생한 목소리 (Testimonials / Social Proof) */}
+      <section className="landing-reviews-section" style={{ maxWidth: '1120px', margin: '4rem auto 2rem', padding: '0 1.5rem' }}>
+        <div className="section-title-center">
+          <span className="section-sub-tag">ARTIST COMMUNITY & REVIEWS</span>
+          <h2>수장고와 함께하는 작가들의 생생한 목소리</h2>
+          <p>
+            대한민국 1인 창작 예술가들이 현장에서 직접 경험한 솔직한 이용 소감과 생생한 후기입니다.
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', marginTop: '2rem' }}>
+          {feedbacks.slice(0, 3).map((fb) => (
+            <div 
+              key={fb.id}
+              style={{
+                background: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '16px',
+                padding: '1.75rem',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between'
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', gap: '3px', marginBottom: '0.75rem' }}>
+                  {[...Array(fb.rating || 5)].map((_, i) => (
+                    <Star key={i} size={15} color="#F59E0B" fill="#F59E0B" />
+                  ))}
+                </div>
+                <p style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.6, margin: '0 0 1.25rem 0' }}>
+                  "{fb.text}"
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #F1F5F9', paddingTop: '0.85rem' }}>
+                <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0F172A' }}>
+                  {fb.author}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+                  {fb.createdAt}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

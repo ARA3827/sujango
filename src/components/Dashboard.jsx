@@ -271,10 +271,10 @@ export default function Dashboard({
             <Plus size={22} />
           </div>
           <h4 style={{ fontSize: '1rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>
-            새 도구 추가 / 아이디어
+            새 도구 제안 & 작가 후기
           </h4>
           <p style={{ fontSize: '0.82rem', color: '#9CA3AF', maxWidth: '200px' }}>
-            필요한 소소한 기능이 떠오르면 언제든 여기에 추가하고 확장하세요.
+            필요한 기능 아이디어나 이용 소감을 남겨주세요. 수장고 로드맵과 작가 라운지에 반영됩니다.
           </p>
         </div>
       </div>

@@ -265,10 +265,11 @@ export default function App() {
         initialTab={policyTab}
       />
 
-      {/* 새 도구 아이디어 상자 모달 */}
+      {/* 새 도구 아이디어 & 작가 후기 모달 */}
       <NewToolModal 
         isOpen={isNewToolModalOpen} 
         onClose={() => setIsNewToolModalOpen(false)} 
+        user={user}
       />
 
       {/* 공식 미니멀 푸터 (전자상거래법 & 카드사 심사 법적 고지 완비) */}
