@@ -3,11 +3,11 @@ import { getStoredUser } from './authStorage';
 
 const FEEDBACK_STORAGE_KEY = 'artflow_community_feedbacks';
 
-// 초기 기본 품격 있는 현장 작가 찐 후기 3건 (초기 썰렁함 방지용 시드 데이터)
+// 초기 기본 품격 있는 현장 작가 찐 후기 3건 (실존 인물 오해 방지용 예술가 감성 닉네임/필명 적용)
 const SEED_FEEDBACKS = [
   {
     id: 'fb-1',
-    author: '김현우 (서양화 작가)',
+    author: '아틀리에_새벽 (서양화 작가)',
     type: 'review', // 'review' | 'idea'
     rating: 5,
     text: '전시회 때마다 캡션 명패 사이즈 맞추고 자르는 게 제일 번거로웠는데, 수장고에서 A4 규격으로 일괄 인쇄하니까 전시 준비가 훨씬 편해졌습니다.',
@@ -16,7 +16,7 @@ const SEED_FEEDBACKS = [
   },
   {
     id: 'fb-2',
-    author: '이지은 (도예·공예 아티스트)',
+    author: '달빛도예공방 (도예·공예 아티스트)',
     type: 'review',
     rating: 5,
     text: '인스타그램 캡션이랑 평론 작가노트 쓰는 게 늘 막막했는데, 작품 키워드 3개만 넣으면 공모전용과 SNS용 글이 동시에 깔끔하게 나와서 놀랐습니다.',
@@ -25,7 +25,7 @@ const SEED_FEEDBACKS = [
   },
   {
     id: 'fb-3',
-    author: '박서준 (현대 조각가)',
+    author: '공간과물성 (현대 조각가)',
     type: 'idea',
     rating: 5,
     text: '클라이언트나 갤러리 미팅할 때 1080px 워터마크 찍힌 7일 만료 보안 링크로 보내니까 원본 도용 걱정 없이 안심하고 시안을 보낼 수 있어 든든합니다.',
@@ -35,7 +35,7 @@ const SEED_FEEDBACKS = [
 ];
 
 /**
- * 전체 작가 피드백 및 후기 목록 가져오기
+ * 전체 작가 피드백 및 후기 목록 가져오기 (실명 ➔ 가상 닉네임 자동 마이그레이션 포함)
  */
 export function getFeedbacks() {
   try {
@@ -43,7 +43,16 @@ export function getFeedbacks() {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        // 기존 실명 데이터를 안전한 예술가 닉네임으로 자동 변환
+        const sanitized = parsed.map(item => {
+          let author = item.author;
+          if (author.includes('김현우')) author = '아틀리에_새벽 (서양화 작가)';
+          if (author.includes('이지은')) author = '달빛도예공방 (도예·공예 아티스트)';
+          if (author.includes('박서준')) author = '공간과물성 (현대 조각가)';
+          return { ...item, author };
+        });
+        localStorage.setItem(FEEDBACK_STORAGE_KEY, JSON.stringify(sanitized));
+        return sanitized;
       }
     }
   } catch (e) {

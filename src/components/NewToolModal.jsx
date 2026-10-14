@@ -159,13 +159,13 @@ export default function NewToolModal({ isOpen, onClose, user }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '10px' }}>
             <div>
               <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '4px' }}>
-                작가명 / 활동명
+                창작자 닉네임 / 활동명
               </label>
               <input
                 type="text"
                 value={authorName}
                 onChange={(e) => setAuthorName(e.target.value)}
-                placeholder="예: 김아라 (서양화 작가)"
+                placeholder="예: 아틀리에_새벽, 푸른화실, 익명의 조각가"
                 style={{ width: '100%', padding: '0.55rem 0.75rem', border: '1px solid #CBD5E1', borderRadius: '6px', fontSize: '0.84rem', boxSizing: 'border-box' }}
               />
             </div>
