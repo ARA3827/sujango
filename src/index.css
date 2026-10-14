@@ -1875,21 +1875,40 @@ input, select, textarea {
   padding-bottom: 4rem;
 }
 
-/* 1. 히어로 섹션 (따뜻한 캔버스 미색 & 2분할 목업 스플릿) */
+/* 1. 히어로 섹션 (아틀리에 실물 전면 배경 & 텍스트 오버레이) */
 .landing-hero {
-  padding: 4.5rem 1.5rem 3.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  position: relative;
+  width: 100%;
+  background-color: #FAF8F5;
+  background-image: 
+    linear-gradient(to right, 
+      rgba(255, 253, 250, 0.96) 0%, 
+      rgba(255, 253, 250, 0.91) 40%, 
+      rgba(255, 253, 250, 0.50) 65%, 
+      rgba(255, 253, 250, 0.05) 100%
+    ),
+    url('/hero_atelier_mockup.jpg');
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+  padding: 5.5rem 2rem 5rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  box-shadow: inset 0 -1px 3px rgba(0, 0, 0, 0.02);
+  min-height: 520px;
+  display: flex;
+  align-items: center;
 }
 
-.landing-hero-split {
-  display: grid;
-  grid-template-columns: 1fr 1.08fr;
-  align-items: center;
-  gap: 3.5rem;
+.landing-hero-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .landing-hero-text-col {
+  max-width: 600px;
   text-align: left;
 }
 
@@ -1897,32 +1916,36 @@ input, select, textarea {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #FFFBEB;
+  background: rgba(255, 251, 235, 0.95);
+  backdrop-filter: blur(4px);
   border: 1px solid #FDE68A;
   color: #B45309;
-  padding: 5px 14px;
+  padding: 6px 15px;
   border-radius: 999px;
-  font-size: 0.82rem;
+  font-size: 0.83rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
   letter-spacing: 0.01em;
+  box-shadow: 0 2px 6px rgba(180, 83, 9, 0.06);
 }
 
 .landing-hero-title {
   font-family: var(--font-serif);
-  font-size: 3rem;
+  font-size: 3.1rem;
   font-weight: 800;
   line-height: 1.25;
   color: #0F172A;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.35rem;
   letter-spacing: -0.025em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
 .landing-hero-sub {
-  font-size: 1.05rem;
-  color: #475569;
-  line-height: 1.65;
+  font-size: 1.08rem;
+  color: #334155;
+  line-height: 1.7;
   margin-bottom: 2.25rem;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
 }
 
 .landing-hero-cta {
@@ -1930,7 +1953,6 @@ input, select, textarea {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 2rem;
 }
 
 .hero-primary-btn {
@@ -1953,31 +1975,6 @@ input, select, textarea {
   background: #1E293B;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(15, 23, 42, 0.28);
-}
-
-.landing-hero-visual-col {
-  position: relative;
-}
-
-.hero-mockup-frame {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 25px 50px -15px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  background: #FAF8F5;
-}
-
-.hero-mockup-frame:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.08);
-}
-
-.hero-mockup-img {
-  width: 100%;
-  height: auto;
-  display: block;
-  object-fit: cover;
 }
 
 /* 2. 문제 vs 수장고 비교 섹션 (차분한 무채색 & 딥네이비 톤다운) */
@@ -2191,21 +2188,43 @@ input, select, textarea {
 }
 
 @media (max-width: 900px) {
-  .landing-hero-split {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
-  .landing-hero-text-col {
-    text-align: center;
-  }
-  .landing-hero-cta {
-    justify-content: center;
+  .landing-hero {
+    padding: 4.5rem 1.5rem 4rem;
+    background-image: 
+      linear-gradient(to right, 
+        rgba(255, 253, 250, 0.98) 0%, 
+        rgba(255, 253, 250, 0.92) 55%, 
+        rgba(255, 253, 250, 0.65) 85%, 
+        rgba(255, 253, 250, 0.25) 100%
+      ),
+      url('/hero_atelier_mockup.jpg');
   }
 }
 
 @media (max-width: 768px) {
+  .landing-hero {
+    padding: 3.5rem 1.25rem 3.5rem;
+    background-image: 
+      linear-gradient(to bottom, 
+        rgba(255, 253, 250, 0.96) 0%, 
+        rgba(255, 253, 250, 0.92) 65%, 
+        rgba(255, 253, 250, 0.70) 100%
+      ),
+      url('/hero_atelier_mockup.jpg');
+    background-position: center right;
+  }
+  .landing-hero-content {
+    justify-content: center;
+  }
+  .landing-hero-text-col {
+    max-width: 100%;
+    text-align: center;
+  }
   .landing-hero-title {
     font-size: 2.1rem;
+  }
+  .landing-hero-cta {
+    justify-content: center;
   }
   .landing-comparison-section {
     grid-template-columns: 1fr;
@@ -2483,6 +2502,8 @@ input, select, textarea {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
 @keyframes slideInRight {
   from {
     transform: translateX(100%);

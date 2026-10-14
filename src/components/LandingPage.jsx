@@ -31,10 +31,9 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
   }, []);
   return (
     <div className="landing-wrapper">
-      {/* 1. 히어로 섹션 (따뜻한 캔버스 감성 & 우측 아틀리에 실물 목업 2분할) */}
+      {/* 1. 히어로 섹션 (아틀리에 작업대 실물 전면 배경 적용) */}
       <section className="landing-hero">
-        <div className="landing-hero-split">
-          {/* 좌측: 타이포그래피 & 명확한 가치 제안 */}
+        <div className="landing-hero-content">
           <div className="landing-hero-text-col">
             <div className="landing-hero-badge">
               <Sparkles size={14} color="#B45309" />
@@ -58,21 +57,18 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
               <button 
                 onClick={onExploreGuest} 
                 className="btn-secondary" 
-                style={{ padding: '0.95rem 1.6rem', fontSize: '1rem', borderRadius: '10px', fontWeight: 600 }}
+                style={{ 
+                  padding: '0.95rem 1.6rem', 
+                  fontSize: '1rem', 
+                  borderRadius: '10px', 
+                  fontWeight: 600,
+                  background: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                }}
               >
                 기능 둘러보기
               </button>
-            </div>
-          </div>
-
-          {/* 우측: 아틀리에 작업실 아이패드·스케치북 실물 목업 */}
-          <div className="landing-hero-visual-col">
-            <div className="hero-mockup-frame">
-              <img 
-                src="/hero_atelier_mockup.jpg" 
-                alt="미술 작가의 아틀리에 작업실과 디지털 수장고 포트폴리오 목업" 
-                className="hero-mockup-img" 
-              />
             </div>
           </div>
         </div>
