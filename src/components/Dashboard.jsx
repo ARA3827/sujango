@@ -44,18 +44,12 @@ export default function Dashboard({
 
   const tools = [
     {
-      id: 'inspo',
-      title: '영감 노트',
-      tag: '창작 영감 & 문장',
-      icon: <Sparkles size={22} style={{ color: '#059669' }} />,
-      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 깔끔하게 정리하여 가져옵니다.',
-      actionText: '영감 노트 열기'
-    },
-    {
       id: 'statement',
       title: '작가노트 & SNS',
       tag: 'AI 글 생성',
       icon: <PenTool size={22} />,
+      badge: '원클릭 3종 글 동시 추출',
+      badgeStyle: { background: '#FAF5FF', color: '#7E22CE', border: '1px solid #E9D5FF' },
       desc: '작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그, 블로그 후기를 동시에 추출하고 직접 수정합니다.',
       actionText: '작가노트 쓰기'
     },
@@ -64,6 +58,8 @@ export default function Dashboard({
       title: '전시 캡션 출력기',
       tag: '전시 & 아트페어',
       icon: <Tag size={22} />,
+      badge: user ? `🏷️ ${captionCount}점 인쇄 준비 완료` : '🏷️ 샘플 2점 지원',
+      badgeStyle: { background: '#F8FAFC', color: '#334155', border: '1px solid #E2E8F0' },
       desc: '작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고, 자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.',
       actionText: '캡션 명패 만들기'
     },
@@ -72,6 +68,8 @@ export default function Dashboard({
       title: '서류·출강 스튜디오',
       tag: '행정 서류',
       icon: <FileText size={22} />,
+      badge: '📄 공문서 규격 3종',
+      badgeStyle: { background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0' },
       desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 공문서 규격으로 자동 완성합니다.',
       actionText: '서류 작성하기'
     },
@@ -80,8 +78,24 @@ export default function Dashboard({
       title: '창작 가계부',
       tag: '수입 & 지출 증빙',
       icon: <Receipt size={22} />,
+      badge: user && taxSummary.pendingAmount > 0 
+        ? `💰 미수금 ${taxSummary.pendingAmount.toLocaleString()}원 확인 필요` 
+        : '💰 모든 정산 완료',
+      badgeStyle: user && taxSummary.pendingAmount > 0 
+        ? { background: '#FEF3C7', color: '#B45309', border: '1px solid #FDE68A' } 
+        : { background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' },
       desc: '출강·작품 수입과 재료비 지출을 한눈에 관리하고, A4 지출 정산 증빙서를 인쇄 및 PDF로 저장합니다.',
       actionText: '가계부 열기'
+    },
+    {
+      id: 'inspo',
+      title: '영감 노트',
+      tag: '창작 영감 & 문장',
+      icon: <Sparkles size={22} style={{ color: '#059669' }} />,
+      badge: user ? `✨ ${inspoCount}개 보관 중` : '✨ 샘플 2개 보관',
+      badgeStyle: { background: '#F0FDFA', color: '#0F766E', border: '1px solid #CCFBF1' },
+      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 깔끔하게 정리하여 가져옵니다.',
+      actionText: '영감 노트 열기'
     }
   ];
 
@@ -97,51 +111,8 @@ export default function Dashboard({
         </p>
       </section>
 
-      {/* 2. 빠른 상태 요약 슬림 스트립 (1열 콤팩트 바) */}
-      <div className="dashboard-stats-strip slim">
-        <div className="stat-item-box slim" onClick={() => onSelectView('tax')} style={{ cursor: 'pointer' }} title="창작 가계부 및 미수금 정산 열기">
-          <div className="stat-slim-icon" style={{ background: '#FEF3C7', color: '#D97706' }}>💰</div>
-          <div className="stat-slim-info">
-            <span className="stat-slim-label">미수금 정산</span>
-            <span className="stat-slim-value" style={{ color: user && taxSummary.pendingAmount > 0 ? '#D97706' : '#0F172A' }}>
-              {user ? `${taxSummary.pendingAmount.toLocaleString()}원` : '0원 (체험)'}
-            </span>
-          </div>
-        </div>
-
-        <div className="stat-item-box slim" onClick={() => onSelectView('caption')} style={{ cursor: 'pointer' }} title="전시 캡션 명패 만들기">
-          <div className="stat-slim-icon" style={{ background: '#F1F5F9', color: '#334155' }}>🏷️</div>
-          <div className="stat-slim-info">
-            <span className="stat-slim-label">전시 캡션 명패</span>
-            <span className="stat-slim-value">
-              {user ? `${captionCount}점 준비` : '샘플 2점'}
-            </span>
-          </div>
-        </div>
-
-        <div className="stat-item-box slim" onClick={() => onSelectView('doc')} style={{ cursor: 'pointer' }} title="행정 서류 공문서 빌더">
-          <div className="stat-slim-icon" style={{ background: '#ECFDF5', color: '#059669' }}>📄</div>
-          <div className="stat-slim-info">
-            <span className="stat-slim-label">공문서 빌더</span>
-            <span className="stat-slim-value" style={{ color: '#059669' }}>
-              서류 3종 지원
-            </span>
-          </div>
-        </div>
-
-        <div className="stat-item-box slim" onClick={() => onSelectView('inspo')} style={{ cursor: 'pointer' }} title="영감 노트 열기">
-          <div className="stat-slim-icon" style={{ background: '#F0FDFA', color: '#0D9488' }}>✨</div>
-          <div className="stat-slim-info">
-            <span className="stat-slim-label">영감 노트</span>
-            <span className="stat-slim-value" style={{ color: '#0D9488' }}>
-              {user ? `${inspoCount}개 보관` : '샘플 2개'}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. [메인 무대] 나의 작품 디지털 수장고 (최상단 전진 배치) */}
-      <div className="archive-board-section">
+      {/* 2. [메인 무대 최상단 전진 배치] 나의 작품 디지털 수장고 */}
+      <div className="archive-board-section" style={{ marginTop: '1.25rem' }}>
         <div className="archive-board-header">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -244,7 +215,7 @@ export default function Dashboard({
         )}
       </div>
 
-      {/* 4. [하단 지원군] 창작 행정 & 비즈니스 비서 툴킷 */}
+      {/* 3. [하단 지원군] 창작 행정 & 비즈니스 비서 툴킷 */}
       <div className="section-headline" style={{ marginTop: '2.5rem' }}>
         <span>🛠️ 창작 행정 & 비즈니스 비서 도구</span>
         <span style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'none', fontWeight: 400 }}>
@@ -264,7 +235,20 @@ export default function Dashboard({
             <div>
               <div className="tool-card-header">
                 <div className="tool-card-icon">{tool.icon}</div>
-                <span className="tool-tag">{tool.tag}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                  <span className="tool-tag">{tool.tag}</span>
+                  {tool.badge && (
+                    <span style={{ 
+                      fontSize: '0.73rem', 
+                      fontWeight: 600, 
+                      padding: '2px 8px', 
+                      borderRadius: '999px',
+                      ...tool.badgeStyle
+                    }}>
+                      {tool.badge}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="tool-card-body">
                 <h3>{tool.title}</h3>
