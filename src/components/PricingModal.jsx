@@ -3,15 +3,8 @@ import {
   X, 
   Check, 
   Sparkles, 
-  ShieldCheck, 
   Crown, 
-  Download, 
-  Share2, 
-  HardDrive,
-  CreditCard,
-  Building,
-  HelpCircle,
-  ArrowRight
+  Building
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -50,7 +43,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
     <div className="modal-backdrop" onClick={onClose}>
       <div 
         className="modal-dialog" 
-        style={{ maxWidth: '780px', maxHeight: '90vh', overflowY: 'auto', padding: '2rem 1.75rem' }} 
+        style={{ maxWidth: '980px', maxHeight: '92vh', overflowY: 'auto', padding: '2rem 1.75rem' }} 
         onClick={(e) => e.stopPropagation()}
       >
         {/* 헤더 */}
@@ -58,13 +51,13 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', color: '#0284C7', padding: '3px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.5rem' }}>
               <Crown size={14} />
-              <span>SUJANGO MEMBERSHIP</span>
+              <span>SUJANGO MEMBERSHIP TIERS</span>
             </div>
             <h3 style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
               당신의 소중한 창작 자산을 위한 요금제
             </h3>
             <p style={{ fontSize: '0.88rem', color: '#64748B', marginTop: '4px', marginBottom: 0 }}>
-              기본 행정 서류와 작품 30점은 무료이며, 대용량 무손실 원본 금고가 필요할 때 Sujango Pro로 확장하세요.
+              기본 행정 서류와 작품 30점은 평생 무료이며, 보관 용량과 갤러리 보안 협업이 필요할 때 최적의 플랜을 선택하세요.
             </p>
           </div>
           <button onClick={onClose} className="modal-close-btn">
@@ -111,15 +104,15 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
               }}
             >
               <span>연간 결제</span>
-              <span style={{ fontSize: '0.7rem', background: '#ECFDF5', color: '#059669', padding: '1px 6px', borderRadius: '4px' }}>
-                2개월 무료
+              <span style={{ fontSize: '0.7rem', background: '#ECFDF5', color: '#059669', padding: '1px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                20% 할인
               </span>
             </button>
           </div>
         </div>
 
-        {/* 2단 요금제 카드 비교 그리드 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.25rem', marginBottom: '1.75rem' }}>
+        {/* 3단 요금제 카드 비교 그리드 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginBottom: '1.75rem' }}>
           
           {/* 1. Free 플랜 */}
           <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
@@ -127,34 +120,34 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
               <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748B', background: '#F1F5F9', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '6px' }}>
                 기본 무료 플랜
               </span>
-              <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>무료 플랜</h4>
-              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>창작과 행정 서식이 필요한 모든 예술가를 위한 기본 플랜</p>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>Free 스타터</h4>
+              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>창작과 행정 서식이 필요한 모든 예술가를 위한 기본 지원</p>
             </div>
             
             <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '1.25rem' }}>
-              0원 <span style={{ fontSize: '0.85rem', fontWeight: 400, color: '#64748B' }}>(기본 제공)</span>
+              0원 <span style={{ fontSize: '0.85rem', fontWeight: 400, color: '#64748B' }}>(평생 무료)</span>
             </div>
 
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
-              <li style={{ fontSize: '0.84rem', color: '#0F172A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.7rem', flex: 1 }}>
+              <li style={{ fontSize: '0.83rem', color: '#0F172A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>작품 아카이브 서고 최대 30점 보관</span>
+                <span>작품 아카이브 최대 30점 보관</span>
               </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>웹 최적화 확인용 압축 보관 (내 PC 브라우저 안전 저장)</span>
+                <span>내 PC 브라우저 안전 저장</span>
               </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>기기 교체 시 단일 JSON 파일 백업/복원 이동</span>
+                <span>출강 강의계획서 & 표준 CV 약력 무제한</span>
               </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>출강 강의계획서 & 표준 CV 약력 & 견적서 무제한</span>
+                <span>3.3% 사업소득세 원천징수 정산 장부</span>
               </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>전시 캡션 A4 단일 PDF 일괄 인쇄</span>
+                <span>전시 캡션 A4 단일 PDF 출력</span>
               </li>
             </ul>
 
@@ -164,58 +157,133 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
               style={{ width: '100%', justifyContent: 'center', padding: '0.65rem', color: '#0F172A', fontWeight: 600 }}
               disabled
             >
-              작품 30점 무료 이용 (현재 혜택)
+              현재 이용 중 (기본 혜택)
             </button>
           </div>
 
-          {/* 2. Pro 플랜 */}
-          <div style={{ background: '#FFFFFF', border: '2px solid #0F172A', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)' }}>
-            <div style={{ position: 'absolute', top: '-11px', right: '16px', background: '#0F172A', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '999px' }}>
-              추천 플랜
-            </div>
-
+          {/* 2. Pro 플랜 (100GB) */}
+          <div style={{ background: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ marginBottom: '1rem' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0284C7', background: '#E0F2FE', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '6px' }}>
-                100GB 원본 금고
+                100GB 클라우드 금고
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>Sujango Pro</h4>
                 <Crown size={16} color="#EAB308" />
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>어디서든 로그인 동기화 + 100GB 초고화질 무손실 금고</p>
+              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>개인 작가를 위한 100GB 초고화질 무손실 원본 보관</p>
             </div>
 
-            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '1.25rem' }}>
-              {billingCycle === 'yearly' ? '연 49,000원' : '월 4,900원'}
-              <span style={{ fontSize: '0.82rem', fontWeight: 400, color: '#64748B', marginLeft: '6px' }}>
-                {billingCycle === 'yearly' ? '(월 약 4,080원)' : '/ 월'}
-              </span>
+            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.4rem' }}>
+              {billingCycle === 'yearly' ? '월 7,900원' : '월 9,900원'}
+            </div>
+            <div style={{ fontSize: '0.78rem', color: '#0284C7', fontWeight: 600, marginBottom: '1.25rem' }}>
+              {billingCycle === 'yearly' ? '연 94,800원 일괄 결제' : '월간 구독'}
             </div>
 
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1 }}>
-              <li style={{ fontSize: '0.84rem', color: '#0F172A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0.65rem 0.85rem', marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.76rem', color: '#64748B' }}>체감 보관 용량</div>
+              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>
+                📸 20MB 고화질 사진 약 5,000장
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px' }}>
+                (개인전 10회 분량의 아카이빙 평생 보관)
+              </div>
+            </div>
+
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.7rem', flex: 1 }}>
+              <li style={{ fontSize: '0.83rem', color: '#0F172A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>작품 무제한 등록 (30점 등록 한도 해제)</span>
+                <span>작품 등록 한도 무제한 해제</span>
               </li>
-              <li style={{ fontSize: '0.84rem', color: '#0284C7', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>PC • 스마트폰 • 태블릿 어디서나 로그인 자동 동기화</span>
+                <span>PC • 스마트폰 어디서나 실시간 자동 동기화</span>
               </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
                 <span>초고화질 무손실 원본 클라우드 금고 (100GB)</span>
               </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>3중 분산 데이터센터 안전 보관 (11 9s 내구성)</span>
+                <span>웹 시안용 1080px 자동 압축 프리뷰 제공</span>
               </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>대형 전시/인쇄/도록용 원본 즉시 다운로드</span>
+                <span>큐레이터 전용 프라이빗 도록 공유 링크</span>
               </li>
-              <li style={{ fontSize: '0.84rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Check size={16} color="#0284C7" />
-                <span>큐레이터·컬렉터 전용 프라이빗 도록 공유 링크</span>
+            </ul>
+
+            <button 
+              type="button" 
+              onClick={handleStartFreeTrial}
+              className="btn-outline" 
+              style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.88rem', fontWeight: 700, borderColor: '#0284C7', color: '#0284C7' }}
+              disabled={isUpgrading}
+            >
+              <span>{user?.isPro ? 'Pro 이용 중' : 'Pro 30일 무료 체험'}</span>
+            </button>
+          </div>
+
+          {/* 3. Studio 플랜 (500GB - 추천 플랜) */}
+          <div style={{ background: '#FFFFFF', border: '2px solid #0F172A', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)' }}>
+            <div style={{ position: 'absolute', top: '-11px', right: '16px', background: '#0F172A', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 700, padding: '2px 10px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Sparkles size={11} color="#EAB308" />
+              <span>스튜디오 추천</span>
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#7C3AED', background: '#F3E8FF', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '6px' }}>
+                500GB 대용량 금고
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>Sujango Studio</h4>
+                <Crown size={16} color="#7C3AED" />
+              </div>
+              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>영상•설치•대형 프로젝트 작가 및 작업실 전용</p>
+            </div>
+
+            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.4rem' }}>
+              {billingCycle === 'yearly' ? '월 23,200원' : '월 29,000원'}
+            </div>
+            <div style={{ fontSize: '0.78rem', color: '#7C3AED', fontWeight: 600, marginBottom: '1.25rem' }}>
+              {billingCycle === 'yearly' ? '연 278,400원 일괄 결제' : '월간 구독'}
+            </div>
+
+            <div style={{ background: '#FAF5FF', border: '1px solid #E9D5FF', borderRadius: '8px', padding: '0.65rem 0.85rem', marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.76rem', color: '#7E22CE' }}>체감 보관 용량</div>
+              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#581C87', marginTop: '2px' }}>
+                🎬 4K 고화질 영상 약 20편 보관
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#7E22CE', marginTop: '2px' }}>
+                또는 20MB 고화질 사진 약 25,000장 무손실 보관
+              </div>
+            </div>
+
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.7rem', flex: 1 }}>
+              <li style={{ fontSize: '0.83rem', color: '#0F172A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#7C3AED" />
+                <span>500GB 초대용량 무손실 클라우드 금고</span>
+              </li>
+              <li style={{ fontSize: '0.83rem', color: '#7C3AED', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#7C3AED" />
+                <span>나만의 워터마크 자동 합성 (문구 & 서명 로고)</span>
+              </li>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#7C3AED" />
+                <span>7일 만료 보안 공유 링크 (Signed URL 기술)</span>
+              </li>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#7C3AED" />
+                <span>선택적 4자리 PIN 비밀번호 클라이언트 잠금</span>
+              </li>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#7C3AED" />
+                <span>클라이언트 실시간 피드백/리뷰 수합 기능</span>
+              </li>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#7C3AED" />
+                <span>3중 분산 데이터센터 보관 (11 9s 내구성)</span>
               </li>
             </ul>
 
@@ -227,7 +295,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
               disabled={isUpgrading}
             >
               <Crown size={16} color="#EAB308" />
-              <span>{user?.isPro ? 'Pro 멤버십 이용 중' : '수장고프로 업그레이드'}</span>
+              <span>Studio 플랜 시작하기</span>
             </button>
           </div>
         </div>

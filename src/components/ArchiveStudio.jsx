@@ -19,9 +19,11 @@ import {
   ZoomIn,
   X,
   Crown,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import WatermarkSettingsModal from './WatermarkSettingsModal';
 import { 
   getArtworks, 
   saveSingleArtwork, 
@@ -44,6 +46,9 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
 
   // 무료 30점 한도 초과 모달 상태
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+
+  // 워터마크 보안 설정 모달 상태
+  const [isWatermarkModalOpen, setIsWatermarkModalOpen] = useState(false);
 
   // 모달 상태 (새 작품 등록 / 수정)
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -256,6 +261,15 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
             style={{ display: 'none' }} 
             onChange={handleImportBackup} 
           />
+
+          <button 
+            onClick={() => setIsWatermarkModalOpen(true)} 
+            className="btn-outline" 
+            title="클라이언트 시안용 워터마크 문구 및 서명 로고 설정"
+            style={{ fontSize: '0.82rem', padding: '0.4rem 0.75rem', borderColor: '#0284C7', color: '#0369A1', background: '#F0F9FF' }}
+          >
+            <ShieldCheck size={14} color="#0284C7" /> 워터마크 설정
+          </button>
 
           <button 
             onClick={handleOpenAddModal} 
@@ -769,6 +783,13 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
           </div>
         </div>
       )}
+
+      {/* 4. 나만의 워터마크 보안 설정 모달 */}
+      <WatermarkSettingsModal 
+        isOpen={isWatermarkModalOpen} 
+        onClose={() => setIsWatermarkModalOpen(false)} 
+        user={user} 
+      />
     </div>
   );
 }
