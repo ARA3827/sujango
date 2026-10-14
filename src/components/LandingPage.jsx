@@ -292,12 +292,11 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             </div>
 
             <div className="plan-capacity-box">
-              <div style={{ fontSize: '0.74rem', color: '#64748B' }}>체감 보관 용량</div>
-              <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>
-                📁 작품 아카이브 서고 최대 30점
+              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
+                📁 작품 아카이브 서고 최대 30점 보관
               </div>
-              <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px' }}>
-                내 PC 브라우저 안전 저장 & JSON 백업
+              <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '3px' }}>
+                내 PC 브라우저 안전 저장 & 단일 JSON 백업
               </div>
             </div>
 
@@ -340,12 +339,11 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             </div>
 
             <div className="plan-capacity-box">
-              <div style={{ fontSize: '0.74rem', color: '#64748B' }}>체감 보관 용량</div>
-              <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>
-                📸 20MB 고화질 사진 약 5,000장
+              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
+                📸 20MB 고화질 사진 약 5,000장 무손실 보관
               </div>
-              <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px' }}>
-                개인전 10회 분량의 아카이빙 평생 보관
+              <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '3px' }}>
+                PC • 스마트폰 어디서나 실시간 클라우드 자동 동기화
               </div>
             </div>
 
@@ -387,12 +385,11 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             </div>
 
             <div className="plan-capacity-box studio">
-              <div style={{ fontSize: '0.74rem', color: '#7E22CE' }}>체감 보관 용량</div>
-              <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#581C87', marginTop: '2px' }}>
-                🎬 4K 영상 약 20편 또는 사진 25,000장
+              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#581C87' }}>
+                🎬 4K 고화질 영상 약 20편 또는 사진 약 25,000장 보관
               </div>
-              <div style={{ fontSize: '0.72rem', color: '#7E22CE', marginTop: '2px' }}>
-                초대용량 원본 영구 보존 & 작업실 공유
+              <div style={{ fontSize: '0.74rem', color: '#7E22CE', marginTop: '3px' }}>
+                대용량 원본 안전 클라우드 보관 & 2-Way 워터마크 보안
               </div>
             </div>
 

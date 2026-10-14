@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Sparkles, User, LogOut, LogIn, Eye, Crown } from 'lucide-react';
+import { Palette, Sparkles, User, LogOut, LogIn, Eye, Crown, Menu } from 'lucide-react';
 
 export default function Header({ 
   currentView, 
@@ -9,7 +9,8 @@ export default function Header({
   onLogout,
   isGuestExploring,
   onExitGuest,
-  onOpenPricing
+  onOpenPricing,
+  onOpenSideMenu
 }) {
   const today = new Date();
   const dateStr = today.toLocaleDateString('ko-KR', {
@@ -115,6 +116,17 @@ export default function Header({
               <LogIn size={14} /> 로그인
             </button>
           )}
+
+          {/* 작대기 3개(햄버거) 전체 사이드 메뉴 버튼 */}
+          <button
+            type="button"
+            onClick={onOpenSideMenu}
+            className="header-menu-btn"
+            aria-label="전체 메뉴 열기"
+            title="수장고 소개 / 이용안내 / 전체 메뉴"
+          >
+            <Menu size={18} />
+          </button>
         </div>
       </div>
     </header>

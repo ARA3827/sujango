@@ -187,12 +187,11 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
             </div>
 
             <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0.65rem 0.85rem', marginBottom: '1rem' }}>
-              <div style={{ fontSize: '0.76rem', color: '#64748B' }}>체감 보관 용량</div>
-              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>
-                📸 20MB 고화질 사진 약 5,000장
+              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
+                📸 20MB 고화질 사진 약 5,000장 무손실 보관
               </div>
-              <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px' }}>
-                (개인전 10회 분량의 아카이빙 평생 보관)
+              <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '3px' }}>
+                PC • 스마트폰 어디서나 실시간 클라우드 자동 동기화
               </div>
             </div>
 
@@ -252,12 +251,11 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
             </div>
 
             <div style={{ background: '#FAF5FF', border: '1px solid #E9D5FF', borderRadius: '8px', padding: '0.65rem 0.85rem', marginBottom: '1rem' }}>
-              <div style={{ fontSize: '0.76rem', color: '#7E22CE' }}>체감 보관 용량</div>
-              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#581C87', marginTop: '2px' }}>
-                🎬 4K 고화질 영상 약 20편 보관
+              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#581C87' }}>
+                🎬 4K 고화질 영상 약 20편 또는 사진 약 25,000장 보관
               </div>
-              <div style={{ fontSize: '0.72rem', color: '#7E22CE', marginTop: '2px' }}>
-                또는 20MB 고화질 사진 약 25,000장 무손실 보관
+              <div style={{ fontSize: '0.74rem', color: '#7E22CE', marginTop: '3px' }}>
+                대용량 원본 안전 클라우드 보관 & 2-Way 워터마크 보안
               </div>
             </div>
 

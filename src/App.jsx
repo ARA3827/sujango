@@ -13,6 +13,8 @@ import LoginModal from './components/LoginModal';
 import PolicyModal from './components/PolicyModal';
 import PricingModal from './components/PricingModal';
 import ClientPreviewView from './components/ClientPreviewView';
+import SideMenuDrawer from './components/SideMenuDrawer';
+import InfoModal from './components/InfoModal';
 import { getStoredUser, saveUser, DEMO_USER } from './utils/authStorage';
 import { syncUserProfile } from './utils/supabaseClient';
 import { UserCheck, UserX, Sparkles, Crown } from 'lucide-react';
@@ -27,6 +29,16 @@ export default function App() {
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
   const [policyTab, setPolicyTab] = useState('terms');
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+
+  // 사이드 메뉴 드로어 및 2-Depth 안내 센터 모달 상태
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [infoModalTab, setInfoModalTab] = useState('about');
+
+  const handleOpenInfoModal = (tab = 'about') => {
+    setInfoModalTab(tab);
+    setIsInfoModalOpen(true);
+  };
 
   const handleOpenPolicy = (tab = 'terms') => {
     setPolicyTab(tab);
@@ -176,6 +188,7 @@ export default function App() {
         isGuestExploring={isGuestExploring}
         onExitGuest={() => setIsGuestExploring(false)}
         onOpenPricing={() => setIsPricingModalOpen(true)}
+        onOpenSideMenu={() => setIsSideMenuOpen(true)}
       />
 
       {/* 메인 뷰 컨테이너 */}
@@ -270,6 +283,28 @@ export default function App() {
         isOpen={isNewToolModalOpen} 
         onClose={() => setIsNewToolModalOpen(false)} 
         user={user}
+      />
+
+      {/* 우측 슬라이드 사이드 드로어 메뉴 (햄버거 ☰ 버튼 연동) */}
+      <SideMenuDrawer 
+        isOpen={isSideMenuOpen}
+        onClose={() => setIsSideMenuOpen(false)}
+        user={user}
+        onOpenLogin={() => setIsLoginModalOpen(true)}
+        onLogout={handleLogout}
+        onOpenInfoTab={handleOpenInfoModal}
+        onOpenPricing={() => setIsPricingModalOpen(true)}
+        onOpenFeedback={() => setIsNewToolModalOpen(true)}
+        onOpenPolicy={handleOpenPolicy}
+      />
+
+      {/* 수장고 소개 / 이용안내 / FAQ 2-Depth 안내 센터 모달 */}
+      <InfoModal 
+        isOpen={isInfoModalOpen}
+        onClose={() => setIsInfoModalOpen(false)}
+        initialTab={infoModalTab}
+        onOpenPricing={() => setIsPricingModalOpen(true)}
+        onOpenFeedback={() => setIsNewToolModalOpen(true)}
       />
 
       {/* 공식 미니멀 푸터 (전자상거래법 & 카드사 심사 법적 고지 완비) */}
