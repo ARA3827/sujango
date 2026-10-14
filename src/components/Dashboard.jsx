@@ -144,60 +144,7 @@ export default function Dashboard({
         </div>
       </div>
 
-      {/* 3. 4대 핵심 도구 그리드 */}
-      <div className="section-headline">
-        <span>핵심 워크스페이스 도구</span>
-        <span style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'none', fontWeight: 400 }}>
-          클릭 시 2-Depth 상세 작업공간으로 진입합니다
-        </span>
-      </div>
-
-      <div className="tool-grid">
-        {tools.map((tool) => (
-          <div 
-            key={tool.id} 
-            className="tool-card" 
-            onClick={() => onSelectView(tool.id)}
-            role="button"
-            tabIndex={0}
-          >
-            <div>
-              <div className="tool-card-header">
-                <div className="tool-card-icon">{tool.icon}</div>
-                <span className="tool-tag">{tool.tag}</span>
-              </div>
-              <div className="tool-card-body">
-                <h3>{tool.title}</h3>
-                <p>{tool.desc}</p>
-              </div>
-            </div>
-            <div className="tool-card-footer">
-              <span>{tool.actionText}</span>
-              <ArrowRight size={16} />
-            </div>
-          </div>
-        ))}
-
-        {/* 5번째 모듈: 소소한 툴 추가 슬롯 */}
-        <div 
-          className="tool-card-placeholder" 
-          onClick={onOpenNewToolModal}
-          role="button"
-          tabIndex={0}
-        >
-          <div className="placeholder-plus-circle">
-            <Plus size={22} />
-          </div>
-          <h4 style={{ fontSize: '1rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>
-            새 도구 추가 / 아이디어
-          </h4>
-          <p style={{ fontSize: '0.82rem', color: '#9CA3AF', maxWidth: '200px' }}>
-            필요한 소소한 기능이 떠오르면 언제든 여기에 추가하고 확장하세요.
-          </p>
-        </div>
-      </div>
-
-      {/* 4. 나의 작품 아카이브 서고 (1-Depth 슬림 게시판) */}
+      {/* 3. [메인 무대] 나의 작품 디지털 수장고 (최상단 전진 배치) */}
       <div className="archive-board-section">
         <div className="archive-board-header">
           <div>
@@ -205,16 +152,25 @@ export default function Dashboard({
               <span className="archive-board-title">📁 나의 작품 디지털 수장고</span>
               <span className="archive-board-count">총 {artworks.length}점 보관 중</span>
             </div>
-            <p style={{ fontSize: '0.82rem', color: '#64748B', margin: '4px 0 0 0' }}>
-              세월이 흘러도 변치 않는 나만의 프라이빗 디지털 수장고. 사진을 클릭하면 상세 도록과 작가노트, 캡션을 열람할 수 있습니다.
+            <p style={{ fontSize: '0.83rem', color: '#64748B', margin: '4px 0 0 0' }}>
+              세월이 흘러도 변치 않는 나만의 프라이빗 디지털 수장고. 작품을 클릭하면 상세 도록과 작가노트, 캡션을 바로 열람할 수 있습니다.
             </p>
           </div>
-          <button 
-            onClick={() => onSelectView('archive')} 
-            className="archive-board-more-btn"
-          >
-            전체 수장고 열람 <ArrowRight size={14} />
-          </button>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <button 
+              onClick={() => onSelectView('archive')} 
+              className="btn-outline"
+              style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', gap: '5px' }}
+            >
+              <Plus size={14} /> 새 작품 등록
+            </button>
+            <button 
+              onClick={() => onSelectView('archive')} 
+              className="archive-board-more-btn"
+            >
+              전체 수장고 열람 <ArrowRight size={14} />
+            </button>
+          </div>
         </div>
 
         {artworks.length > 0 ? (
@@ -284,6 +240,59 @@ export default function Dashboard({
             <p>아직 등록된 작품이 없습니다. 클릭하여 첫 작품 사진과 작가노트를 등록해 보세요.</p>
           </div>
         )}
+      </div>
+
+      {/* 4. [하단 지원군] 창작 행정 & 비즈니스 비서 툴킷 */}
+      <div className="section-headline" style={{ marginTop: '2.5rem' }}>
+        <span>🛠️ 창작 행정 & 비즈니스 비서 도구</span>
+        <span style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'none', fontWeight: 400 }}>
+          클릭 시 2-Depth 상세 작업공간으로 진입합니다
+        </span>
+      </div>
+
+      <div className="tool-grid">
+        {tools.map((tool) => (
+          <div 
+            key={tool.id} 
+            className="tool-card" 
+            onClick={() => onSelectView(tool.id)}
+            role="button"
+            tabIndex={0}
+          >
+            <div>
+              <div className="tool-card-header">
+                <div className="tool-card-icon">{tool.icon}</div>
+                <span className="tool-tag">{tool.tag}</span>
+              </div>
+              <div className="tool-card-body">
+                <h3>{tool.title}</h3>
+                <p>{tool.desc}</p>
+              </div>
+            </div>
+            <div className="tool-card-footer">
+              <span>{tool.actionText}</span>
+              <ArrowRight size={16} />
+            </div>
+          </div>
+        ))}
+
+        {/* 5번째 모듈: 소소한 툴 추가 슬롯 */}
+        <div 
+          className="tool-card-placeholder" 
+          onClick={onOpenNewToolModal}
+          role="button"
+          tabIndex={0}
+        >
+          <div className="placeholder-plus-circle">
+            <Plus size={22} />
+          </div>
+          <h4 style={{ fontSize: '1rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>
+            새 도구 추가 / 아이디어
+          </h4>
+          <p style={{ fontSize: '0.82rem', color: '#9CA3AF', maxWidth: '200px' }}>
+            필요한 소소한 기능이 떠오르면 언제든 여기에 추가하고 확장하세요.
+          </p>
+        </div>
       </div>
     </div>
   );

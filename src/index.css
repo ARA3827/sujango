@@ -1293,14 +1293,15 @@ input, select, textarea {
    내 작품 아카이브 서고 (My Artwork Archive) 스타일
    ========================================================================== */
 
-/* 1. 대시보드 1-Depth 슬림 게시판 섹션 */
+/* 1. 대시보드 1-Depth 슬림 게시판 섹션 (최상단 메인 무대) */
 .archive-board-section {
-  margin-top: 2.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2.5rem;
   background: #FFFFFF;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .archive-board-header {
