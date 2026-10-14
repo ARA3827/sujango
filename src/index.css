@@ -93,12 +93,12 @@ input, select, textarea {
 }
 
 .artflow-header {
-  background: var(--bg-canvas);
-  border-bottom: 1px solid var(--border-light);
+  background: rgba(250, 248, 245, 0.94);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
   position: sticky;
   top: 0;
   z-index: 50;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
 }
 
 .header-container {
@@ -1870,9 +1870,11 @@ input, select, textarea {
   border: 1px solid #DBEAFE;
 }
 
-/* 3. 공개 랜딩 페이지 스타일 */
+/* 3. 공개 랜딩 페이지 스타일 (아틀리에 캔버스 아이보리 톤) */
 .landing-wrapper {
-  padding-bottom: 4rem;
+  background-color: #FAF8F5;
+  min-height: 100vh;
+  padding-bottom: 5rem;
 }
 
 /* 1. 히어로 섹션 (아틀리에 실물 전면 배경 & 텍스트 오버레이) */
@@ -1996,8 +1998,9 @@ input, select, textarea {
 }
 
 .comparison-card.highlight {
-  border: 2px solid #0F172A;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+  border: 1px solid #CBD5E1;
+  border-top: 3px solid #0F172A;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
   position: relative;
 }
 
@@ -2165,13 +2168,14 @@ input, select, textarea {
 
 /* 6. 하단 CTA */
 .landing-bottom-cta {
-  background: #F8FAFC;
-  border: 1px solid #E2E8F0;
+  background: #FFFFFF;
+  border: 1px solid rgba(226, 232, 240, 0.85);
   border-radius: var(--radius-lg);
   max-width: 900px;
   margin: 0 auto;
   text-align: center;
   padding: 3.5rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .landing-bottom-cta h2 {
@@ -2263,8 +2267,9 @@ input, select, textarea {
 }
 
 .landing-pricing-card.featured {
-  border: 2px solid #0F172A;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid #CBD5E1;
+  border-top: 3px solid #D97706;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
 }
 
 .pricing-popular-tag {

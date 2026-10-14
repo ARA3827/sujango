@@ -52,22 +52,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             <div className="landing-hero-cta">
               <button onClick={onOpenLogin} className="hero-primary-btn">
                 <Sparkles size={18} />
-                무료로 내 수장고 시작하기
-              </button>
-              <button 
-                onClick={onExploreGuest} 
-                className="btn-secondary" 
-                style={{ 
-                  padding: '0.95rem 1.6rem', 
-                  fontSize: '1rem', 
-                  borderRadius: '10px', 
-                  fontWeight: 600,
-                  background: 'rgba(255, 255, 255, 0.9)',
-                  backdropFilter: 'blur(8px)',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-                }}
-              >
-                기능 둘러보기
+                내 수장고 시작하기
               </button>
             </div>
           </div>
@@ -493,8 +478,9 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
       <section className="landing-bottom-cta">
         <h2>당신의 소중한 작품 세계, 이제 수장고(Sujango)에서 지키세요</h2>
         <p>어떤 복잡한 설정도 필요 없습니다. 오늘부터 당신만의 디지털 수장고가 시작됩니다.</p>
-        <button onClick={onOpenLogin} className="btn-primary" style={{ padding: '0.9rem 2rem', fontSize: '1rem', width: 'auto', margin: '0 auto' }}>
-          무료로 내 수장고 만들기
+        <button onClick={onOpenLogin} className="hero-primary-btn" style={{ margin: '0 auto', padding: '0.95rem 2.2rem', fontSize: '1.02rem' }}>
+          <Sparkles size={18} />
+          내 수장고 시작하기
         </button>
       </section>
     </div>
