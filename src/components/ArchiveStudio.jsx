@@ -375,7 +375,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
 
       {/* 4. 본문: 선택된 작품의 2-Depth 도록 뷰 */}
       {currentArt ? (
-        <div className="workspace-grid" style={{ gridTemplateColumns: 'minmax(320px, 440px) 1fr' }}>
+        <div className="workspace-grid archive-workspace-grid">
           
           {/* 좌측: 시각적 자산 (작품 사진 프레임 & 미술관 표준 캡션 명패) */}
           <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
