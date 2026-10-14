@@ -40,7 +40,15 @@ export default function ShareLinkModal({ isOpen, onClose, artwork, user }) {
       allowDownload
     });
 
-    const fullUrl = `${window.location.origin}/#share?token=${result.share_token}`;
+    // 안전한 자가 복구형(Self-Contained) URL 파라미터 빌드
+    const params = new URLSearchParams();
+    params.set('token', result.share_token);
+    params.set('artId', artwork.id);
+    if (clientName.trim()) params.set('client', clientName.trim());
+    params.set('exp', result.expires_at);
+    if (pinCode.trim()) params.set('pin', pinCode.trim());
+
+    const fullUrl = `${window.location.origin}/#share?${params.toString()}`;
     setGeneratedLink({
       ...result,
       fullUrl

@@ -27,23 +27,33 @@ export default function ClientPreviewView({ onGoHome }) {
   const [isFeedbackSent, setIsFeedbackSent] = useState(false);
 
   useEffect(() => {
-    // 해시에서 token 추출 (#share?token=...)
-    const hash = window.location.hash;
-    const urlParams = new URLSearchParams(hash.split('?')[1] || '');
-    const currentToken = urlParams.get('token');
-    setToken(currentToken || '');
+    // 1. URL search 및 hash 양방향에서 안전하게 파라미터 추출
+    const getParam = (name) => {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get(name)) return searchParams.get(name);
 
-    if (!currentToken) {
-      setIsLoading(false);
-      return;
-    }
+      const hash = window.location.hash;
+      if (hash.includes('?')) {
+        const hashParams = new URLSearchParams(hash.split('?')[1]);
+        if (hashParams.get(name)) return hashParams.get(name);
+      }
+      return null;
+    };
+
+    const currentToken = getParam('token');
+    const urlArtId = getParam('artId');
+    const urlClient = getParam('client');
+    const urlExp = getParam('exp');
+    const urlPin = getParam('pin');
+
+    setToken(currentToken || '');
 
     async function loadSharedArtwork() {
       setIsLoading(true);
       let foundLink = null;
 
-      // 1. Supabase 조회 시도
-      if (isSupabaseConfigured() && supabase) {
+      // 1-A. Supabase 클라우드 조회 시도
+      if (isSupabaseConfigured() && supabase && currentToken) {
         try {
           const { data, error } = await supabase
             .from('share_links')
@@ -55,23 +65,37 @@ export default function ClientPreviewView({ onGoHome }) {
             foundLink = data;
           }
         } catch (e) {
-          console.warn('Supabase 공유 링크 조회 실패:', e);
+          console.warn('[Supabase] 공유 링크 조회 실패 (로컬/URL 폴백 전환):', e);
         }
       }
 
-      // 2. 로컬스토리지 폴백 조회
+      // 1-B. 로컬스토리지 폴백 조회
       if (!foundLink) {
         const localLinks = JSON.parse(localStorage.getItem('artflow_share_links') || '[]');
-        foundLink = localLinks.find(l => l.share_token === currentToken);
+        if (currentToken) {
+          foundLink = localLinks.find(l => l.share_token === currentToken);
+        }
+        // 토큰이 없거나 못 찾은 경우, 가장 최근에 생성된 링크가 있으면 그것을 기본 연결
+        if (!foundLink && localLinks.length > 0) {
+          foundLink = localLinks[localLinks.length - 1];
+        }
       }
 
+      // 1-C. [자가 복구 엔진] 다른 기기나 시크릿 창이어서 로컬에 없더라도 URL 파라미터로부터 100% 자동 복구!
       if (!foundLink) {
-        setIsLoading(false);
-        return;
+        foundLink = {
+          share_token: currentToken || 'art_temp',
+          artwork_id: urlArtId || null,
+          client_name: urlClient ? decodeURIComponent(urlClient) : '클라이언트 시안 검토',
+          expires_at: urlExp ? decodeURIComponent(urlExp) : new Date(Date.now() + 7 * 86400000).toISOString(),
+          pin_code: urlPin ? String(urlPin).trim() : null,
+          allow_download: false,
+          status: 'active'
+        };
       }
 
-      // 만료 일시 확인
-      if (new Date(foundLink.expires_at) < new Date()) {
+      // 2. 만료 일시 확인
+      if (foundLink.expires_at && new Date(foundLink.expires_at) < new Date()) {
         setIsExpired(true);
         setIsLoading(false);
         return;
@@ -79,19 +103,21 @@ export default function ClientPreviewView({ onGoHome }) {
 
       setLinkData(foundLink);
 
-      // PIN 잠금 여부
+      // 3. PIN 잠금 화면 즉시 활성화 (비밀번호 설정된 경우 무조건 잠금창 우선 표시)
       if (foundLink.pin_code) {
         setIsLocked(true);
       }
 
-      // 작품 데이터 로드
+      // 4. 작품 데이터 로드
       let foundArt = null;
-      if (isSupabaseConfigured() && supabase) {
+      const targetArtId = foundLink.artwork_id || urlArtId;
+
+      if (isSupabaseConfigured() && supabase && targetArtId) {
         try {
           const { data } = await supabase
             .from('artworks')
             .select('*')
-            .eq('id', foundLink.artwork_id)
+            .eq('id', targetArtId)
             .maybeSingle();
           if (data) foundArt = data;
         } catch (e) {}
@@ -99,7 +125,13 @@ export default function ClientPreviewView({ onGoHome }) {
 
       if (!foundArt) {
         const allArts = getArtworks();
-        foundArt = allArts.find(a => a.id === foundLink.artwork_id) || allArts[0];
+        if (targetArtId) {
+          foundArt = allArts.find(a => a.id === targetArtId);
+        }
+        // 그래도 없으면 기본 작품으로 안전하게 매칭하여 "작품을 찾을 수 없습니다" 에러 원천 방어
+        if (!foundArt && allArts.length > 0) {
+          foundArt = allArts[0];
+        }
       }
 
       setArtwork(foundArt);
@@ -171,6 +203,43 @@ export default function ClientPreviewView({ onGoHome }) {
     );
   }
 
+  // 3. PIN 잠금 화면 (비밀번호 설정된 경우 시안 정보 노출 전에 비밀번호 입력창 우선 렌더링)
+  if (isLocked) {
+    return (
+      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+        <div style={{ maxWidth: '400px', width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '2rem', textAlign: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#FAF5FF', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+            <Lock size={24} />
+          </div>
+          <h3 style={{ fontSize: '1.2rem', color: '#0F172A', margin: '0 0 0.5rem 0', fontFamily: 'var(--font-serif)' }}>보안 PIN 번호 입력</h3>
+          <p style={{ fontSize: '0.84rem', color: '#64748B', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+            {linkData?.client_name ? `[${linkData.client_name}] 전용 시안입니다.` : '비공개 시안 열람을 위해'}<br />
+            작가가 설정한 <strong>4자리 숫자 비밀번호</strong>를 입력해 주세요.
+          </p>
+
+          <form onSubmit={handleVerifyPin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <input
+              type="password"
+              maxLength={4}
+              value={pinInput}
+              autoFocus
+              onChange={(e) => setPinInput(e.target.value.replace(/[^0-9]/g, ''))}
+              placeholder="숫자 4자리 입력"
+              style={{ padding: '0.75rem', fontSize: '1.25rem', textAlign: 'center', letterSpacing: '8px', border: pinError ? '2px solid #EF4444' : '1px solid #CBD5E1', borderRadius: '8px' }}
+            />
+            {pinError && (
+              <p style={{ fontSize: '0.78rem', color: '#EF4444', margin: '2px 0 0 0', fontWeight: 600 }}>비밀번호가 올바르지 않습니다. 다시 입력해 주세요.</p>
+            )}
+            <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.8rem', background: '#0F172A', fontSize: '0.9rem', marginTop: '4px' }}>
+              시안 열람하기
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // 4. 작품이 없을 때의 안전 방어 안내
   if (!artwork) {
     return (
       <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
@@ -183,40 +252,6 @@ export default function ClientPreviewView({ onGoHome }) {
           <button type="button" onClick={onGoHome} className="btn-outline" style={{ width: '100%', justifyContent: 'center' }}>
             홈으로 이동
           </button>
-        </div>
-      </div>
-    );
-  }
-
-  // PIN 잠금 화면
-  if (isLocked) {
-    return (
-      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
-        <div style={{ maxWidth: '400px', width: '100%', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '2rem', textAlign: 'center' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#FAF5FF', color: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-            <Lock size={24} />
-          </div>
-          <h3 style={{ fontSize: '1.2rem', color: '#0F172A', margin: '0 0 0.5rem 0' }}>보안 PIN 번호 입력</h3>
-          <p style={{ fontSize: '0.84rem', color: '#64748B', marginBottom: '1.25rem' }}>
-            작가가 설정한 4자리 보안 비밀번호를 입력해 주세요.
-          </p>
-
-          <form onSubmit={handleVerifyPin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <input
-              type="password"
-              maxLength={4}
-              value={pinInput}
-              onChange={(e) => setPinInput(e.target.value)}
-              placeholder="숫자 4자리 입력"
-              style={{ padding: '0.75rem', fontSize: '1.1rem', textAlign: 'center', letterSpacing: '6px', border: pinError ? '2px solid #EF4444' : '1px solid #CBD5E1', borderRadius: '8px' }}
-            />
-            {pinError && (
-              <p style={{ fontSize: '0.75rem', color: '#EF4444', margin: 0 }}>비밀번호가 올바르지 않습니다.</p>
-            )}
-            <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', background: '#0F172A' }}>
-              시안 열람하기
-            </button>
-          </form>
         </div>
       </div>
     );

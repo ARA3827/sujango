@@ -33,10 +33,18 @@ export default function App() {
     setIsPolicyModalOpen(true);
   };
 
-  // 브라우저 Hash 기반 URL 파싱 (뒤로가기 완벽 연동)
+  // 브라우저 URL 파싱 (Hash 및 Query Search 양방향 완벽 감지)
   const getViewFromHash = () => {
+    // 1. Query Search 파라미터에 token이나 share가 있는 경우 즉시 보안 시안 뷰어로 진입
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('token') || searchParams.get('share') || window.location.search.includes('token=')) {
+      return 'share';
+    }
+
+    // 2. Hash 기반 파싱 (#share?token=...)
     const rawHash = window.location.hash.replace('#', '').split('?')[0];
     if (rawHash.startsWith('share')) return 'share';
+
     const validViews = ['doc', 'statement', 'tax', 'caption', 'archive', 'inspo'];
     return validViews.includes(rawHash) ? rawHash : 'dashboard';
   };

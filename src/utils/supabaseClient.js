@@ -109,10 +109,10 @@ export async function saveWatermarkSettings(userEmail, settings) {
 }
 
 /**
- * 클라이언트용 보안 공유 링크 생성 (7일 만료 기본)
+ * 클라이언트용 보안 공유 링크 생성 (로컬스토리지 100% 선저장 + Supabase 비동기 연동)
  */
 export async function createShareLink({ userEmail, artworkId, clientName, expiresInDays = 7, pinCode = '', allowDownload = false }) {
-  const shareToken = 'art_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+  const shareToken = 'art_' + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
   const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000).toISOString();
 
   const newLink = {
@@ -121,31 +121,39 @@ export async function createShareLink({ userEmail, artworkId, clientName, expire
     share_token: shareToken,
     client_name: clientName || '클라이언트 시안 검토',
     expires_at: expiresAt,
-    pin_code: pinCode || null,
+    pin_code: pinCode ? String(pinCode).trim() : null,
     allow_download: Boolean(allowDownload),
-    status: 'active'
+    status: 'active',
+    created_at: new Date().toISOString()
   };
 
-  if (!isSupabaseConfigured() || !supabase) {
-    // 오프라인/로컬 모드용 임시 저장
-    const localLinks = JSON.parse(localStorage.getItem('artflow_share_links') || '[]');
-    localLinks.push(newLink);
-    localStorage.setItem('artflow_share_links', JSON.stringify(localLinks));
-    return newLink;
-  }
-
+  // 1. 로컬스토리지에 무조건 1순위 선(先) 저장 (오프라인/클라우드 에러 완벽 방어)
   try {
-    const { data, error } = await supabase
-      .from('share_links')
-      .insert(newLink)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  } catch (err) {
-    console.warn('[Supabase] 공유 링크 생성 실패:', err);
-    return newLink;
+    const localLinks = JSON.parse(localStorage.getItem('artflow_share_links') || '[]');
+    const filtered = localLinks.filter(l => l.share_token !== shareToken);
+    filtered.push(newLink);
+    localStorage.setItem('artflow_share_links', JSON.stringify(filtered));
+  } catch (e) {
+    console.warn('로컬 공유 링크 저장 실패:', e);
   }
+
+  // 2. Supabase가 설정되어 있으면 클라우드에도 저장 시도
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('share_links')
+        .insert(newLink)
+        .select()
+        .single();
+
+      if (!error && data) {
+        return data;
+      }
+    } catch (err) {
+      console.warn('[Supabase] 공유 링크 클라우드 동기화 폴백 (로컬 보존):', err);
+    }
+  }
+
+  return newLink;
 }
 
