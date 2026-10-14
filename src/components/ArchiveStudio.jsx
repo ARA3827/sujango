@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import WatermarkSettingsModal from './WatermarkSettingsModal';
+import ShareLinkModal from './ShareLinkModal';
 import { 
   getArtworks, 
   saveSingleArtwork, 
@@ -32,7 +33,8 @@ import {
   importArchiveBackup,
   syncArtworksFromSupabase 
 } from '../utils/archiveStorage';
-import { compressImage } from '../utils/imageCompressor';
+import { generateWatermarkedPreview, generateThumbnail } from '../utils/imageCompressor';
+import { fetchWatermarkSettings } from '../utils/supabaseClient';
 
 export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPricing, user }) {
   const [artworks, setArtworks] = useState(getArtworks);
@@ -49,6 +51,10 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
 
   // 워터마크 보안 설정 모달 상태
   const [isWatermarkModalOpen, setIsWatermarkModalOpen] = useState(false);
+
+  // 보안 공유 링크 모달 상태
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareTargetArtwork, setShareTargetArtwork] = useState(null);
 
   // 모달 상태 (새 작품 등록 / 수정)
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -153,10 +159,24 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
 
     try {
       setIsCompressing(true);
-      const compressedDataUrl = await compressImage(file, 1200, 0.82);
-      setModalForm(prev => ({ ...prev, imageUrl: compressedDataUrl }));
+      // 1. 작가의 워터마크 보안 설정 조회
+      const watermarkSettings = await fetchWatermarkSettings(user?.email || 'local_user') || {};
+
+      // 2. 1080px 웹용 워터마크 프리뷰 시안 1회 자동 합성
+      const previewDataUrl = await generateWatermarkedPreview(file, watermarkSettings, 1080);
+
+      // 3. 400px 초경량 목록용 썸네일 생성
+      const thumbDataUrl = await generateThumbnail(file, 400, 0.75);
+
+      setModalForm(prev => ({ 
+        ...prev, 
+        imageUrl: previewDataUrl, // 기본 및 시안 표시용
+        previewImageUrl: previewDataUrl,
+        thumbnailUrl: thumbDataUrl,
+        fileSizeBytes: file.size
+      }));
     } catch (err) {
-      alert('이미지 처리 중 오류가 발생했습니다: ' + err.message);
+      alert('이미지 및 워터마크 처리 중 오류가 발생했습니다: ' + err.message);
     } finally {
       setIsCompressing(false);
     }
@@ -411,15 +431,29 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
             </div>
 
             {/* 액션 버튼 */}
-            {onNavigateToCaption && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <button 
-                onClick={() => onNavigateToCaption(currentArt)}
-                className="btn-outline"
-                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => {
+                  setShareTargetArtwork(currentArt);
+                  setIsShareModalOpen(true);
+                }}
+                className="btn-primary"
+                style={{ width: '100%', justifyContent: 'center', background: '#0F172A', fontSize: '0.86rem', padding: '0.65rem' }}
+                title="워터마크가 합성된 1080px 안전 시안과 7일 만료 보안 링크 발급"
               >
-                <Tag size={15} /> 이 작품 캡션 명패 출력하기
+                <Share2 size={15} /> 클라이언트 보안 시안 공유 링크 발급
               </button>
-            )}
+
+              {onNavigateToCaption && (
+                <button 
+                  onClick={() => onNavigateToCaption(currentArt)}
+                  className="btn-outline"
+                  style={{ width: '100%', justifyContent: 'center', fontSize: '0.84rem' }}
+                >
+                  <Tag size={15} /> 이 작품 캡션 명패 출력하기
+                </button>
+              )}
+            </div>
           </div>
 
           {/* 우측: 텍스트 자산 (도록용 평론 작가노트 / 인스타 / 블로그) */}
@@ -789,6 +823,14 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
         isOpen={isWatermarkModalOpen} 
         onClose={() => setIsWatermarkModalOpen(false)} 
         user={user} 
+      />
+
+      {/* 5. 클라이언트용 보안 공유 링크 모달 */}
+      <ShareLinkModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        artwork={shareTargetArtwork}
+        user={user}
       />
     </div>
   );

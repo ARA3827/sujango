@@ -12,6 +12,7 @@ import LandingPage from './components/LandingPage';
 import LoginModal from './components/LoginModal';
 import PolicyModal from './components/PolicyModal';
 import PricingModal from './components/PricingModal';
+import ClientPreviewView from './components/ClientPreviewView';
 import { getStoredUser, saveUser, DEMO_USER } from './utils/authStorage';
 import { syncUserProfile } from './utils/supabaseClient';
 import { UserCheck, UserX, Sparkles, Crown } from 'lucide-react';
@@ -34,9 +35,10 @@ export default function App() {
 
   // 브라우저 Hash 기반 URL 파싱 (뒤로가기 완벽 연동)
   const getViewFromHash = () => {
-    const hash = window.location.hash.replace('#', '');
+    const rawHash = window.location.hash.replace('#', '');
+    if (rawHash.startsWith('share')) return 'share';
     const validViews = ['doc', 'statement', 'tax', 'caption', 'archive', 'inspo'];
-    return validViews.includes(hash) ? hash : 'dashboard';
+    return validViews.includes(rawHash) ? rawHash : 'dashboard';
   };
 
   const [currentView, setCurrentView] = useState(getViewFromHash);
@@ -54,6 +56,10 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const v = getViewFromHash();
+      if (v === 'share') {
+        setCurrentView('share');
+        return;
+      }
       if (!user && v !== 'dashboard') {
         setCurrentView('dashboard');
         setIsLoginModalOpen(true);
@@ -129,8 +135,8 @@ export default function App() {
     }
   };
 
-  // 비로그인 상태이고 둘러보기 모드가 아닐 때 ➔ 랜딩 페이지 표시
-  const showLanding = !user && !isGuestExploring;
+  // 비로그인 상태이고 둘러보기 모드가 아닐 때 (단, 보안 공유 링크는 제외) ➔ 랜딩 페이지 표시
+  const showLanding = !user && !isGuestExploring && currentView !== 'share';
 
   return (
     <div className="artflow-app">
@@ -148,7 +154,9 @@ export default function App() {
 
       {/* 메인 뷰 컨테이너 */}
       <main className="artflow-main">
-        {showLanding ? (
+        {currentView === 'share' ? (
+          <ClientPreviewView onGoHome={() => navigate('dashboard')} />
+        ) : showLanding ? (
           /* 비로그인: 서비스 소개 및 쇼케이스 랜딩 페이지 */
           <LandingPage 
             onOpenLogin={() => setIsLoginModalOpen(true)}
