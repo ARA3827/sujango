@@ -36,12 +36,23 @@ import {
 import { generateWatermarkedPreview, generateThumbnail } from '../utils/imageCompressor';
 import { fetchWatermarkSettings } from '../utils/supabaseClient';
 
-export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPricing, user }) {
+export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPricing, user, initialArtworkId }) {
   const [artworks, setArtworks] = useState(getArtworks);
   const [selectedId, setSelectedId] = useState(() => {
     const list = getArtworks();
+    if (initialArtworkId && list.some(a => a.id === initialArtworkId)) {
+      return initialArtworkId;
+    }
     return list.length > 0 ? list[0].id : null;
   });
+
+  // 대시보드 등 외부에서 특정 작품을 선택하여 진입했을 때 즉시 포커싱
+  useEffect(() => {
+    if (initialArtworkId && artworks.some(a => a.id === initialArtworkId)) {
+      setSelectedId(initialArtworkId);
+    }
+  }, [initialArtworkId, artworks]);
+
   const [activeTab, setActiveTab] = useState('statement'); // 'statement' | 'insta' | 'blog'
   const [copied, setCopied] = useState(false);
   const [lightboxImage, setLightboxImage] = useState(null);

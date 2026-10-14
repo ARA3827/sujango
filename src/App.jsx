@@ -35,13 +35,20 @@ export default function App() {
 
   // 브라우저 Hash 기반 URL 파싱 (뒤로가기 완벽 연동)
   const getViewFromHash = () => {
-    const rawHash = window.location.hash.replace('#', '');
+    const rawHash = window.location.hash.replace('#', '').split('?')[0];
     if (rawHash.startsWith('share')) return 'share';
     const validViews = ['doc', 'statement', 'tax', 'caption', 'archive', 'inspo'];
     return validViews.includes(rawHash) ? rawHash : 'dashboard';
   };
 
+  const getArtIdFromHash = () => {
+    const hash = window.location.hash;
+    const urlParams = new URLSearchParams(hash.split('?')[1] || '');
+    return urlParams.get('artId') || null;
+  };
+
   const [currentView, setCurrentView] = useState(getViewFromHash);
+  const [selectedArtworkId, setSelectedArtworkId] = useState(getArtIdFromHash);
   const [taxSummary, setTaxSummary] = useState({ totalIncome: 0, pendingAmount: 1200000 });
   const [captionCount, setCaptionCount] = useState(() => {
     try {
@@ -56,6 +63,7 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const v = getViewFromHash();
+      setSelectedArtworkId(getArtIdFromHash());
       if (v === 'share') {
         setCurrentView('share');
         return;
@@ -107,21 +115,27 @@ export default function App() {
     navigate('dashboard');
   };
 
-  // 네비게이션 함수 (비로그인 접근 차단 로그인 월 적용)
-  const navigate = (viewId) => {
+  // 네비게이션 함수 (비로그인 접근 차단 로그인 월 적용 및 특정 작품 ID 연동)
+  const navigate = (viewId, artworkId = null) => {
     // 비로그인(게스트) 상태에서 세부 작업공간(서류, 정산, 작가노트 등) 진입 시 ➔ 로그인 모달 강제 팝업
     if (!user && viewId !== 'dashboard') {
       setIsLoginModalOpen(true);
       return;
     }
 
+    if (artworkId) {
+      setSelectedArtworkId(artworkId);
+    }
+
     if (viewId === 'dashboard') {
+      setSelectedArtworkId(null);
       if (window.location.hash) {
         window.history.pushState(null, '', window.location.pathname + window.location.search);
       }
       setCurrentView('dashboard');
     } else {
-      window.history.pushState({ view: viewId }, '', `#${viewId}`);
+      const hashStr = artworkId ? `#${viewId}?artId=${artworkId}` : `#${viewId}`;
+      window.history.pushState({ view: viewId, artworkId }, '', hashStr);
       setCurrentView(viewId);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -168,7 +182,7 @@ export default function App() {
           <>
             {currentView === 'dashboard' && (
               <Dashboard 
-                onSelectView={(viewId) => navigate(viewId)}
+                onSelectView={(viewId, artworkId) => navigate(viewId, artworkId)}
                 taxSummary={taxSummary}
                 captionCount={captionCount}
                 onOpenNewToolModal={() => setIsNewToolModalOpen(true)}
@@ -201,6 +215,7 @@ export default function App() {
                 onNavigateToCaption={() => navigate('caption')}
                 onOpenPricing={() => setIsPricingModalOpen(true)}
                 user={user}
+                initialArtworkId={selectedArtworkId}
               />
             )}
 

@@ -234,7 +234,7 @@ export default function Dashboard({
                 {artworks.slice(0, 5).map((art) => (
                   <tr 
                     key={art.id} 
-                    onClick={() => onSelectView('archive')}
+                    onClick={() => onSelectView('archive', art.id)}
                     style={{ cursor: 'pointer' }}
                     title="클릭하여 상세 도록 및 작가노트 열람"
                   >
