@@ -31,53 +31,110 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
   }, []);
   return (
     <div className="landing-wrapper">
-      {/* 1. 히어로 섹션 */}
+      {/* 1. 히어로 섹션 (따뜻한 캔버스 감성 & 우측 아틀리에 실물 목업 2분할) */}
       <section className="landing-hero">
-        <div className="landing-hero-badge">
-          <Sparkles size={14} color="#0284C7" />
-          <span>창작자를 위한 프라이빗 디지털 수장고</span>
-        </div>
+        <div className="landing-hero-split">
+          {/* 좌측: 타이포그래피 & 명확한 가치 제안 */}
+          <div className="landing-hero-text-col">
+            <div className="landing-hero-badge">
+              <Sparkles size={14} color="#B45309" />
+              <span>창작자를 위한 프라이빗 디지털 수장고</span>
+            </div>
 
-        <h1 className="landing-hero-title">
-          작가님은 오롯이 창작에만 몰입하세요.
-        </h1>
+            <h1 className="landing-hero-title">
+              작가님은 오롯이<br />창작에만 몰입하세요.
+            </h1>
 
-        <p className="landing-hero-sub">
-          마음을 울린 영감의 기록부터 소중한 작품 보관까지, 세월이 흘러도 변치 않는 나만의 디지털 수장고에서 안전하게 관리하세요.
-        </p>
+            <p className="landing-hero-sub">
+              책 속 명문장과 영감의 기록부터 고해상도 작품 보관, 미술관 규격 전시 캡션·도록 출판까지.<br />
+              세월이 흘러도 변치 않는 미술 작가 맞춤형 디지털 수장고에서 품격 있게 관리하세요.
+            </p>
 
-        <div className="landing-hero-cta" style={{ justifyContent: 'center' }}>
-          <button onClick={onOpenLogin} className="btn-primary" style={{ padding: '0.9rem 2.2rem', fontSize: '1.02rem', width: 'auto' }}>
-            ✨ 무료로 내 수장고 시작하기
-          </button>
+            <div className="landing-hero-cta">
+              <button onClick={onOpenLogin} className="hero-primary-btn">
+                <Sparkles size={18} />
+                무료로 내 수장고 시작하기
+              </button>
+              <button 
+                onClick={onExploreGuest} 
+                className="btn-secondary" 
+                style={{ padding: '0.95rem 1.6rem', fontSize: '1rem', borderRadius: '10px', fontWeight: 600 }}
+              >
+                기능 둘러보기
+              </button>
+            </div>
+          </div>
+
+          {/* 우측: 아틀리에 작업실 아이패드·스케치북 실물 목업 */}
+          <div className="landing-hero-visual-col">
+            <div className="hero-mockup-frame">
+              <img 
+                src="/hero_atelier_mockup.jpg" 
+                alt="미술 작가의 아틀리에 작업실과 디지털 수장고 포트폴리오 목업" 
+                className="hero-mockup-img" 
+              />
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 2. 핵심 통찰: 일반 SNS 보관 vs 수장고(Sujango) 비교 배너 */}
+      {/* 2. 핵심 통찰: 일반 SNS 보관 vs 수장고(Sujango) 비교 (차분한 무채색 & 딥네이비 톤다운) */}
       <section className="landing-comparison-section">
         <div className="comparison-card">
-          <div className="comparison-header warning">
-            <AlertTriangle size={20} color="#DC2626" />
+          <div className="comparison-header muted">
+            <Lock size={19} color="#64748B" />
             <h3>일반 SNS나 개인 기기에만 보관할 때의 위험</h3>
           </div>
           <ul className="comparison-list">
-            <li>❌ <strong>계정 분실/기기 고장 한 번에</strong> 수년간 쌓아온 작품과 기록이 소실될 위험</li>
-            <li>❌ 사진이 강제로 저화질로 뭉개져 <strong>도록이나 인쇄용으로 재활용 불가</strong></li>
-            <li>❌ 작품 호수, 연도, 재료, 가격 등 <strong>미술계 표준 규격 정리가 불가능</strong></li>
-            <li>❌ 큐레이터나 갤러리 미팅 시 <strong>공식 포트폴리오로 제출하기 어려움</strong></li>
+            <li>
+              <span className="comparison-bullet-muted">✕</span>
+              <span><strong>계정 분실/기기 고장 한 번에</strong> 수년간 쌓아온 작품과 기록이 소실될 위험</span>
+            </li>
+            <li>
+              <span className="comparison-bullet-muted">✕</span>
+              <span>사진이 강제로 저화질로 뭉개져 <strong>도록이나 인쇄용으로 재활용 불가</strong></span>
+            </li>
+            <li>
+              <span className="comparison-bullet-muted">✕</span>
+              <span>작품 호수, 연도, 재료, 가격 등 <strong>미술계 표준 규격 정리가 불가능</strong></span>
+            </li>
+            <li>
+              <span className="comparison-bullet-muted">✕</span>
+              <span>큐레이터나 갤러리 미팅 시 <strong>공식 포트폴리오로 제출하기 어려움</strong></span>
+            </li>
           </ul>
         </div>
 
         <div className="comparison-card highlight">
           <div className="comparison-header safe">
-            <ShieldCheck size={20} color="#059669" />
-            <h3>프라이빗 디지털 수장고</h3>
+            <ShieldCheck size={20} color="#0F172A" />
+            <h3 style={{ color: '#0F172A' }}>프라이빗 디지털 수장고</h3>
           </div>
           <ul className="comparison-list">
-            <li>✅ <strong>어떤 플랫폼 변화에도 영원히 안전한</strong> 작가 본인 소유의 디지털 서고</li>
-            <li>✅ 20MB 고화질 사진도 <strong>웹 최적화로 가볍게 자동 다이어트 압축</strong></li>
-            <li>✅ 작품 사진을 누르면 <strong>도록용 작가노트와 미술관 캡션 명패가 한눈에</strong></li>
-            <li>✅ 클릭 한 번으로 <strong>전체 데이터를 내 PC에 파일로 안전하게 백업</strong></li>
+            <li>
+              <span className="comparison-bullet-navy">
+                <CheckCircle2 size={13} color="#FFFFFF" />
+              </span>
+              <span><strong>어떤 플랫폼 변화에도 영원히 안전한</strong> 작가 본인 소유의 디지털 서고</span>
+            </li>
+            <li>
+              <span className="comparison-bullet-navy">
+                <CheckCircle2 size={13} color="#FFFFFF" />
+              </span>
+              <span>20MB 원본 사진도 <strong>웹 최적화로 가볍게 자동 다이어트 압축</strong></span>
+            </li>
+            <li>
+              <span className="comparison-bullet-navy">
+                <CheckCircle2 size={13} color="#FFFFFF" />
+              </span>
+              <span>작품 사진을 누르면 <strong>도록용 작가노트와 미술관 캡션 명패가 한눈에</strong></span>
+            </li>
+            <li>
+              <span className="comparison-bullet-navy">
+                <CheckCircle2 size={13} color="#FFFFFF" />
+              </span>
+              <span>클릭 한 번으로 <strong>전체 데이터를 내 PC에 파일로 안전하게 백업</strong></span>
+            </li>
           </ul>
         </div>
       </section>

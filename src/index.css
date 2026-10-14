@@ -1875,103 +1875,141 @@ input, select, textarea {
   padding-bottom: 4rem;
 }
 
+/* 1. 히어로 섹션 (따뜻한 캔버스 미색 & 2분할 목업 스플릿) */
 .landing-hero {
-  text-align: center;
-  padding: 6.5rem 1rem 3.5rem;
-  max-width: 860px;
+  padding: 4.5rem 1.5rem 3.5rem;
+  max-width: 1200px;
   margin: 0 auto;
+}
+
+.landing-hero-split {
+  display: grid;
+  grid-template-columns: 1fr 1.08fr;
+  align-items: center;
+  gap: 3.5rem;
+}
+
+.landing-hero-text-col {
+  text-align: left;
 }
 
 .landing-hero-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #F0F9FF;
-  border: 1px solid #BAE6FD;
-  color: #0369A1;
-  padding: 4px 12px;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  color: #B45309;
+  padding: 5px 14px;
   border-radius: 999px;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 1.5rem;
+  letter-spacing: 0.01em;
 }
 
 .landing-hero-title {
   font-family: var(--font-serif);
-  font-size: 2.6rem;
-  font-weight: 700;
-  line-height: 1.35;
-  color: var(--text-primary);
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #0F172A;
   margin-bottom: 1.25rem;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 .landing-hero-sub {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
+  font-size: 1.05rem;
+  color: #475569;
   line-height: 1.65;
   margin-bottom: 2.25rem;
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .landing-hero-cta {
   display: flex;
-  justify-content: center;
+  align-items: center;
   gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 
-.landing-trust-strip {
-  display: flex;
-  justify-content: center;
-  gap: 1.75rem;
-  flex-wrap: wrap;
-  padding-top: 1.5rem;
-  border-top: 1px solid #F1F5F9;
-}
-
-.trust-item {
-  display: flex;
+.hero-primary-btn {
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 0.95rem 2rem;
+  border-radius: 10px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  color: #475569;
-  font-weight: 500;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+  transition: all 0.2s ease;
 }
 
-/* 4. 인스타그램 vs 아트플로우 비교 섹션 */
+.hero-primary-btn:hover {
+  background: #1E293B;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.28);
+}
+
+.landing-hero-visual-col {
+  position: relative;
+}
+
+.hero-mockup-frame {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -15px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #FAF8F5;
+}
+
+.hero-mockup-frame:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.hero-mockup-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* 2. 문제 vs 수장고 비교 섹션 (차분한 무채색 & 딥네이비 톤다운) */
 .landing-comparison-section {
-  max-width: 980px;
-  margin: 0 auto 4rem;
+  max-width: 1100px;
+  margin: 1.5rem auto 4.5rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
 }
 
 .comparison-card {
   background: #FFFFFF;
-  border: 1px solid var(--border-color);
+  border: 1px solid #E2E8F0;
   border-radius: var(--radius-lg);
-  padding: 1.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  padding: 2rem 1.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .comparison-card.highlight {
   border: 2px solid #0F172A;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
   position: relative;
 }
 
 .comparison-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 1.25rem;
-  padding-bottom: 0.75rem;
+  padding-bottom: 0.85rem;
   border-bottom: 1px solid #F1F5F9;
 }
 
@@ -1979,14 +2017,11 @@ input, select, textarea {
   font-size: 1.05rem;
   font-weight: 700;
   margin: 0;
-}
-
-.comparison-header.warning h3 {
-  color: #DC2626;
-}
-
-.comparison-header.safe h3 {
   color: #0F172A;
+}
+
+.comparison-header.muted h3 {
+  color: #334155;
 }
 
 .comparison-list {
@@ -1995,13 +2030,44 @@ input, select, textarea {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 1rem;
 }
 
 .comparison-list li {
   font-size: 0.88rem;
-  line-height: 1.5;
+  line-height: 1.55;
   color: #334155;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.comparison-bullet-muted {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #F1F5F9;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.comparison-bullet-navy {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #0F172A;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 /* 5. 5대 기능 쇼케이스 */
@@ -2124,9 +2190,22 @@ input, select, textarea {
   margin-bottom: 2rem;
 }
 
+@media (max-width: 900px) {
+  .landing-hero-split {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .landing-hero-text-col {
+    text-align: center;
+  }
+  .landing-hero-cta {
+    justify-content: center;
+  }
+}
+
 @media (max-width: 768px) {
   .landing-hero-title {
-    font-size: 1.9rem;
+    font-size: 2.1rem;
   }
   .landing-comparison-section {
     grid-template-columns: 1fr;
