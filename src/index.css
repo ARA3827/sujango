@@ -2142,9 +2142,9 @@ input, select, textarea {
 
 .landing-pricing-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
   gap: 1.5rem;
-  max-width: 860px;
+  max-width: 1120px;
   margin: 0 auto 2.5rem;
 }
 
@@ -2186,7 +2186,7 @@ input, select, textarea {
 }
 
 .pricing-card-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .plan-badge-simple {
@@ -2211,6 +2211,17 @@ input, select, textarea {
   margin-bottom: 0.5rem;
 }
 
+.plan-badge-studio {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #7C3AED;
+  background: #F3E8FF;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
 .plan-title {
   font-size: 1.35rem;
   font-weight: 700;
@@ -2222,7 +2233,7 @@ input, select, textarea {
   display: flex;
   align-items: baseline;
   gap: 4px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .plan-price-num {
@@ -2241,6 +2252,19 @@ input, select, textarea {
   font-size: 0.84rem;
   color: #64748B;
   line-height: 1.5;
+}
+
+.plan-capacity-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.plan-capacity-box.studio {
+  background: #FAF5FF;
+  border-color: #E9D5FF;
 }
 
 .plan-features {
@@ -2274,7 +2298,7 @@ input, select, textarea {
   background: #F8FAFC;
   border: 1px solid #E2E8F0;
   border-radius: var(--radius-lg);
-  max-width: 860px;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 1.75rem 2rem;
 }

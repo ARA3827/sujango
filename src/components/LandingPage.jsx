@@ -219,18 +219,18 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
         </div>
       </section>
 
-      {/* 4. 요금제 안내 섹션 (Free vs Pro 클라우드 금고) */}
+      {/* 4. 요금제 안내 섹션 (Free vs Pro 100GB vs Studio 500GB) */}
       <section className="landing-pricing-section">
         <div className="section-title-center">
           <span className="section-sub-tag">MEMBERSHIP PLAN</span>
           <h2>합리적이고 투명한 창작자 요금제</h2>
           <p>
-            기본 기능과 작품 30점은 무료로 보관하고, 대용량 무손실 원본 금고가 필요할 때 Sujango Pro로 확장하세요.
+            기본 기능과 작품 30점은 무료로 보관하고, 대용량 원본 금고와 워터마크 보안 링크가 필요할 때 Pro 또는 Studio로 확장하세요.
           </p>
         </div>
 
         <div className="landing-pricing-grid">
-          {/* 무료 플랜 */}
+          {/* 1. 무료 플랜 */}
           <div className="landing-pricing-card">
             <div className="pricing-card-header">
               <span className="plan-badge-simple">기본 무료 플랜</span>
@@ -241,6 +241,17 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
               </div>
               <p className="plan-desc">창작과 행정 서식이 필요한 모든 예술가를 위한 기본 플랜</p>
             </div>
+
+            <div className="plan-capacity-box">
+              <div style={{ fontSize: '0.74rem', color: '#64748B' }}>체감 보관 용량</div>
+              <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>
+                📁 작품 아카이브 서고 최대 30점
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px' }}>
+                내 PC 브라우저 안전 저장 & JSON 백업
+              </div>
+            </div>
+
             <ul className="plan-features">
               <li><CheckCircle2 size={16} color="#059669" /> <strong>작품 아카이브 서고 최대 30점</strong> 보관</li>
               <li><CheckCircle2 size={16} color="#059669" /> 웹 최적화 확인용 압축 보관 (내 PC 브라우저 안전 저장)</li>
@@ -253,30 +264,83 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
             </button>
           </div>
 
-          {/* Pro 플랜 (추천) */}
+          {/* 2. Pro 플랜 (100GB) */}
+          <div className="landing-pricing-card">
+            <div className="pricing-card-header">
+              <span className="plan-badge-pro">100GB 클라우드 금고</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h3 className="plan-title" style={{ margin: 0 }}>Sujango Pro</h3>
+                <Crown size={18} color="#0284C7" />
+              </div>
+              <div className="plan-price-wrap" style={{ marginTop: '0.5rem' }}>
+                <span className="plan-price-num">7,900</span>
+                <span className="plan-price-unit">원 / 월 (연 94,800원 기준)</span>
+              </div>
+              <p className="plan-desc">개인 작가를 위한 100GB 초고화질 무손실 원본 보관 (월간 구독 시 9,900원)</p>
+            </div>
+
+            <div className="plan-capacity-box">
+              <div style={{ fontSize: '0.74rem', color: '#64748B' }}>체감 보관 용량</div>
+              <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0F172A', marginTop: '2px' }}>
+                📸 20MB 고화질 사진 약 5,000장
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '2px' }}>
+                개인전 10회 분량의 아카이빙 평생 보관
+              </div>
+            </div>
+
+            <ul className="plan-features">
+              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>작품 등록 한도 무제한 해제</strong></li>
+              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>PC • 스마트폰 어디서나 실시간 동기화</strong></li>
+              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>100GB 초고화질 무손실 원본</strong> 클라우드 금고</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 웹 시안용 1080px 자동 압축 프리뷰 제공</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 큐레이터 전용 <strong>프라이빗 도록 공유 링크</strong></li>
+              <li><CheckCircle2 size={16} color="#059669" /> 3중 분산 데이터센터 안전 보관 (11 9s)</li>
+            </ul>
+            <button onClick={onOpenPricing} className="btn-outline" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center', borderColor: '#0284C7', color: '#0284C7', fontWeight: 600 }}>
+              Pro 30일 무료 체험
+            </button>
+          </div>
+
+          {/* 3. Studio 플랜 (500GB - 추천 플랜) */}
           <div className="landing-pricing-card featured">
             <div className="pricing-popular-tag">
-              <Crown size={13} /> 작가 추천
+              <Sparkles size={12} color="#EAB308" /> 스튜디오 추천
             </div>
             <div className="pricing-card-header">
-              <span className="plan-badge-pro">100GB 원본 금고</span>
-              <h3 className="plan-title">Sujango Pro</h3>
-              <div className="plan-price-wrap">
-                <span className="plan-price-num">4,900</span>
-                <span className="plan-price-unit">원 / 월 (연 49,000원)</span>
+              <span className="plan-badge-studio">500GB 대용량 금고</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <h3 className="plan-title" style={{ margin: 0 }}>Sujango Studio</h3>
+                <Crown size={18} color="#7C3AED" />
               </div>
-              <p className="plan-desc">어디서든 로그인 동기화 + 100GB 초고화질 무손실 금고</p>
+              <div className="plan-price-wrap" style={{ marginTop: '0.5rem' }}>
+                <span className="plan-price-num">23,200</span>
+                <span className="plan-price-unit">원 / 월 (연 278,400원 기준)</span>
+              </div>
+              <p className="plan-desc">영상•설치•대형 프로젝트 작가 및 작업실 전용 (월간 구독 시 29,000원)</p>
             </div>
+
+            <div className="plan-capacity-box studio">
+              <div style={{ fontSize: '0.74rem', color: '#7E22CE' }}>체감 보관 용량</div>
+              <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#581C87', marginTop: '2px' }}>
+                🎬 4K 영상 약 20편 또는 사진 25,000장
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#7E22CE', marginTop: '2px' }}>
+                초대용량 원본 영구 보존 & 작업실 공유
+              </div>
+            </div>
+
             <ul className="plan-features">
-              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>작품 무제한 등록</strong> (30점 등록 한도 해제)</li>
-              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>PC • 스마트폰 어디서나 로그인 자동 동기화</strong></li>
-              <li><CheckCircle2 size={16} color="#059669" /> <strong>100GB 초고화질 무손실 원본</strong> 클라우드 금고</li>
-              <li><CheckCircle2 size={16} color="#059669" /> <strong>3중 분산 데이터센터 안전 보관</strong> (11 9s 내구성)</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 대형 전시/인쇄/도록용 <strong>원본 즉시 다운로드</strong></li>
-              <li><CheckCircle2 size={16} color="#059669" /> 큐레이터·컬렉터 전용 <strong>프라이빗 도록 공유 링크</strong></li>
+              <li><CheckCircle2 size={16} color="#7C3AED" /> <strong>500GB 초대용량 무손실 클라우드 금고</strong></li>
+              <li><CheckCircle2 size={16} color="#7C3AED" /> <strong>나만의 워터마크 자동 합성 (문구 & 로고)</strong></li>
+              <li><CheckCircle2 size={16} color="#7C3AED" /> <strong>7일 만료 보안 공유 링크 (Signed URL)</strong></li>
+              <li><CheckCircle2 size={16} color="#059669" /> 선택적 4자리 PIN 비밀번호 클라이언트 잠금</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 클라이언트 실시간 피드백 및 리뷰 수합</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 3중 분산 데이터센터 안전 보관 (11 9s)</li>
             </ul>
-            <button onClick={onOpenPricing} className="btn-primary" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center' }}>
-              수장고프로 업그레이드
+            <button onClick={onOpenPricing} className="btn-primary" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center', background: '#0F172A' }}>
+              <Crown size={16} color="#EAB308" />
+              <span>Studio 플랜 시작하기</span>
             </button>
           </div>
         </div>
