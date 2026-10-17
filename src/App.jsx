@@ -12,6 +12,8 @@ import LandingPage from './components/LandingPage';
 import LoginModal from './components/LoginModal';
 import PolicyModal from './components/PolicyModal';
 import PricingModal from './components/PricingModal';
+import CheckoutModal from './components/CheckoutModal';
+import PaymentResultModal from './components/PaymentResultModal';
 import ClientPreviewView from './components/ClientPreviewView';
 import SideMenuDrawer from './components/SideMenuDrawer';
 import InfoModal from './components/InfoModal';
@@ -29,6 +31,19 @@ export default function App() {
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
   const [policyTab, setPolicyTab] = useState('terms');
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+
+  // 토스페이먼츠 결제 모달 및 결제 결과 모달 상태
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [selectedPlanForCheckout, setSelectedPlanForCheckout] = useState(null);
+  const [selectedBillingCycle, setSelectedBillingCycle] = useState('yearly');
+  const [paymentResult, setPaymentResult] = useState({ isOpen: false, status: 'success', details: null });
+
+  const handleOpenCheckout = (plan, billingCycle = 'yearly') => {
+    setSelectedPlanForCheckout(plan);
+    setSelectedBillingCycle(billingCycle);
+    setIsPricingModalOpen(false);
+    setIsCheckoutOpen(true);
+  };
 
   // 사이드 메뉴 드로어 및 2-Depth 안내 센터 모달 상태
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
@@ -118,6 +133,68 @@ export default function App() {
       syncUserProfile(user);
     }
   }, [user]);
+
+  // 토스페이먼츠 결제 승인/실패 리다이렉트 URL 감지 및 멤버십 자동 업그레이드
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const paymentStatus = searchParams.get('payment');
+    const paymentKey = searchParams.get('paymentKey');
+
+    if (paymentStatus === 'success' || (paymentKey && !paymentStatus)) {
+      const planId = searchParams.get('planId') || 'pro';
+      const amount = searchParams.get('amount') || (planId === 'studio' ? '29000' : '9900');
+      const orderId = searchParams.get('orderId') || `ORD_${Date.now()}`;
+      const cycle = searchParams.get('cycle') || 'yearly';
+
+      const isStudio = planId === 'studio';
+      const membershipName = isStudio ? 'Sujango Studio' : 'Sujango Pro';
+      const storageLimit = isStudio ? 500 * 1024 * 1024 * 1024 : 100 * 1024 * 1024 * 1024;
+
+      const currentUser = user || getStoredUser() || DEMO_USER;
+      const upgradedUser = {
+        ...currentUser,
+        isPro: true,
+        membership: membershipName,
+        storageTier: planId,
+        storageLimit: storageLimit,
+        planExpiresAt: new Date(Date.now() + (cycle === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000).toISOString()
+      };
+
+      setUser(upgradedUser);
+      saveUser(upgradedUser);
+      syncUserProfile(upgradedUser);
+
+      setPaymentResult({
+        isOpen: true,
+        status: 'success',
+        details: {
+          orderId,
+          amount,
+          planId,
+          cycle
+        }
+      });
+
+      // 주소창 깔끔하게 정리 (URL 파라미터 제거)
+      window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+    } else if (paymentStatus === 'fail') {
+      const code = searchParams.get('code');
+      const message = searchParams.get('message');
+      const orderId = searchParams.get('orderId');
+
+      setPaymentResult({
+        isOpen: true,
+        status: 'fail',
+        details: {
+          code,
+          message,
+          orderId
+        }
+      });
+
+      window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+    }
+  }, []);
 
   // 로그인 성공 처리
   const handleLoginSuccess = (loggedInUser) => {
@@ -269,6 +346,30 @@ export default function App() {
           saveUser(upgradedUser);
         }}
         onOpenPolicy={handleOpenPolicy}
+        onSelectPlanForCheckout={handleOpenCheckout}
+      />
+
+      {/* 토스페이먼츠 보안 결제 및 주문서 모달 */}
+      <CheckoutModal 
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        plan={selectedPlanForCheckout}
+        billingCycle={selectedBillingCycle}
+        user={user}
+        onPaymentSuccess={(upgradedUser) => {
+          setUser(upgradedUser);
+          saveUser(upgradedUser);
+          setIsCheckoutOpen(false);
+        }}
+      />
+
+      {/* 결제 완료 축하 및 승인 결과 모달 */}
+      <PaymentResultModal 
+        isOpen={paymentResult.isOpen}
+        onClose={() => setPaymentResult(prev => ({ ...prev, isOpen: false }))}
+        status={paymentResult.status}
+        details={paymentResult.details}
+        onNavigateToArchive={() => navigate('archive')}
       />
 
       {/* 공식 3대 법적 정책 모달 */}

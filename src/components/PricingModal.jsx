@@ -8,12 +8,28 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, onOpenPolicy }) {
+export default function PricingModal({ 
+  isOpen, 
+  onClose, 
+  user, 
+  onUpgradeSuccess, 
+  onOpenPolicy,
+  onSelectPlanForCheckout 
+}) {
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'monthly' | 'yearly'
   const [showBankInfo, setShowBankInfo] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
 
   if (!isOpen) return null;
+
+  // 플랜 선택 시 결제 모달 호출
+  const handleSelectPlan = (planId, planName) => {
+    if (onSelectPlanForCheckout) {
+      onSelectPlanForCheckout({ id: planId, name: planName }, billingCycle);
+    } else {
+      handleStartFreeTrial();
+    }
+  };
 
   // 30일 무료 체험 및 Pro 업그레이드
   const handleStartFreeTrial = () => {
@@ -220,13 +236,13 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
 
             <button 
               type="button" 
-              onClick={handleStartFreeTrial}
+              onClick={() => handleSelectPlan('pro', 'Sujango Pro')}
               className="btn-primary" 
               style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', background: '#0F172A' }}
               disabled={isUpgrading}
             >
               <Crown size={16} color="#EAB308" />
-              <span>{user?.isPro ? 'Pro 이용 중' : 'Pro 시작하기'}</span>
+              <span>{user?.isPro ? 'Pro 멤버십 연장/결제' : 'Pro 결제 및 시작하기'}</span>
             </button>
           </div>
 
@@ -288,12 +304,12 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess, 
 
             <button 
               type="button" 
-              onClick={handleStartFreeTrial}
+              onClick={() => handleSelectPlan('studio', 'Sujango Studio')}
               className="btn-outline" 
               style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.88rem', fontWeight: 700, borderColor: '#7C3AED', color: '#7C3AED' }}
               disabled={isUpgrading}
             >
-              <span>Studio 플랜 시작하기</span>
+              <span>Studio 플랜 결제 및 시작하기</span>
             </button>
           </div>
         </div>
