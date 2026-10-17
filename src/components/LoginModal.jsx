@@ -98,8 +98,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
   const handleKakaoLoginClick = async () => {
     setErrorMessage('');
     
+    const activeKakaoKey = kakaoKey || getKakaoJsKey();
     // 카카오 SDK 등록된 경우 우선 호출
-    if (kakaoKey && window.Kakao) {
+    if (activeKakaoKey && window.Kakao) {
       loginWithKakao(
         (user) => {
           onLoginSuccess(user);
@@ -107,7 +108,12 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
           triggerConfetti();
         },
         (err) => {
-          setErrorMessage('카카오 로그인에 실패했습니다. 이메일 로그인을 이용해 주세요.');
+          console.warn('Kakao login fail:', err);
+          if (err && typeof err === 'string' && err !== 'NEED_KEY') {
+            setErrorMessage(err);
+          } else {
+            setErrorMessage('카카오 로그인 창을 열지 못했습니다. 팝업 차단 여부 또는 설정을 확인해 주세요.');
+          }
         }
       );
       return;

@@ -5,9 +5,9 @@ const KAKAO_KEY_STORAGE = 'sujango_kakao_js_key';
 // 저장된 Kakao JavaScript 키 조회
 export function getKakaoJsKey() {
   try {
-    return localStorage.getItem(KAKAO_KEY_STORAGE) || import.meta.env.VITE_KAKAO_JS_KEY || '';
+    return localStorage.getItem(KAKAO_KEY_STORAGE) || import.meta.env.VITE_KAKAO_JS_KEY || '36608fd2baf9155ca505a7922681a6fa';
   } catch (e) {
-    return '';
+    return '36608fd2baf9155ca505a7922681a6fa';
   }
 }
 
