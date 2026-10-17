@@ -334,6 +334,10 @@ export default function App() {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
+        onExploreGuest={() => {
+          setIsGuestExploring(true);
+          setIsLoginModalOpen(false);
+        }}
       />
 
       {/* Pro 멤버십 요금제 모달 */}
