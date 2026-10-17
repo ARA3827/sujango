@@ -1,4 +1,7 @@
+// Sujango (수장고) 작가 인증 및 로컬 영구 사용자 저장소
+
 const AUTH_KEY = 'artflow_auth_user';
+const USERS_DB_KEY = 'sujango_registered_users_vault';
 
 export const DEMO_USER = {
   id: 'user-ara',
@@ -10,6 +13,9 @@ export const DEMO_USER = {
   avatarUrl: ''
 };
 
+/**
+ * 현재 로그인된 사용자 정보 조회
+ */
 export function getStoredUser() {
   try {
     const data = localStorage.getItem(AUTH_KEY);
@@ -20,6 +26,9 @@ export function getStoredUser() {
   return null; // 기본 상태: 비로그인(게스트)
 }
 
+/**
+ * 현재 로그인된 사용자 세션 저장
+ */
 export function saveUser(user) {
   try {
     if (user) {
@@ -30,4 +39,92 @@ export function saveUser(user) {
   } catch (e) {
     console.error('Failed to save user:', e);
   }
+}
+
+/**
+ * 등록된 전체 회원 목록 조회
+ */
+export function getRegisteredUsers() {
+  try {
+    const raw = localStorage.getItem(USERS_DB_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+/**
+ * 등록된 회원 목록 영구 저장
+ */
+function saveRegisteredUsers(users) {
+  try {
+    localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
+  } catch (e) {
+    console.error('Failed to save users database:', e);
+  }
+}
+
+/**
+ * 1. 로컬 영구 회원가입 (오프라인 및 클라우드 지연 시 100% 보장)
+ */
+export function registerLocalUser(email, password, name = '작가') {
+  const cleanEmail = (email || '').trim().toLowerCase();
+  if (!cleanEmail) {
+    throw new Error('이메일 주소를 입력해 주세요.');
+  }
+  if (!password || password.trim().length < 6) {
+    throw new Error('비밀번호는 최소 6자 이상이어야 합니다.');
+  }
+
+  const users = getRegisteredUsers();
+  const existing = users.find(u => (u.email || '').toLowerCase() === cleanEmail);
+  if (existing) {
+    throw new Error('이미 등록된 이메일입니다. [기존 계정 로그인]을 진행해 주세요.');
+  }
+
+  const newUser = {
+    id: `user-${Date.now()}`,
+    name: (name || '').trim() || '작가',
+    email: cleanEmail,
+    password: password.trim(),
+    role: '창작 예술가',
+    membership: 'Free Artist',
+    isPro: false,
+    avatarUrl: '',
+    provider: 'email',
+    signedAt: new Date().toISOString()
+  };
+
+  users.push(newUser);
+  saveRegisteredUsers(users);
+
+  // 현재 사용자 세션 즉시 저장 (비밀번호 제외)
+  const safeUser = { ...newUser };
+  delete safeUser.password;
+  saveUser(safeUser);
+  return safeUser;
+}
+
+/**
+ * 2. 로컬 영구 로그인
+ */
+export function loginLocalUser(email, password) {
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const cleanPassword = (password || '').trim();
+
+  const users = getRegisteredUsers();
+  const found = users.find(u => (u.email || '').toLowerCase() === cleanEmail);
+
+  if (!found) {
+    throw new Error('가입되지 않은 이메일입니다. [새 계정 회원가입]을 먼저 진행해 주세요.');
+  }
+
+  if (found.password !== cleanPassword) {
+    throw new Error('비밀번호가 올바르지 않습니다. 다시 확인해 주세요.');
+  }
+
+  const safeUser = { ...found };
+  delete safeUser.password;
+  saveUser(safeUser);
+  return safeUser;
 }

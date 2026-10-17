@@ -1,10 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://tkzacvmcqpytludkdpm.supabase.co';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Supabase 클라이언트 인스턴스
-export const supabase = supabaseAnonKey 
+// 실제 연결 가능한 정상 Supabase URL인지 검증
+const isValidSupabaseUrl = (url) => {
+  return Boolean(
+    url && 
+    url.startsWith('https://') && 
+    url.includes('.supabase.co') && 
+    !url.includes('tkzacvmcqpytludkdpm')
+  );
+};
+
+// Supabase 클라이언트 인스턴스 (유효한 키와 URL이 있을 때만 생성)
+export const supabase = (isValidSupabaseUrl(supabaseUrl) && supabaseAnonKey && !supabaseAnonKey.includes('publishable_ciRA'))
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
@@ -12,7 +22,7 @@ export const supabase = supabaseAnonKey
  * Supabase 연결 활성화 여부 확인
  */
 export const isSupabaseConfigured = () => {
-  return Boolean(supabaseUrl && supabaseAnonKey);
+  return Boolean(supabase);
 };
 
 /**

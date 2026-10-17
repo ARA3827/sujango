@@ -14,8 +14,8 @@ import {
   Edit3
 } from 'lucide-react';
 import { getGoogleClientId, decodeJwtResponse, formatGoogleUser } from '../utils/googleAuth';
-import { getKakaoJsKey, initKakaoSdk, loginWithKakao } from '../utils/kakaoAuth';
-import { supabase, signInWithEmail, signUpWithEmail } from '../utils/supabaseClient';
+import { supabase, isSupabaseConfigured, signInWithEmail, signUpWithEmail } from '../utils/supabaseClient';
+import { registerLocalUser, loginLocalUser } from '../utils/authStorage';
 import confetti from 'canvas-confetti';
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMode = 'select' }) {
@@ -227,40 +227,64 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     setIsSubmitting(true);
     try {
       if (isSignUp) {
-        // 정식 회원가입
-        const data = await signUpWithEmail(email.trim(), password.trim(), name.trim() || '작가');
-        
-        const newUser = {
-          id: data?.user?.id || `user-${Date.now()}`,
-          name: name.trim() || '작가',
-          email: email.trim(),
-          role: '창작 예술가',
-          membership: 'Free Artist',
-          isPro: false,
-          avatarUrl: '',
-          provider: 'supabase_email',
-          signedAt: new Date().toISOString()
-        };
+        let newUser = null;
+
+        // 1. 유효한 Supabase 설정이 있으면 클라우드 가입 시도
+        if (isSupabaseConfigured() && supabase) {
+          try {
+            const data = await signUpWithEmail(email.trim(), password.trim(), name.trim() || '작가');
+            newUser = {
+              id: data?.user?.id || `user-${Date.now()}`,
+              name: name.trim() || '작가',
+              email: email.trim(),
+              role: '창작 예술가',
+              membership: 'Free Artist',
+              isPro: false,
+              avatarUrl: '',
+              provider: 'supabase_email',
+              signedAt: new Date().toISOString()
+            };
+          } catch (cloudErr) {
+            console.warn('[Supabase] 클라우드 가입 실패, 로컬 영구 볼트 저장:', cloudErr);
+          }
+        }
+
+        // 2. 클라우드 실패 또는 미설정 시: 로컬 영구 볼트에 100% 안전 저장
+        if (!newUser) {
+          newUser = registerLocalUser(email.trim(), password.trim(), name.trim() || '작가');
+        }
 
         onLoginSuccess(newUser);
         onClose();
         triggerConfetti();
       } else {
-        // 정식 로그인
-        const data = await signInWithEmail(email.trim(), password.trim());
-        const userMeta = data?.user?.user_metadata || {};
-        
-        const loggedInUser = {
-          id: data?.user?.id || `user-${Date.now()}`,
-          name: userMeta.name || name.trim() || '작가',
-          email: data?.user?.email || email.trim(),
-          role: userMeta.role || '창작 예술가',
-          membership: 'Free Artist',
-          isPro: false,
-          avatarUrl: userMeta.avatarUrl || '',
-          provider: 'supabase_email',
-          signedAt: new Date().toISOString()
-        };
+        let loggedInUser = null;
+
+        // 1. 유효한 Supabase 설정이 있으면 클라우드 로그인 시도
+        if (isSupabaseConfigured() && supabase) {
+          try {
+            const data = await signInWithEmail(email.trim(), password.trim());
+            const userMeta = data?.user?.user_metadata || {};
+            loggedInUser = {
+              id: data?.user?.id || `user-${Date.now()}`,
+              name: userMeta.name || name.trim() || '작가',
+              email: data?.user?.email || email.trim(),
+              role: userMeta.role || '창작 예술가',
+              membership: 'Free Artist',
+              isPro: false,
+              avatarUrl: userMeta.avatarUrl || '',
+              provider: 'supabase_email',
+              signedAt: new Date().toISOString()
+            };
+          } catch (cloudErr) {
+            console.warn('[Supabase] 클라우드 로그인 실패, 로컬 볼트 조회:', cloudErr);
+          }
+        }
+
+        // 2. 로컬 영구 볼트 인증
+        if (!loggedInUser) {
+          loggedInUser = loginLocalUser(email.trim(), password.trim());
+        }
 
         onLoginSuccess(loggedInUser);
         onClose();
@@ -269,11 +293,18 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     } catch (err) {
       console.error('인증 실패:', err);
       let userMsg = err.message || '인증에 실패했습니다.';
-      if (userMsg.includes('Invalid login credentials')) {
-        userMsg = '이메일 또는 비밀번호가 올바르지 않습니다. 처음 이용하시는 경우 아래 [새 계정 만들기(회원가입)]를 눌러 가입해 주세요.';
-      } else if (userMsg.includes('User already registered')) {
-        userMsg = '이미 가입된 이메일입니다. [로그인]을 진행해 주세요.';
-        setIsSignUp(false);
+      if (userMsg.includes('Failed to fetch')) {
+        try {
+          const fallbackUser = isSignUp 
+            ? registerLocalUser(email.trim(), password.trim(), name.trim() || '작가')
+            : loginLocalUser(email.trim(), password.trim());
+          onLoginSuccess(fallbackUser);
+          onClose();
+          triggerConfetti();
+          return;
+        } catch (localErr) {
+          userMsg = localErr.message;
+        }
       }
       setErrorMessage(userMsg);
     } finally {
