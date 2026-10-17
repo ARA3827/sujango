@@ -675,7 +675,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                 <span>{socialUser?.provider === 'kakao' ? '카카오 계정 인증 완료' : 'Google 계정 인증 완료'}</span>
               </div>
               <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748B' }}>
-                연동 계정: <strong>{socialUser?.email || '소셜 인증 완료'}</strong>
+                연동 계정: <strong>
+                  {socialUser?.email && !socialUser.email.endsWith('@kakao.com')
+                    ? socialUser.email
+                    : '카카오 공식 인증 계정'}
+                </strong>
               </p>
             </div>
 
