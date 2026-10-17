@@ -18,10 +18,10 @@ import { getKakaoJsKey, initKakaoSdk, loginWithKakao } from '../utils/kakaoAuth'
 import { supabase, signInWithEmail, signUpWithEmail } from '../utils/supabaseClient';
 import confetti from 'canvas-confetti';
 
-export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
+export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMode = 'select' }) {
   // 화면 모드: 'select' (간편 선택) | 'email_form' (이메일/아이디 입력) | 'profile_setup' (소셜 로그인 후 활동명 확인)
-  const [viewMode, setViewMode] = useState('select');
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [viewMode, setViewMode] = useState(initialMode === 'signup' ? 'email_form' : 'select');
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
 
   // 이메일 로그인/회원가입 입력값
   const [email, setEmail] = useState('');
@@ -44,6 +44,16 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
     setErrorMessage('');
     setIsKakaoLoading(false);
     initKakaoSdk();
+
+    if (initialMode === 'signup') {
+      setViewMode('email_form');
+      setIsSignUp(true);
+    } else if (initialMode === 'login') {
+      setViewMode('select');
+      setIsSignUp(false);
+    } else {
+      setViewMode('select');
+    }
 
     // Google Identity Services (GIS) 초기화
     if (window.google?.accounts?.id && googleClientId) {

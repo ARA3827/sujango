@@ -49,10 +49,27 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
               세월이 흘러도 변치 않는 미술 작가 맞춤형 디지털 수장고에서 품격 있게 관리하세요.
             </p>
 
-            <div className="landing-hero-cta">
-              <button onClick={onOpenLogin} className="hero-primary-btn">
+            <div className="landing-hero-cta" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <button onClick={() => onOpenLogin('signup')} className="hero-primary-btn">
                 <Sparkles size={18} />
-                내 수장고 시작하기
+                무료 회원가입 시작하기
+              </button>
+              <button 
+                onClick={onExploreGuest} 
+                className="btn-outline" 
+                style={{ 
+                  padding: '0.82rem 1.4rem', 
+                  borderRadius: '12px', 
+                  fontSize: '0.92rem', 
+                  fontWeight: 600,
+                  background: '#FFFFFF',
+                  borderColor: '#CBD5E1',
+                  color: '#334155',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+                  cursor: 'pointer'
+                }}
+              >
+                로그인 없이 둘러보기 →
               </button>
             </div>
           </div>
@@ -478,9 +495,9 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
       <section className="landing-bottom-cta">
         <h2>당신의 소중한 작품 세계, 이제 수장고(Sujango)에서 지키세요</h2>
         <p>어떤 복잡한 설정도 필요 없습니다. 오늘부터 당신만의 디지털 수장고가 시작됩니다.</p>
-        <button onClick={onOpenLogin} className="hero-primary-btn" style={{ margin: '0 auto', padding: '0.95rem 2.2rem', fontSize: '1.02rem' }}>
+        <button onClick={() => onOpenLogin('signup')} className="hero-primary-btn" style={{ margin: '0 auto', padding: '0.95rem 2.2rem', fontSize: '1.02rem' }}>
           <Sparkles size={18} />
-          내 수장고 시작하기
+          무료 회원가입 시작하기
         </button>
       </section>
     </div>

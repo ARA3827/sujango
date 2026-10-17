@@ -108,13 +108,49 @@ export default function Header({
               </button>
             </div>
           ) : (
-            <button 
-              onClick={onOpenLogin}
-              className="btn-primary"
-              style={{ padding: '0.4rem 0.9rem', fontSize: '0.82rem', width: 'auto' }}
-            >
-              <LogIn size={14} /> 로그인
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button 
+                onClick={() => onOpenLogin?.('login')}
+                className="btn-outline"
+                style={{ 
+                  padding: '0.4rem 0.85rem', 
+                  fontSize: '0.82rem', 
+                  borderColor: '#CBD5E1', 
+                  color: '#334155',
+                  background: '#FFFFFF',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                <LogIn size={13} />
+                <span>로그인</span>
+              </button>
+              <button 
+                onClick={() => onOpenLogin?.('signup')}
+                className="btn-primary"
+                style={{ 
+                  padding: '0.4rem 0.95rem', 
+                  fontSize: '0.82rem', 
+                  background: '#0F172A', 
+                  color: '#FFFFFF', 
+                  border: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  width: 'auto'
+                }}
+              >
+                <User size={13} />
+                <span>회원가입</span>
+              </button>
+            </div>
           )}
 
           {/* 작대기 3개(햄버거) 전체 사이드 메뉴 버튼 */}

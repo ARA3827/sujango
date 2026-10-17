@@ -26,6 +26,12 @@ export default function App() {
   const [user, setUser] = useState(getStoredUser);
   const [isGuestExploring, setIsGuestExploring] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginInitialMode, setLoginInitialMode] = useState('select'); // 'select' | 'signup' | 'login'
+
+  const handleOpenLogin = (mode = 'select') => {
+    setLoginInitialMode(mode);
+    setIsLoginModalOpen(true);
+  };
 
   // 법적 정책 모달 및 유료 요금제 모달 상태
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
@@ -260,7 +266,7 @@ export default function App() {
         currentView={showLanding ? 'landing' : currentView} 
         onGoHome={handleBack} 
         user={user}
-        onOpenLogin={() => setIsLoginModalOpen(true)}
+        onOpenLogin={handleOpenLogin}
         onLogout={handleLogout}
         isGuestExploring={isGuestExploring}
         onExitGuest={() => setIsGuestExploring(false)}
@@ -275,7 +281,7 @@ export default function App() {
         ) : showLanding ? (
           /* 비로그인: 서비스 소개 및 쇼케이스 랜딩 페이지 */
           <LandingPage 
-            onOpenLogin={() => setIsLoginModalOpen(true)}
+            onOpenLogin={handleOpenLogin}
             onExploreGuest={() => setIsGuestExploring(true)}
             onOpenPricing={() => setIsPricingModalOpen(true)}
           />
@@ -329,9 +335,10 @@ export default function App() {
         )}
       </main>
 
-      {/* 로그인 모달 */}
+      {/* 로그인 및 회원가입 모달 */}
       <LoginModal 
         isOpen={isLoginModalOpen}
+        initialMode={loginInitialMode}
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
         onExploreGuest={() => {
@@ -395,7 +402,7 @@ export default function App() {
         isOpen={isSideMenuOpen}
         onClose={() => setIsSideMenuOpen(false)}
         user={user}
-        onOpenLogin={() => setIsLoginModalOpen(true)}
+        onOpenLogin={handleOpenLogin}
         onLogout={handleLogout}
         onOpenInfoTab={handleOpenInfoModal}
         onOpenPricing={() => setIsPricingModalOpen(true)}
