@@ -157,3 +157,50 @@ export async function createShareLink({ userEmail, artworkId, clientName, expire
   return newLink;
 }
 
+/**
+ * Supabase 정식 이메일/비밀번호 회원가입
+ */
+export async function signUpWithEmail(email, password, name = '작가') {
+  if (!isSupabaseConfigured() || !supabase) {
+    throw new Error('클라우드 서버(Supabase) 연결 정보를 확인해 주세요.');
+  }
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        name,
+        role: '창작 예술가'
+      }
+    }
+  });
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Supabase 정식 이메일/비밀번호 로그인
+ */
+export async function signInWithEmail(email, password) {
+  if (!isSupabaseConfigured() || !supabase) {
+    throw new Error('클라우드 서버(Supabase) 연결 정보를 확인해 주세요.');
+  }
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Supabase 정식 로그아웃
+ */
+export async function signOutSupabase() {
+  if (supabase) {
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {}
+  }
+}
+
