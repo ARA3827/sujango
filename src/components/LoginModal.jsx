@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
-  Check, 
   AlertCircle, 
   ShieldCheck, 
   Sparkles, 
@@ -9,18 +8,16 @@ import {
   Lock, 
   User, 
   ArrowRight,
-  ChevronLeft,
   CheckCircle2,
   Edit3
 } from 'lucide-react';
-import { getGoogleClientId, decodeJwtResponse, formatGoogleUser } from '../utils/googleAuth';
-import { getKakaoJsKey, initKakaoSdk, loginWithKakao } from '../utils/kakaoAuth';
+import { getGoogleClientId, loginWithGoogle } from '../utils/googleAuth';
 import { supabase, isSupabaseConfigured, signInWithEmail, signUpWithEmail } from '../utils/supabaseClient';
 import { registerLocalUser, loginLocalUser } from '../utils/authStorage';
 import confetti from 'canvas-confetti';
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMode = 'signup' }) {
-  // 화면 모드: 'signup' (회원가입 전용) | 'login' (로그인 전용) | 'profile_setup' (소셜 가입 후 활동명 확인)
+  // 화면 모드: 'signup' (회원가입) | 'login' (로그인) | 'profile_setup' (구글 가입 후 작가명 확인)
   const [viewMode, setViewMode] = useState(initialMode === 'login' ? 'login' : 'signup');
 
   // 이메일 로그인/회원가입 입력값
@@ -30,52 +27,16 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // 소셜 로그인 진행 상태 & 임시 프로필 정보
-  const [isKakaoLoading, setIsKakaoLoading] = useState(false);
+  // Google 로그인 진행 상태 & 소셜 사용자 정보
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [socialUser, setSocialUser] = useState(null);
-
-  // Google / Kakao 키
-  const [googleClientId] = useState(() => getGoogleClientId());
-  const [kakaoKey] = useState(() => getKakaoJsKey());
-  const googleBtnContainerRef = useRef(null);
 
   useEffect(() => {
     if (!isOpen) return;
     setErrorMessage('');
-    setIsKakaoLoading(false);
-    initKakaoSdk();
-
-    // 초기 진입 모드 설정 ('signup' 또는 'login')
+    setIsGoogleLoading(false);
     setViewMode(initialMode === 'login' ? 'login' : 'signup');
-
-    // Google Identity Services (GIS) 초기화
-    if (window.google?.accounts?.id && googleClientId) {
-      try {
-        window.google.accounts.id.initialize({
-          client_id: googleClientId,
-          callback: handleGoogleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true
-        });
-
-        if (googleBtnContainerRef.current) {
-          googleBtnContainerRef.current.innerHTML = '';
-          window.google.accounts.id.renderButton(googleBtnContainerRef.current, {
-            theme: 'outline',
-            size: 'large',
-            type: 'standard',
-            shape: 'rectangular',
-            text: 'continue_with',
-            logo_alignment: 'left',
-            width: 380,
-            locale: 'ko'
-          });
-        }
-      } catch (err) {
-        console.warn('Google SDK init error:', err);
-      }
-    }
-  }, [isOpen, initialMode, googleClientId, kakaoKey]);
+  }, [isOpen, initialMode]);
 
   if (!isOpen) return null;
 
@@ -89,92 +50,32 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     } catch (e) {}
   };
 
-  // Google 로그인 완료 시 ➔ 작가 프로필 확인 화면으로 전환
-  const handleGoogleCredentialResponse = (response) => {
-    if (!response || !response.credential) {
-      setErrorMessage('Google 인증 토큰을 받지 못했습니다. 다시 시도해 주세요.');
-      return;
-    }
-    const payload = decodeJwtResponse(response.credential);
-    if (payload) {
-      const googleUser = formatGoogleUser(payload);
-      setSocialUser(googleUser);
-      setName(googleUser.name || '작가');
-      setViewMode('profile_setup');
-    }
-  };
-
-  // 1. 카카오 로그인/가입 클릭 핸들러 (로딩 인디케이터 + 프로필 확인 화면으로 전환)
-  const handleKakaoLoginClick = async () => {
+  // Google 로그인 / 회원가입 실행 (팝업 토큰 클라이언트)
+  const handleGoogleAuth = () => {
     setErrorMessage('');
-    setIsKakaoLoading(true);
-    
-    const activeKakaoKey = kakaoKey || getKakaoJsKey();
-    if (activeKakaoKey && window.Kakao) {
-      loginWithKakao(
-        (user) => {
-          setIsKakaoLoading(false);
-          // 바로 닫지 않고 작가명/활동 아이디 확인 단계로 진입
-          setSocialUser(user);
-          setName(user.name || '작가');
-          setViewMode('profile_setup');
-        },
-        (err) => {
-          setIsKakaoLoading(false);
-          console.warn('Kakao login fail:', err);
-          if (err && typeof err === 'string' && err !== 'NEED_KEY') {
-            setErrorMessage(err);
-          } else {
-            setErrorMessage('카카오 로그인 창을 열지 못했습니다. 팝업 차단 여부 또는 설정을 확인해 주세요.');
-          }
+    setIsGoogleLoading(true);
+
+    loginWithGoogle(
+      (googleUser) => {
+        setIsGoogleLoading(false);
+        // 작가명 확인 온보딩으로 전환
+        setSocialUser(googleUser);
+        setName(googleUser.name || '작가');
+        setViewMode('profile_setup');
+      },
+      (err) => {
+        setIsGoogleLoading(false);
+        console.warn('Google login notice:', err);
+        if (typeof err === 'string' && (err.includes('origin') || err.includes('not allowed'))) {
+          setErrorMessage('Google Cloud 승인 도메인(sujango.com) 등록이 필요합니다. 아래 이메일로 바로 가입하실 수 있습니다.');
+        } else {
+          setErrorMessage(typeof err === 'string' ? err : 'Google 로그인 창을 열지 못했습니다.');
         }
-      );
-      return;
-    }
-
-    // Supabase OAuth 시도
-    if (isSupabaseConfigured() && supabase) {
-      try {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'kakao',
-          options: {
-            redirectTo: window.location.origin
-          }
-        });
-        if (error) throw error;
-        return;
-      } catch (err) {
-        setIsKakaoLoading(false);
-        setErrorMessage('카카오 계정 연동 중입니다. 아래 이메일과 비밀번호로 직접 가입해 주세요.');
-        return;
       }
-    }
-
-    setIsKakaoLoading(false);
+    );
   };
 
-  // 2. 구글 로그인 버튼 클릭
-  const handleGoogleLoginClick = async () => {
-    setErrorMessage('');
-
-    if (isSupabaseConfigured() && supabase) {
-      try {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
-          options: {
-            redirectTo: window.location.origin
-          }
-        });
-        if (error) throw error;
-        return;
-      } catch (err) {
-        setErrorMessage('Google 계정 연동 중입니다. 아래 이메일과 비밀번호로 직접 가입해 주세요.');
-        return;
-      }
-    }
-  };
-
-  // 3. 소셜 가입/로그인 후 작가 프로필(활동명/아이디) 확정
+  // 소셜 가입/로그인 후 작가 프로필(활동명/아이디) 확정
   const handleConfirmProfile = (e) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -192,7 +93,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     triggerConfetti();
   };
 
-  // 4. 이메일/비밀번호 로그인 및 회원가입 처리 (로컬 영구 볼트 100% 보장 + 클라우드 백업)
+  // 이메일/비밀번호 로그인 및 회원가입 처리 (100% 로컬 영구 볼트 + 클라우드 백업)
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     setErrorMessage('');
@@ -234,11 +135,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
               signedAt: new Date().toISOString()
             };
           } catch (cloudErr) {
-            console.warn('[Supabase] 클라우드 가입 실패, 로컬 영구 볼트 저장:', cloudErr);
+            console.warn('[Supabase] 클라우드 가입 스킵, 로컬 영구 볼트에 저장:', cloudErr);
           }
         }
 
-        // 2. 클라우드 실패 또는 미설정 시: 로컬 영구 볼트에 100% 안전 저장
+        // 2. 로컬 영구 볼트에 100% 안전 저장 (모든 작가 개별 격리 저장)
         if (!newUser) {
           newUser = registerLocalUser(email.trim(), password.trim(), name.trim() || '작가');
         }
@@ -266,7 +167,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
               signedAt: new Date().toISOString()
             };
           } catch (cloudErr) {
-            console.warn('[Supabase] 클라우드 로그인 실패, 로컬 볼트 조회:', cloudErr);
+            console.warn('[Supabase] 클라우드 로그인 스킵, 로컬 볼트 조회:', cloudErr);
           }
         }
 
@@ -334,7 +235,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
         onClick={(e) => e.stopPropagation()}
       >
         {/* 모달 상단 헤더 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.3rem' }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', color: '#0284C7', padding: '2px 8px', borderRadius: '999px', fontSize: '0.74rem', fontWeight: 700, marginBottom: '0.35rem' }}>
               <Sparkles size={12} />
@@ -364,68 +265,46 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           </div>
         )}
 
-        {/* ➊ 회원가입 전용 화면 (회원가입페이지만 단독 구성, 탭 제거) */}
+        {/* ➊ 회원가입 전용 화면 */}
         {viewMode === 'signup' && (
           <div>
-            {/* 1. 소셜 회원가입 버튼 2종 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              
-              {/* 구글로 회원가입 */}
-              <button
-                type="button"
-                onClick={handleGoogleLoginClick}
-                style={{
-                  ...commonBtnStyle,
-                  background: '#FFFFFF',
-                  color: '#1F2937',
-                  border: '1px solid #CBD5E1'
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-                <span>구글로 회원가입</span>
-              </button>
-
-              {/* 카카오로 회원가입 */}
-              <button
-                type="button"
-                onClick={handleKakaoLoginClick}
-                disabled={isKakaoLoading}
-                style={{
-                  ...commonBtnStyle,
-                  background: '#FEE500',
-                  color: '#000000',
-                  border: 'none',
-                  opacity: isKakaoLoading ? 0.8 : 1
-                }}
-              >
-                {isKakaoLoading ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{
-                      width: '16px',
-                      height: '16px',
-                      border: '2px solid rgba(0,0,0,0.2)',
-                      borderTopColor: '#000000',
-                      borderRadius: '50%',
-                      animation: 'spin 0.8s linear infinite'
-                    }} />
-                    <span>카카오 인증 확인 중...</span>
-                  </div>
-                ) : (
-                  <>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#000000" style={{ flexShrink: 0 }}>
-                      <path d="M12 3C6.48 3 2 6.58 2 11c0 2.8 1.8 5.26 4.54 6.64-.17.65-.67 2.47-.77 2.85-.12.47.17.46.36.33.25-.17 2.92-2 4.09-2.8.58.08 1.17.12 1.78.12 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/>
-                    </svg>
-                    <span>카카오로 회원가입</span>
-                  </>
-                )}
-              </button>
-
-            </div>
+            {/* Google로 회원가입 버튼 */}
+            <button
+              type="button"
+              onClick={handleGoogleAuth}
+              disabled={isGoogleLoading}
+              style={{
+                ...commonBtnStyle,
+                background: '#FFFFFF',
+                color: '#1F2937',
+                border: '1.5px solid #CBD5E1',
+                opacity: isGoogleLoading ? 0.7 : 1
+              }}
+            >
+              {isGoogleLoading ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid rgba(0,0,0,0.2)',
+                    borderTopColor: '#4285F4',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite'
+                  }} />
+                  <span>Google 연결 확인 중...</span>
+                </div>
+              ) : (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <span>구글로 회원가입</span>
+                </>
+              )}
+            </button>
 
             {/* 구분선 */}
             <div style={{ display: 'flex', alignItems: 'center', margin: '1.25rem 0' }}>
@@ -436,7 +315,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
               <div style={{ flex: 1, height: '1px', background: '#E2E8F0' }} />
             </div>
 
-            {/* 2. 이메일 회원가입 폼 */}
+            {/* 이메일 회원가입 폼 */}
             <form onSubmit={handleEmailAuth}>
               <div style={{ marginBottom: '0.85rem' }}>
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
@@ -489,7 +368,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                 </div>
               </div>
 
-              {/* 하단 회원가입 완료 버튼 (무료 제거) */}
+              {/* 하단 버튼: 회원가입 완료 */}
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -525,63 +404,43 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
         {/* ➋ 로그인 전용 화면 */}
         {viewMode === 'login' && (
           <div>
-            {/* 소셜 로그인 2종 */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              
-              <button
-                type="button"
-                onClick={handleGoogleLoginClick}
-                style={{
-                  ...commonBtnStyle,
-                  background: '#FFFFFF',
-                  color: '#1F2937',
-                  border: '1px solid #CBD5E1'
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-                <span>구글로 로그인</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleKakaoLoginClick}
-                disabled={isKakaoLoading}
-                style={{
-                  ...commonBtnStyle,
-                  background: '#FEE500',
-                  color: '#000000',
-                  border: 'none',
-                  opacity: isKakaoLoading ? 0.8 : 1
-                }}
-              >
-                {isKakaoLoading ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{
-                      width: '16px',
-                      height: '16px',
-                      border: '2px solid rgba(0,0,0,0.2)',
-                      borderTopColor: '#000000',
-                      borderRadius: '50%',
-                      animation: 'spin 0.8s linear infinite'
-                    }} />
-                    <span>카카오 인증 확인 중...</span>
-                  </div>
-                ) : (
-                  <>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="#000000" style={{ flexShrink: 0 }}>
-                      <path d="M12 3C6.48 3 2 6.58 2 11c0 2.8 1.8 5.26 4.54 6.64-.17.65-.67 2.47-.77 2.85-.12.47.17.46.36.33.25-.17 2.92-2 4.09-2.8.58.08 1.17.12 1.78.12 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/>
-                    </svg>
-                    <span>카카오 로그인</span>
-                  </>
-                )}
-              </button>
-
-            </div>
+            {/* Google로 로그인 버튼 */}
+            <button
+              type="button"
+              onClick={handleGoogleAuth}
+              disabled={isGoogleLoading}
+              style={{
+                ...commonBtnStyle,
+                background: '#FFFFFF',
+                color: '#1F2937',
+                border: '1.5px solid #CBD5E1',
+                opacity: isGoogleLoading ? 0.7 : 1
+              }}
+            >
+              {isGoogleLoading ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid rgba(0,0,0,0.2)',
+                    borderTopColor: '#4285F4',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite'
+                  }} />
+                  <span>Google 연결 확인 중...</span>
+                </div>
+              ) : (
+                <>
+                  <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <span>구글로 로그인</span>
+                </>
+              )}
+            </button>
 
             {/* 구분선 */}
             <div style={{ display: 'flex', alignItems: 'center', margin: '1.25rem 0' }}>
@@ -660,7 +519,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           </div>
         )}
 
-        {/* ➌ 소셜 로그인/가입 직후 ➔ 작가 활동명(아이디) 확인 온보딩 화면 */}
+        {/* ➌ Google 가입 직후 ➔ 작가 활동명(아이디) 확인 온보딩 화면 */}
         {viewMode === 'profile_setup' && (
           <div>
             <div style={{ 
@@ -672,14 +531,10 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#059669', fontSize: '0.82rem', fontWeight: 700, marginBottom: '4px' }}>
                 <CheckCircle2 size={16} />
-                <span>{socialUser?.provider === 'kakao' ? '카카오 계정 인증 완료' : 'Google 계정 인증 완료'}</span>
+                <span>Google 계정 인증 완료</span>
               </div>
               <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748B' }}>
-                연동 계정: <strong>
-                  {socialUser?.email && !socialUser.email.endsWith('@kakao.com')
-                    ? socialUser.email
-                    : '카카오 공식 인증 계정'}
-                </strong>
+                연동 이메일: <strong>{socialUser?.email || 'Google 인증 계정'}</strong>
               </p>
             </div>
 

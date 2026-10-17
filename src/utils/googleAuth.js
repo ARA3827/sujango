@@ -1,13 +1,14 @@
 // Google Identity Services (GIS) 소셜 로그인 헬퍼 유틸리티
 
 const GOOGLE_CLIENT_ID_KEY = 'sujango_google_client_id';
+export const DEFAULT_GOOGLE_CLIENT_ID = '148488988252-hp2koqal6ita4ic8qh8f2j8l6l090sst.apps.googleusercontent.com';
 
-// 저장된 Google Client ID 조회 (LocalStorage 또는 Vite 환경변수)
+// 저장된 Google Client ID 조회 (LocalStorage 또는 Vite 환경변수 또는 프로젝트 기본값)
 export function getGoogleClientId() {
   try {
-    return localStorage.getItem(GOOGLE_CLIENT_ID_KEY) || import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+    return localStorage.getItem(GOOGLE_CLIENT_ID_KEY) || import.meta.env.VITE_GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID;
   } catch (e) {
-    return '';
+    return DEFAULT_GOOGLE_CLIENT_ID;
   }
 }
 
@@ -56,4 +57,76 @@ export function formatGoogleUser(decodedPayload) {
     provider: 'google',
     signedAt: new Date().toISOString()
   };
+}
+
+/**
+ * Google 공식 OAuth2 팝업 로그인 실행 (Token Client)
+ */
+export function loginWithGoogle(onSuccess, onError) {
+  const clientId = getGoogleClientId();
+  if (!clientId) {
+    onError?.('Google 클라이언트 ID가 설정되지 않았습니다.');
+    return;
+  }
+
+  if (!window.google?.accounts?.oauth2) {
+    onError?.('Google 서비스 로드 중입니다. 잠시 후 다시 시도해 주세요.');
+    return;
+  }
+
+  try {
+    const tokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: 'email profile openid',
+      callback: async (tokenResponse) => {
+        if (tokenResponse.error) {
+          console.error('Google OAuth error:', tokenResponse);
+          const errDetail = tokenResponse.error_description || tokenResponse.error;
+          onError?.(`Google 로그인 오류: ${errDetail}`);
+          return;
+        }
+
+        if (!tokenResponse.access_token) {
+          onError?.('Google 인증 토큰을 수신하지 못했습니다.');
+          return;
+        }
+
+        try {
+          // Google userinfo API로 사용자 프로필(실제 이메일, 이름, 사진) 획득
+          const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: {
+              Authorization: `Bearer ${tokenResponse.access_token}`
+            }
+          });
+
+          if (!res.ok) {
+            throw new Error(`Google API 응답 에러 (${res.status})`);
+          }
+
+          const data = await res.json();
+          const googleUser = {
+            id: `google-${data.sub || Date.now()}`,
+            name: data.name || '창작 예술가',
+            email: data.email || '',
+            avatarUrl: data.picture || '',
+            role: '창작 예술가',
+            membership: 'Free Artist',
+            isPro: false,
+            provider: 'google',
+            signedAt: new Date().toISOString()
+          };
+
+          onSuccess?.(googleUser);
+        } catch (fetchErr) {
+          console.error('Failed to fetch userinfo from Google:', fetchErr);
+          onError?.('Google 프로필 정보를 가져오는 중 오류가 발생했습니다.');
+        }
+      }
+    });
+
+    tokenClient.requestAccessToken();
+  } catch (err) {
+    console.error('Google Token Client init error:', err);
+    onError?.(err?.message || 'Google 로그인 창을 열지 못했습니다.');
+  }
 }
