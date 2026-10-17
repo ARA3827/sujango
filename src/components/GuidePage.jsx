@@ -75,7 +75,7 @@ export default function GuidePage({ onOpenLogin, onNavigateToAbout }) {
             style={{ padding: '0.85rem 1.8rem', fontSize: '0.96rem' }}
           >
             <Sparkles size={18} />
-            무료 회원가입 시작하기
+            수장고 시작하기
           </button>
           <button
             onClick={onNavigateToAbout}

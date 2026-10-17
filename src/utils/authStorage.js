@@ -14,6 +14,18 @@ export const DEMO_USER = {
 };
 
 /**
+ * 작가 계정별 독립 비밀 금고 키 생성 (멀티 테넌트 완벽 격리)
+ */
+export function getUserScopedKey(baseKey, user = null) {
+  const currentUser = user || getStoredUser();
+  if (!currentUser || !currentUser.email) {
+    return `${baseKey}_guest`;
+  }
+  const safeEmail = (currentUser.email || '').trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '_');
+  return `${baseKey}_${safeEmail}`;
+}
+
+/**
  * 현재 로그인된 사용자 정보 조회
  */
 export function getStoredUser() {
@@ -61,6 +73,54 @@ function saveRegisteredUsers(users) {
     localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
   } catch (e) {
     console.error('Failed to save users database:', e);
+  }
+}
+
+/**
+ * 이메일로 등록된 사용자 조회
+ */
+export function findRegisteredUser(email) {
+  const cleanEmail = (email || '').trim().toLowerCase();
+  if (!cleanEmail) return null;
+  const users = getRegisteredUsers();
+  return users.find(u => (u.email || '').toLowerCase() === cleanEmail) || null;
+}
+
+/**
+ * 소셜(Google 등) 사용자 등록 또는 기존 활동명 유지 업데이트
+ */
+export function saveOrUpdateSocialUser(socialUser) {
+  const cleanEmail = (socialUser.email || '').trim().toLowerCase();
+  const users = getRegisteredUsers();
+  const existingIndex = users.findIndex(u => (u.email || '').toLowerCase() === cleanEmail);
+
+  if (existingIndex >= 0) {
+    const existing = users[existingIndex];
+    const updatedUser = {
+      ...existing,
+      ...socialUser,
+      // 작가님이 한 번 설정한 소중한 활동명을 최우선으로 영구 보존
+      name: existing.name || socialUser.name || '작가'
+    };
+    users[existingIndex] = updatedUser;
+    saveRegisteredUsers(users);
+    saveUser(updatedUser);
+    return updatedUser;
+  } else {
+    const newUser = {
+      ...socialUser,
+      email: cleanEmail,
+      id: socialUser.id || `user-google-${Date.now()}`,
+      name: (socialUser.name || '').trim() || '작가',
+      role: '창작 예술가',
+      membership: 'Free Artist',
+      isPro: false,
+      signedAt: new Date().toISOString()
+    };
+    users.push(newUser);
+    saveRegisteredUsers(users);
+    saveUser(newUser);
+    return newUser;
   }
 }
 

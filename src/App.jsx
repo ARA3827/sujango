@@ -236,12 +236,18 @@ export default function App() {
       setSelectedArtworkId(artworkId);
     }
 
-    if (viewId === 'dashboard' || viewId === 'landing') {
+    if (viewId === 'dashboard') {
       setSelectedArtworkId(null);
       if (window.location.hash) {
         window.history.pushState(null, '', window.location.pathname + window.location.search);
       }
-      setCurrentView(user ? 'dashboard' : 'landing');
+      setCurrentView('dashboard');
+    } else if (viewId === 'landing') {
+      setSelectedArtworkId(null);
+      if (window.location.hash) {
+        window.history.pushState(null, '', window.location.pathname + window.location.search);
+      }
+      setCurrentView('landing');
     } else {
       const hashStr = artworkId ? `#${viewId}?artId=${artworkId}` : `#${viewId}`;
       window.history.pushState({ view: viewId, artworkId }, '', hashStr);
@@ -260,10 +266,11 @@ export default function App() {
 
   return (
     <div className="artflow-app">
-      {/* 글로벌 헤더 */}
+      {/* 글로벌 헤더 (로고 클릭 시 항상 메인 페이지 이동) */}
       <Header 
         currentView={currentView} 
-        onGoHome={() => navigate(user ? 'dashboard' : 'landing')} 
+        onGoHome={() => navigate('landing')} 
+        onGoDashboard={() => navigate('dashboard')}
         user={user}
         onOpenLogin={handleOpenLogin}
         onLogout={handleLogout}
@@ -289,13 +296,15 @@ export default function App() {
             onOpenLogin={handleOpenLogin}
             onNavigateToAbout={() => navigate('about')}
           />
-        ) : !user ? (
-          /* 비로그인: 서비스 소개 및 쇼케이스 랜딩 페이지 */
+        ) : currentView === 'landing' || !user ? (
+          /* 메인 소개 및 쇼케이스 랜딩 페이지 (로고 클릭 시 표시) */
           <LandingPage 
+            user={user}
             onOpenLogin={handleOpenLogin}
             onNavigateToGuide={() => navigate('guide')}
             onNavigateToAbout={() => navigate('about')}
             onOpenPricing={() => setIsPricingModalOpen(true)}
+            onGoDashboard={() => navigate('dashboard')}
           />
         ) : (
           /* 로그인 회원 전용: 실제 2-Depth 올인원 워크스페이스 */
@@ -316,24 +325,30 @@ export default function App() {
             )}
 
             {currentView === 'statement' && (
-              <StatementStudio onBack={handleBack} />
+              <StatementStudio 
+                onBack={handleBack} 
+                user={user}
+                onNavigateToArchive={(newArtId) => navigate('archive', newArtId)}
+              />
             )}
 
             {currentView === 'tax' && (
               <TaxStudio 
                 onBack={handleBack} 
                 onUpdateSummary={(summary) => setTaxSummary(summary)}
+                user={user}
               />
             )}
 
             {currentView === 'caption' && (
-              <CaptionStudio onBack={handleBack} />
+              <CaptionStudio onBack={handleBack} user={user} />
             )}
 
             {currentView === 'archive' && (
               <ArchiveStudio 
                 onBack={handleBack} 
                 onNavigateToCaption={() => navigate('caption')}
+                onNavigateToStatement={() => navigate('statement')}
                 onOpenPricing={() => setIsPricingModalOpen(true)}
                 user={user}
                 initialArtworkId={selectedArtworkId}
@@ -341,7 +356,7 @@ export default function App() {
             )}
 
             {currentView === 'inspo' && (
-              <InspoVaultView onBack={handleBack} />
+              <InspoVaultView onBack={handleBack} user={user} />
             )}
           </>
         )}

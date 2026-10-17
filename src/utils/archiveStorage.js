@@ -1,7 +1,7 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient';
-import { getStoredUser } from './authStorage';
+import { getStoredUser, getUserScopedKey } from './authStorage';
 
-// 초기 기본 시연용 미술관 샘플 작품 데이터 2점 (한국 현대미술 서양화)
+// 초기 기본 시연용 미술관 샘플 작품 데이터 2점 (데모 계정 전용)
 const DEFAULT_ARTWORKS = [
   {
     id: 'art-1',
@@ -35,77 +35,84 @@ const DEFAULT_ARTWORKS = [
   }
 ];
 
-const STORAGE_KEY = 'artflow_artworks';
-
-// 1. 전체 작품 목록 가져오기 (비로그인/게스트 시에는 개인 데이터 유출 방지를 위해 샘플 2점만 반환)
+// 1. 전체 작품 목록 가져오기 (작가 계정별 완벽 독립 격리)
 export function getArtworks(user = null) {
-  // 현재 로그인 사용자 확인
   const currentUser = user || getStoredUser();
 
-  // 비로그인(게스트 둘러보기) 상태라면, 이전 작가의 개인 등록 작품을 절대 노출하지 않고 순수 기본 체험 샘플(DEFAULT_ARTWORKS)만 반환!
-  if (!currentUser) {
+  // 비로그인 상태일 때는 빈 배열 반환 (보안 철저)
+  if (!currentUser || !currentUser.email) {
+    return [];
+  }
+
+  // 시연용 데모 계정(김아라)인 경우에만 기본 시연용 2점 제공
+  if (currentUser.id === 'user-ara' || currentUser.email === 'ara.kim@sujango.com') {
     return DEFAULT_ARTWORKS;
   }
 
-  // 로그인 상태인 경우, 실제 저장된 개인 작품 목록 불러오기
+  // 실제 로그인 작가님의 계정 전용 고유 금고 키
+  const key = getUserScopedKey('artflow_artworks', currentUser);
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (data) {
+    const data = localStorage.getItem(key);
+    if (data !== null) {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
   } catch (e) {
-    console.error('Failed to load artworks:', e);
+    console.error('Failed to load user artworks:', e);
   }
 
-  // 데이터가 없을 때 기본 샘플 저장 및 반환
-  saveArtworks(DEFAULT_ARTWORKS);
-  return DEFAULT_ARTWORKS;
+  // 신규 가입 작가님: 타인의 작품(김아라)이 섞이지 않는 깨끗한 빈 수장고 반환!
+  return [];
 }
 
-// 2. 로컬스토리지 저장
-export function saveArtworks(artworks) {
+// 2. 작가 전용 금고에 저장
+export function saveArtworks(artworks, user = null) {
+  const currentUser = user || getStoredUser();
+  const key = getUserScopedKey('artflow_artworks', currentUser);
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(artworks));
+    localStorage.setItem(key, JSON.stringify(artworks));
   } catch (e) {
-    console.error('Failed to save artworks:', e);
+    console.error('Failed to save user artworks:', e);
   }
 }
 
-// 3. 단일 작품 추가 또는 업데이트 (로컬 즉시 저장 + Supabase 클라우드 비동기 동기화)
-export function saveSingleArtwork(artwork) {
-  const list = getArtworks();
+// 3. 단일 작품 추가 또는 업데이트 (작가 계정별 격리 저장 + 클라우드 백업)
+export function saveSingleArtwork(artwork, user = null) {
+  const currentUser = user || getStoredUser();
+  const list = getArtworks(currentUser);
   const index = list.findIndex(item => item.id === artwork.id);
   let savedItem;
   
   if (index >= 0) {
-    savedItem = { ...list[index], ...artwork, updatedAt: new Date().toISOString().split('T')[0] };
+    savedItem = { 
+      ...list[index], 
+      ...artwork, 
+      artist: artwork.artist || currentUser?.name || '작가',
+      updatedAt: new Date().toISOString().split('T')[0] 
+    };
     list[index] = savedItem;
   } else {
     savedItem = {
       ...artwork,
       id: artwork.id || 'art-' + Date.now(),
+      artist: artwork.artist || currentUser?.name || '작가',
       createdAt: new Date().toISOString().split('T')[0]
     };
     list.unshift(savedItem); // 최신 작품을 맨 앞으로
   }
   
-  saveArtworks(list);
+  saveArtworks(list, currentUser);
 
   // Supabase 클라우드 비동기 백업
-  if (isSupabaseConfigured() && supabase) {
-    const user = getStoredUser();
-    const userEmail = user?.email || 'guest@sujango.local';
-    
-    // 금액 숫자 추출
+  if (isSupabaseConfigured() && supabase && currentUser?.email) {
     const rawPrice = parseInt(String(savedItem.price || '').replace(/[^0-9]/g, '')) || 0;
 
     supabase
       .from('artworks')
       .upsert({
-        user_email: userEmail,
+        user_email: currentUser.email,
         title: savedItem.title || '무제',
         year: savedItem.year || '',
         medium: savedItem.medium || '',
@@ -123,7 +130,6 @@ export function saveSingleArtwork(artwork) {
       })
       .then(({ error }) => {
         if (error) console.warn('[Supabase] Artwork sync notice:', error.message);
-        else console.log('[Supabase] Artwork synced to cloud successfully.');
       })
       .catch(err => console.warn('[Supabase] Artwork sync error:', err));
   }
@@ -131,47 +137,41 @@ export function saveSingleArtwork(artwork) {
   return list;
 }
 
-// 4. 단일 작품 삭제 (로컬 + Supabase 클라우드)
-export function deleteArtwork(id) {
-  const list = getArtworks().filter(item => item.id !== id);
-  saveArtworks(list);
+// 4. 단일 작품 삭제 (작가 계정별 격리 삭제)
+export function deleteArtwork(id, user = null) {
+  const currentUser = user || getStoredUser();
+  const list = getArtworks(currentUser).filter(item => item.id !== id);
+  saveArtworks(list, currentUser);
 
-  if (isSupabaseConfigured() && supabase) {
-    const user = getStoredUser();
-    const userEmail = user?.email || 'guest@sujango.local';
-    
-    // Supabase 상에서도 삭제 시도
+  if (isSupabaseConfigured() && supabase && currentUser?.email) {
     supabase
       .from('artworks')
       .delete()
-      .match({ user_email: userEmail })
-      .filter('notes', 'ilike', `%"client_id":"${id}"%`)
-      .then(({ error }) => {
-        if (error) console.warn('[Supabase] Delete notice:', error.message);
-      })
-      .catch(err => console.warn('[Supabase] Delete error:', err));
+      .eq('user_email', currentUser.email)
+      .eq('notes->>client_id', id)
+      .catch(err => console.warn('[Supabase] Delete sync notice:', err));
   }
 
   return list;
 }
 
 // 5. Supabase 클라우드에서 최신 작품 목록 불러오기 & 동기화
-export async function syncArtworksFromSupabase() {
-  if (!isSupabaseConfigured() || !supabase) return getArtworks();
+export async function syncArtworksFromSupabase(user = null) {
+  const currentUser = user || getStoredUser();
+  if (!isSupabaseConfigured() || !supabase) return getArtworks(currentUser);
   
-  const user = getStoredUser();
-  if (!user?.email) return getArtworks();
+  if (!currentUser?.email) return getArtworks(currentUser);
 
   try {
     const { data, error } = await supabase
       .from('artworks')
       .select('*')
-      .eq('user_email', user.email)
+      .eq('user_email', currentUser.email)
       .order('created_at', { ascending: false });
 
     if (error) {
       console.warn('[Supabase] Failed to fetch artworks:', error);
-      return getArtworks();
+      return getArtworks(currentUser);
     }
 
     if (data && data.length > 0) {
@@ -184,7 +184,7 @@ export async function syncArtworksFromSupabase() {
         return {
           id: extra.client_id || item.id,
           title: item.title,
-          artist: extra.artist || user.name || '작가',
+          artist: extra.artist || currentUser.name || '작가',
           year: item.year || '',
           medium: item.medium || '',
           size: extra.size || '',
@@ -198,26 +198,28 @@ export async function syncArtworksFromSupabase() {
         };
       });
 
-      saveArtworks(cloudArtworks);
+      saveArtworks(cloudArtworks, currentUser);
       return cloudArtworks;
     }
   } catch (err) {
     console.warn('[Supabase] Cloud sync error:', err);
   }
 
-  return getArtworks();
+  return getArtworks(currentUser);
 }
 
 // 6. 전체 데이터 백업 JSON 다운로드
-export function exportArchiveBackup() {
-  const data = getArtworks();
+export function exportArchiveBackup(user = null) {
+  const currentUser = user || getStoredUser();
+  const data = getArtworks(currentUser);
   const jsonStr = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Sujango_작품수장고_백업_${new Date().toISOString().split('T')[0]}.json`;
+  const artistName = currentUser?.name || '작가';
+  a.download = `Sujango_${artistName}_수장고_백업_${new Date().toISOString().split('T')[0]}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -225,14 +227,15 @@ export function exportArchiveBackup() {
 }
 
 // 7. 백업 JSON 파일로부터 복원
-export function importArchiveBackup(file) {
+export function importArchiveBackup(file, user = null) {
+  const currentUser = user || getStoredUser();
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const parsed = JSON.parse(e.target.result);
         if (Array.isArray(parsed)) {
-          saveArtworks(parsed);
+          saveArtworks(parsed, currentUser);
           resolve(parsed);
         } else {
           reject(new Error('올바른 Sujango 백업 파일 형식이 아닙니다.'));

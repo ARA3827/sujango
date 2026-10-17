@@ -4,6 +4,7 @@ import { Palette, Sparkles, User, LogOut, LogIn, Crown, Menu, BookOpen, Info } f
 export default function Header({ 
   currentView, 
   onGoHome, 
+  onGoDashboard,
   user, 
   onOpenLogin, 
   onLogout,
@@ -90,11 +91,11 @@ export default function Header({
           {/* 2-Depth 세부 작업공간에서 대시보드 복귀 버튼 (로그인 회원 전용) */}
           {user && currentView !== 'dashboard' && (
             <button 
-              onClick={onGoHome}
+              onClick={() => onGoDashboard ? onGoDashboard() : onGoHome()}
               className="btn-outline"
               style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', background: '#FFFFFF', borderColor: '#CBD5E1', color: '#0F172A', fontWeight: 600 }}
             >
-              ← 대시보드 홈
+              ← {user.name && user.name !== '작가' ? `${user.name}님의 수장고` : '내 수장고'}
             </button>
           )}
 

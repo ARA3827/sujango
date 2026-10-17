@@ -22,7 +22,14 @@ import {
 } from 'lucide-react';
 import { getFeedbacks } from '../utils/feedbackStorage';
 
-export default function LandingPage({ onOpenLogin, onNavigateToGuide, onNavigateToAbout, onOpenPricing }) {
+export default function LandingPage({ 
+  user,
+  onOpenLogin, 
+  onNavigateToGuide, 
+  onNavigateToAbout, 
+  onOpenPricing,
+  onGoDashboard
+}) {
   const [feedbacks, setFeedbacks] = useState([]);
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'yearly' | 'monthly'
 
@@ -50,10 +57,17 @@ export default function LandingPage({ onOpenLogin, onNavigateToGuide, onNavigate
             </p>
 
             <div className="landing-hero-cta" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <button onClick={() => onOpenLogin('signup')} className="hero-primary-btn">
-                <Sparkles size={18} />
-                무료 회원가입 시작하기
-              </button>
+              {user ? (
+                <button onClick={onGoDashboard} className="hero-primary-btn">
+                  <Palette size={18} />
+                  {user.name && user.name !== '작가' ? `${user.name} 작가님의 수장고` : '내 수장고로 이동'} →
+                </button>
+              ) : (
+                <button onClick={() => onOpenLogin('signup')} className="hero-primary-btn">
+                  <Sparkles size={18} />
+                  수장고 시작하기
+                </button>
+              )}
               <button 
                 onClick={onNavigateToGuide} 
                 className="btn-outline" 
@@ -497,7 +511,7 @@ export default function LandingPage({ onOpenLogin, onNavigateToGuide, onNavigate
         <p>어떤 복잡한 설정도 필요 없습니다. 오늘부터 당신만의 디지털 수장고가 시작됩니다.</p>
         <button onClick={() => onOpenLogin('signup')} className="hero-primary-btn" style={{ margin: '0 auto', padding: '0.95rem 2.2rem', fontSize: '1.02rem' }}>
           <Sparkles size={18} />
-          무료 회원가입 시작하기
+          수장고 시작하기
         </button>
       </section>
     </div>

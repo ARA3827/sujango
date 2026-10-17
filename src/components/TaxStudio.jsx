@@ -18,65 +18,73 @@ import {
 } from 'lucide-react';
 import { compressImage } from '../utils/imageCompressor';
 
-export default function TaxStudio({ onBack, onUpdateSummary }) {
+import { getUserScopedKey } from '../utils/authStorage';
+
+export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
   const [activeTab, setActiveTab] = useState('income'); // 'income' | 'expense'
 
   // ==========================================
-  // 1. 수입 상태 관리
+  // 1. 수입 상태 관리 (작가 계정별 격리)
   // ==========================================
   const [incomes, setIncomes] = useState(() => {
+    const key = getUserScopedKey('artflow_incomes', user);
     try {
-      const saved = localStorage.getItem('artflow_incomes');
+      const saved = localStorage.getItem(key);
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return [
-      {
-        id: 1,
-        date: '2026-10-05',
-        type: 'business', // 'business' (3.3%) | 'other' (8.8%) | 'gallery' (40%) | 'personal' (0%)
-        client: '종로문화재단',
-        title: '가을 아카데미 4주 출강료',
-        grossAmount: 1200000,
-        taxAmount: 39600,
-        netAmount: 1160400,
-        status: 'pending' // 'unbilled' | 'pending' | 'paid'
-      },
-      {
-        id: 2,
-        date: '2026-09-28',
-        type: 'other',
-        client: '서울시립미술관',
-        title: '신진작가 릴레이 1회 특강',
-        grossAmount: 500000,
-        taxAmount: 44000,
-        netAmount: 456000,
-        status: 'paid'
-      },
-      {
-        id: 3,
-        date: '2026-09-15',
-        type: 'gallery',
-        client: '갤러리 아라',
-        title: '소품 10호 1점 위탁 판매',
-        grossAmount: 2000000,
-        taxAmount: 800000, // 40% 갤러리 수수료
-        netAmount: 1200000,
-        status: 'paid'
-      },
-      {
-        id: 4,
-        date: '2026-09-01',
-        type: 'personal',
-        client: '개인 컬렉터',
-        title: '드로잉 소품 1점 직거래',
-        grossAmount: 350000,
-        taxAmount: 0,
-        netAmount: 350000,
-        status: 'paid'
-      }
-    ];
+
+    if (user?.id === 'user-ara' || user?.email === 'ara.kim@sujango.com') {
+      return [
+        {
+          id: 1,
+          date: '2026-10-05',
+          type: 'business', // 'business' (3.3%) | 'other' (8.8%) | 'gallery' (40%) | 'personal' (0%)
+          client: '종로문화재단',
+          title: '가을 아카데미 4주 출강료',
+          grossAmount: 1200000,
+          taxAmount: 39600,
+          netAmount: 1160400,
+          status: 'pending' // 'unbilled' | 'pending' | 'paid'
+        },
+        {
+          id: 2,
+          date: '2026-09-28',
+          type: 'other',
+          client: '서울시립미술관',
+          title: '신진작가 릴레이 1회 특강',
+          grossAmount: 500000,
+          taxAmount: 44000,
+          netAmount: 456000,
+          status: 'paid'
+        },
+        {
+          id: 3,
+          date: '2026-09-15',
+          type: 'gallery',
+          client: '갤러리 아라',
+          title: '소품 10호 1점 위탁 판매',
+          grossAmount: 2000000,
+          taxAmount: 800000, // 40% 갤러리 수수료
+          netAmount: 1200000,
+          status: 'paid'
+        },
+        {
+          id: 4,
+          date: '2026-09-01',
+          type: 'personal',
+          client: '개인 컬렉터',
+          title: '드로잉 소품 1점 직거래',
+          grossAmount: 350000,
+          taxAmount: 0,
+          netAmount: 350000,
+          status: 'paid'
+        }
+      ];
+    }
+
+    return [];
   });
 
   const [newIncome, setNewIncome] = useState({
@@ -88,37 +96,43 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
   });
 
   // ==========================================
-  // 2. 지출 상태 관리 (재료비, 화구, 표구 등)
+  // 2. 지출 상태 관리 (재료비, 화구, 표구 등 - 작가 계정별 격리)
   // ==========================================
   const [expenses, setExpenses] = useState(() => {
+    const key = getUserScopedKey('artflow_expenses', user);
     try {
-      const saved = localStorage.getItem('artflow_expenses');
+      const saved = localStorage.getItem(key);
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return [
-      {
-        id: 101,
-        date: '2026-10-08',
-        category: '화구/재료비',
-        store: '호미화방 홍대본점',
-        item: '홀베인 유화물감 40ml 5종 & 젯소 1L',
-        amount: 145000,
-        receiptUrl: '',
-        memo: '신작 연작 시리즈 베이스 작업용'
-      },
-      {
-        id: 102,
-        date: '2026-09-20',
-        category: '캔버스/표구비',
-        store: '인사동 성문액자',
-        item: '가식 원목 띄움액자 20호 표구',
-        amount: 180000,
-        receiptUrl: '',
-        memo: '가을 단체전 출품작 표구'
-      }
-    ];
+
+    if (user?.id === 'user-ara' || user?.email === 'ara.kim@sujango.com') {
+      return [
+        {
+          id: 101,
+          date: '2026-10-08',
+          category: '화구/재료비',
+          store: '호미화방 홍대본점',
+          item: '홀베인 유화물감 40ml 5종 & 젯소 1L',
+          amount: 145000,
+          receiptUrl: '',
+          memo: '신작 연작 시리즈 베이스 작업용'
+        },
+        {
+          id: 102,
+          date: '2026-09-20',
+          category: '캔버스/표구비',
+          store: '인사동 성문액자',
+          item: '가식 원목 띄움액자 20호 표구',
+          amount: 180000,
+          receiptUrl: '',
+          memo: '가을 단체전 출품작 표구'
+        }
+      ];
+    }
+
+    return [];
   });
 
   const [newExpense, setNewExpense] = useState({
@@ -162,10 +176,11 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
     setExpenses(prev => prev.map(exp => exp.id === printExpenseItem.id ? updated : exp));
   };
 
-  // LocalStorage 영구 동기화
+  // LocalStorage 영구 동기화 (계정별 분리)
   useEffect(() => {
     try {
-      localStorage.setItem('artflow_incomes', JSON.stringify(incomes));
+      const key = getUserScopedKey('artflow_incomes', user);
+      localStorage.setItem(key, JSON.stringify(incomes));
     } catch (e) {
       console.error(e);
     }
@@ -177,15 +192,16 @@ export default function TaxStudio({ onBack, onUpdateSummary }) {
         .reduce((sum, item) => sum + item.netAmount, 0);
       onUpdateSummary({ totalIncome, pendingAmount });
     }
-  }, [incomes]);
+  }, [incomes, user]);
 
   useEffect(() => {
     try {
-      localStorage.setItem('artflow_expenses', JSON.stringify(expenses));
+      const key = getUserScopedKey('artflow_expenses', user);
+      localStorage.setItem(key, JSON.stringify(expenses));
     } catch (e) {
       console.error(e);
     }
-  }, [expenses]);
+  }, [expenses, user]);
 
   // ==========================================
   // 계산 로직 (수입 세후 산출)

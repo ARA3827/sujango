@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { getGoogleClientId, loginWithGoogle } from '../utils/googleAuth';
 import { supabase, isSupabaseConfigured, signInWithEmail, signUpWithEmail } from '../utils/supabaseClient';
-import { registerLocalUser, loginLocalUser } from '../utils/authStorage';
+import { registerLocalUser, loginLocalUser, findRegisteredUser, saveOrUpdateSocialUser } from '../utils/authStorage';
 import confetti from 'canvas-confetti';
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMode = 'signup' }) {
@@ -58,7 +58,19 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     loginWithGoogle(
       (googleUser) => {
         setIsGoogleLoading(false);
-        // 작가명 확인 온보딩으로 전환
+
+        // 1. 이미 등록된 활동명이 있는 기존 작가님인지 확인
+        const existing = findRegisteredUser(googleUser.email);
+        if (existing && existing.name && existing.name !== '작가') {
+          // 이미 활동명을 설정한 적이 있으면 재입력 창 없이 바로 입장!
+          const loggedInUser = saveOrUpdateSocialUser({ ...googleUser, ...existing });
+          onLoginSuccess(loggedInUser);
+          onClose();
+          triggerConfetti();
+          return;
+        }
+
+        // 2. 최초 회원가입인 경우에만 작가 활동명 확인 온보딩 표시
         setSocialUser(googleUser);
         setName(googleUser.name || '작가');
         setViewMode('profile_setup');
@@ -67,7 +79,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
         setIsGoogleLoading(false);
         console.warn('Google login notice:', err);
         if (typeof err === 'string' && (err.includes('origin') || err.includes('not allowed'))) {
-          setErrorMessage('Google Cloud 승인 도메인(sujango.com) 등록이 필요합니다. 아래 이메일로 바로 가입하실 수 있습니다.');
+          setErrorMessage('Google Cloud 승인 도메인 등록이 필요합니다. 아래 이메일로 바로 가입하실 수 있습니다.');
         } else {
           setErrorMessage(typeof err === 'string' ? err : 'Google 로그인 창을 열지 못했습니다.');
         }
@@ -75,7 +87,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     );
   };
 
-  // 소셜 가입/로그인 후 작가 프로필(활동명/아이디) 확정
+  // 소셜 최초 가입 시 작가 프로필(활동명/아이디) 확정
   const handleConfirmProfile = (e) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -83,10 +95,10 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
       return;
     }
 
-    const finalUser = {
+    const finalUser = saveOrUpdateSocialUser({
       ...(socialUser || {}),
       name: name.trim()
-    };
+    });
 
     onLoginSuccess(finalUser);
     onClose();

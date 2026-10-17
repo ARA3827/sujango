@@ -36,15 +36,28 @@ import {
 import { generateWatermarkedPreview, generateThumbnail } from '../utils/imageCompressor';
 import { fetchWatermarkSettings } from '../utils/supabaseClient';
 
-export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPricing, user, initialArtworkId }) {
-  const [artworks, setArtworks] = useState(getArtworks);
+export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateToStatement, onOpenPricing, user, initialArtworkId }) {
+  const [artworks, setArtworks] = useState(() => getArtworks(user));
   const [selectedId, setSelectedId] = useState(() => {
-    const list = getArtworks();
+    const list = getArtworks(user);
     if (initialArtworkId && list.some(a => a.id === initialArtworkId)) {
       return initialArtworkId;
     }
     return list.length > 0 ? list[0].id : null;
   });
+
+  // 유저 계정 변경 시 해당 유저의 수장고 작품 목록으로 즉각 갱신
+  useEffect(() => {
+    const userArts = getArtworks(user);
+    setArtworks(userArts);
+    if (userArts.length > 0) {
+      if (!selectedId || !userArts.some(a => a.id === selectedId)) {
+        setSelectedId(userArts[0].id);
+      }
+    } else {
+      setSelectedId(null);
+    }
+  }, [user]);
 
   // 대시보드 등 외부에서 특정 작품을 선택하여 진입했을 때 즉시 포커싱
   useEffect(() => {
@@ -69,10 +82,11 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
 
   // 모달 상태 (새 작품 등록 / 수정)
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalAttention, setModalAttention] = useState(false);
   const [editingArtwork, setEditingArtwork] = useState(null);
   const [modalForm, setModalForm] = useState({
     title: '',
-    artist: '김아라',
+    artist: user?.name || '작가',
     year: new Date().getFullYear().toString(),
     size: '',
     medium: '',
@@ -96,12 +110,12 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
 
   // Supabase 클라우드 데이터 동기화
   useEffect(() => {
-    syncArtworksFromSupabase().then(cloudList => {
+    syncArtworksFromSupabase(user).then(cloudList => {
       if (cloudList && cloudList.length > 0) {
         setArtworks(cloudList);
       }
     });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (currentArt) {
@@ -130,7 +144,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
     setEditingArtwork(null);
     setModalForm({
       title: '',
-      artist: currentArt?.artist || '김아라',
+      artist: user?.name || currentArt?.artist || '작가',
       year: new Date().getFullYear().toString(),
       size: '53.0 × 45.5 cm (10F)',
       medium: '캔버스에 유채 (Oil on canvas)',
@@ -149,7 +163,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
     setEditingArtwork(art);
     setModalForm({
       title: art.title || '',
-      artist: art.artist || '김아라',
+      artist: art.artist || user?.name || '작가',
       year: art.year || '',
       size: art.size || '',
       medium: art.medium || '',
@@ -161,6 +175,30 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
       blogStory: art.blogStory || ''
     });
     setIsModalOpen(true);
+  };
+
+  // 바깥 배경 클릭 시 실수로 닫히는 사고 방지 (통통 튀는 피드백)
+  const handleBackdropClick = () => {
+    setModalAttention(true);
+    setTimeout(() => setModalAttention(false), 260);
+  };
+
+  // 모달 안전 닫기 핸들러 (작성 중인 데이터 보존 안내)
+  const handleSafeCloseModal = () => {
+    const isDirty = Boolean(
+      modalForm.title.trim() || 
+      modalForm.imageUrl || 
+      (modalForm.statement && modalForm.statement.trim()) ||
+      (modalForm.instaCaption && modalForm.instaCaption.trim())
+    );
+
+    if (isDirty) {
+      if (window.confirm('작성 중인 작품 정보가 있습니다. 저장을 취소하고 창을 닫으시겠습니까?')) {
+        setIsModalOpen(false);
+      }
+    } else {
+      setIsModalOpen(false);
+    }
   };
 
   // 이미지 파일 선택 시 즉시 압축 (1200px / 300KB)
@@ -207,7 +245,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
       id: editingArtwork ? editingArtwork.id : 'art-' + Date.now()
     };
 
-    const updated = saveSingleArtwork(itemToSave);
+    const updated = saveSingleArtwork(itemToSave, user);
     setArtworks(updated);
     setSelectedId(itemToSave.id);
     setIsModalOpen(false);
@@ -227,7 +265,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
     if (!currentArt) return;
     const field = activeTab === 'statement' ? 'statement' : activeTab === 'insta' ? 'instaCaption' : 'blogStory';
     const updatedItem = { ...currentArt, [field]: editedText };
-    const updatedList = saveSingleArtwork(updatedItem);
+    const updatedList = saveSingleArtwork(updatedItem, user);
     setArtworks(updatedList);
     setIsEditingText(false);
   };
@@ -235,7 +273,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
   // 작품 삭제
   const handleDelete = (id, title) => {
     if (window.confirm(`《${title}》 작품과 관련된 모든 기록을 아카이브 서고에서 삭제하시겠습니까?`)) {
-      const updated = deleteArtwork(id);
+      const updated = deleteArtwork(id, user);
       setArtworks(updated);
       if (selectedId === id && updated.length > 0) {
         setSelectedId(updated[0].id);
@@ -249,7 +287,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
     if (!file) return;
 
     try {
-      const restored = await importArchiveBackup(file);
+      const restored = await importArchiveBackup(file, user);
       setArtworks(restored);
       if (restored.length > 0) setSelectedId(restored[0].id);
       alert(`성공적으로 ${restored.length}점의 작품 기록을 복원했습니다!`);
@@ -269,7 +307,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
         </button>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
           <button 
-            onClick={exportArchiveBackup} 
+            onClick={() => exportArchiveBackup(user)} 
             className="btn-outline" 
             title="모든 작품 사진과 글을 내 컴퓨터에 안전하게 백업"
             style={{ fontSize: '0.82rem', padding: '0.4rem 0.75rem' }}
@@ -303,11 +341,12 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
           </button>
 
           <button 
-            onClick={handleOpenAddModal} 
+            onClick={() => onNavigateToStatement ? onNavigateToStatement() : handleOpenAddModal()} 
             className="btn-primary" 
             style={{ width: 'auto', padding: '0.4rem 0.9rem', fontSize: '0.85rem' }}
+            title="AI 작가노트 생성과 함께 새 작품을 등록합니다"
           >
-            <Plus size={15} /> + 새 작품 보관
+            <Plus size={15} /> + 새 작품 등록 (AI 작가노트)
           </button>
         </div>
       </div>
@@ -340,7 +379,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
         </div>
         <p>
           창작자를 위한 프라이빗 디지털 수장고(Sujango). 
-          작품 사진, 도록용 작가노트, 캡션 명패 규격을 세월이 흘러도 변치 않게 영구히 보관하세요.
+          작품 사진, 도록용 작가노트, 캡션 명패 규격을 세월이 흘러도 변치 않게 안전하게 보관하세요.
         </p>
       </div>
 
@@ -577,35 +616,97 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
           <p style={{ color: '#64748B', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
             작품 사진과 작가노트를 등록하고 인스타그램이나 SNS가 사라져도 끄떡없는 디지털 금고를 만들어 보세요.
           </p>
-          <button onClick={handleOpenAddModal} className="btn-primary" style={{ width: 'auto', margin: '0 auto' }}>
-            <Plus size={16} /> 첫 작품 보관하기
+          <button 
+            onClick={() => onNavigateToStatement ? onNavigateToStatement() : handleOpenAddModal()} 
+            className="btn-primary" 
+            style={{ width: 'auto', margin: '0 auto' }}
+          >
+            <Plus size={16} /> + 첫 작품 등록하기 (AI 작가노트)
           </button>
         </div>
       )}
 
       {/* 5. 새 작품 등록 / 정보 수정 모달 */}
       {isModalOpen && (
-        <div className="modal-backdrop" onClick={() => setIsModalOpen(false)}>
-          <div className="modal-dialog" style={{ maxWidth: '640px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editingArtwork ? '✏️ 작품 및 작가노트 정보 수정' : '🎨 새 작품 아카이브 등록'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="modal-close-btn">
+        <div className="modal-backdrop" onClick={handleBackdropClick}>
+          <div 
+            className={`modal-dialog ${modalAttention ? 'pulse-attention' : ''}`}
+            style={{ 
+              maxWidth: '620px', 
+              width: '100%', 
+              borderRadius: '16px', 
+              overflow: 'hidden', 
+              background: '#FFFFFF',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              display: 'flex',
+              flexDirection: 'column'
+            }} 
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 상단 헤더 */}
+            <div 
+              className="modal-header"
+              style={{
+                padding: '1.25rem 1.75rem',
+                borderBottom: '1px solid #F1F5F9',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: '#FFFFFF'
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0F172A' }}>
+                {editingArtwork ? '✏️ 작품 및 작가노트 정보 수정' : '🎨 새 작품 아카이브 등록'}
+              </h3>
+              <button 
+                type="button"
+                onClick={handleSafeCloseModal} 
+                className="modal-close-btn"
+                style={{ padding: '6px', borderRadius: '8px', cursor: 'pointer' }}
+                title="닫기"
+              >
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveModal} className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '75vh', overflowY: 'auto' }}>
+            {/* 본문 폼 입력 영역 */}
+            <form 
+              id="artwork-modal-form"
+              onSubmit={handleSaveModal} 
+              className="modal-body" 
+              style={{ 
+                padding: '1.5rem 1.75rem', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '1rem', 
+                maxHeight: '68vh', 
+                overflowY: 'auto',
+                boxSizing: 'border-box'
+              }}
+            >
+              {!editingArtwork && onNavigateToStatement && (
+                <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', padding: '10px 14px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.82rem', color: '#166534' }}>
+                  <span>✨ AI로 작가노트, 전시 캡션, 인스타 글을 한 번에 생성하고 싶으신가요?</span>
+                  <button 
+                    type="button" 
+                    onClick={() => { setIsModalOpen(false); onNavigateToStatement(); }}
+                    style={{ background: '#16A34A', color: '#FFFFFF', border: 'none', padding: '5px 10px', borderRadius: '6px', fontWeight: 600, cursor: 'pointer', fontSize: '0.78rem', whiteSpace: 'nowrap', marginLeft: '8px' }}
+                  >
+                    AI 스튜디오로 이동 →
+                  </button>
+                </div>
+              )}
               
               {/* 이미지 업로드 영역 */}
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">작품 사진 첨부 (선택사항 - 자동 다이어트 압축됨)</label>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                   <div 
                     onClick={() => fileInputRef.current?.click()}
                     style={{
                       width: '90px',
                       height: '90px',
-                      borderRadius: '8px',
+                      borderRadius: '10px',
                       border: '2px dashed #CBD5E1',
                       display: 'flex',
                       flexDirection: 'column',
@@ -614,7 +715,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                       cursor: 'pointer',
                       background: '#F8FAFC',
                       overflow: 'hidden',
-                      flexShrink: 0
+                      flexShrink: 0,
+                      transition: 'border-color 0.15s ease'
                     }}
                   >
                     {modalForm.imageUrl ? (
@@ -635,15 +737,15 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                     style={{ display: 'none' }} 
                     onChange={handleImageUpload} 
                   />
-                  <div style={{ fontSize: '0.82rem', color: '#64748B' }}>
+                  <div style={{ fontSize: '0.82rem', color: '#64748B', lineHeight: 1.5 }}>
                     스마트폰이나 카메라 원본 사진(20MB 등)을 그대로 올려도,
-                    브라우저에서 <strong>가벼운 웹 최적화 이미지(300KB)</strong>로 자동 압축하여 기기에 영구 보관합니다.
+                    브라우저에서 <strong>가벼운 웹 최적화 이미지(300KB)</strong>로 자동 압축하여 기기에 안전하게 보관합니다.
                     {modalForm.imageUrl && (
-                      <div style={{ marginTop: '4px' }}>
+                      <div style={{ marginTop: '6px' }}>
                         <button 
                           type="button" 
                           onClick={() => setModalForm(prev => ({ ...prev, imageUrl: '' }))}
-                          style={{ fontSize: '0.75rem', color: '#EF4444', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                          style={{ fontSize: '0.75rem', color: '#EF4444', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}
                         >
                           사진 제거
                         </button>
@@ -654,8 +756,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
               </div>
 
               {/* 기본 정보 */}
-              <div className="form-row">
-                <div className="form-group">
+              <div className="form-row" style={{ gap: '12px' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">작품 제목 (필수)</label>
                   <input 
                     type="text" 
@@ -666,7 +768,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">작가명</label>
                   <input 
                     type="text" 
@@ -677,8 +779,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                 </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
+              <div className="form-row" style={{ gap: '12px' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">제작 연도</label>
                   <input 
                     type="text" 
@@ -687,7 +789,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                     onChange={(e) => setModalForm({ ...modalForm, year: e.target.value })}
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">크기 / 호수</label>
                   <input 
                     type="text" 
@@ -699,7 +801,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                 </div>
               </div>
 
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">재료 및 기법</label>
                 <input 
                   type="text" 
@@ -710,8 +812,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
+              <div className="form-row" style={{ gap: '12px', alignItems: 'flex-end' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
                   <label className="form-label">작품 가격 / 비매품</label>
                   <input 
                     type="text" 
@@ -722,7 +824,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                     disabled={modalForm.isNfs}
                   />
                 </div>
-                <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '0.65rem' }}>
+                <div className="form-group" style={{ marginBottom: 0, paddingBottom: '0.65rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#475569', cursor: 'pointer' }}>
                     <input 
                       type="checkbox" 
@@ -734,37 +836,59 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onOpenPrici
                 </div>
               </div>
 
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">도록용 평론 작가노트 (선택)</label>
                 <textarea 
                   className="form-textarea" 
-                  style={{ minHeight: '90px' }}
+                  style={{ minHeight: '85px', fontSize: '0.86rem' }}
                   placeholder="이 작품에 얽힌 작가노트를 보관해 보세요..."
                   value={modalForm.statement}
                   onChange={(e) => setModalForm({ ...modalForm, statement: e.target.value })}
                 />
               </div>
 
-              <div className="form-group">
+              <div className="form-group" style={{ marginBottom: 0 }}>
                 <label className="form-label">인스타그램 캡션 & 해시태그 (선택)</label>
                 <textarea 
                   className="form-textarea" 
-                  style={{ minHeight: '75px' }}
+                  style={{ minHeight: '75px', fontSize: '0.86rem' }}
                   placeholder="SNS에 올렸거나 올릴 캡션을 보관해 보세요..."
                   value={modalForm.instaCaption}
                   onChange={(e) => setModalForm({ ...modalForm, instaCaption: e.target.value })}
                 />
               </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '0.5rem' }}>
-                <button type="button" onClick={() => setIsModalOpen(false)} className="btn-outline">
-                  취소
-                </button>
-                <button type="submit" className="btn-primary" style={{ width: 'auto' }} disabled={isCompressing}>
-                  <Check size={16} /> {editingArtwork ? '수정 완료' : '아카이브 보관'}
-                </button>
-              </div>
             </form>
+
+            {/* 하단 버튼 푸터 */}
+            <div 
+              className="modal-footer"
+              style={{
+                padding: '1rem 1.75rem',
+                borderTop: '1px solid #F1F5F9',
+                background: '#F8FAFC',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '8px'
+              }}
+            >
+              <button 
+                type="button" 
+                onClick={handleSafeCloseModal} 
+                className="btn-outline"
+                style={{ width: 'auto', padding: '0.55rem 1.15rem', fontSize: '0.86rem' }}
+              >
+                취소
+              </button>
+              <button 
+                type="submit" 
+                form="artwork-modal-form"
+                className="btn-primary" 
+                style={{ width: 'auto', padding: '0.55rem 1.35rem', fontSize: '0.86rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                disabled={isCompressing}
+              >
+                <Check size={16} /> {editingArtwork ? '수정 완료' : '아카이브 보관'}
+              </button>
+            </div>
           </div>
         </div>
       )}

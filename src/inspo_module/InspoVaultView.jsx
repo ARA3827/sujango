@@ -43,28 +43,35 @@ function KakaoSymbol({ size = 18 }) {
   );
 }
 
-const STORAGE_KEY = 'sujango_inspo_vault_v1';
+import { getUserScopedKey } from '../utils/authStorage';
 
-export function InspoVaultView({ onBack }) {
-  // 1. 영감 문장 상태 관리
+export function InspoVaultView({ onBack, user = null }) {
+  const storageKey = getUserScopedKey('sujango_inspo_vault_v1', user);
+
+  // 1. 영감 문장 상태 관리 (작가 계정별 분리)
   const [quotes, setQuotes] = useState(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(storageKey);
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return INITIAL_QUOTES;
+
+    if (user?.id === 'user-ara' || user?.email === 'ara.kim@sujango.com') {
+      return INITIAL_QUOTES;
+    }
+
+    return [];
   });
 
   // LocalStorage 영구 동기화
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(quotes));
+      localStorage.setItem(storageKey, JSON.stringify(quotes));
     } catch (e) {
       console.error(e);
     }
-  }, [quotes]);
+  }, [quotes, storageKey]);
 
   // 2. 입력 폼 상태
   const [newText, setNewText] = useState('');

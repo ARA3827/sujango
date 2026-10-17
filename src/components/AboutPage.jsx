@@ -42,7 +42,7 @@ export default function AboutPage({ onOpenLogin, onNavigateToGuide }) {
             style={{ padding: '0.85rem 1.8rem', fontSize: '0.96rem' }}
           >
             <Sparkles size={18} />
-            나만의 수장고 무료로 시작하기
+            수장고 시작하기
           </button>
           <button
             onClick={onNavigateToGuide}
@@ -198,7 +198,7 @@ export default function AboutPage({ onOpenLogin, onNavigateToGuide }) {
             }}
           >
             <Sparkles size={18} color="#0F172A" />
-            무료 회원가입으로 나만의 수장고 열기
+            수장고 시작하기
           </button>
         </div>
       </section>

@@ -22,7 +22,10 @@ const MATERIAL_PRESETS = [
   { ko: '도자, 백자토, 유약', en: 'Ceramic, porcelain, glaze' }
 ];
 
-export default function CaptionStudio({ onBack }) {
+import { getUserScopedKey } from '../utils/authStorage';
+import { getArtworks } from '../utils/archiveStorage';
+
+export default function CaptionStudio({ onBack, user = null }) {
   const [styleMode, setStyleMode] = useState('classic'); // 'classic' | 'modern' | 'commercial'
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [editingId, setEditingId] = useState(null); // 수정 중인 캡션 ID
@@ -33,61 +36,86 @@ export default function CaptionStudio({ onBack }) {
   // 다중 A4 시트 참조 맵
   const pageRefs = useRef({});
 
-  // 캡션 리스트 상태 (LocalStorage)
+  // 캡션 리스트 상태 (작가 계정별 격리)
   const [captions, setCaptions] = useState(() => {
+    const key = getUserScopedKey('artflow_captions', user);
     try {
-      const saved = localStorage.getItem('artflow_captions');
+      const saved = localStorage.getItem(key);
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return [
-      {
-        id: 1,
-        artistKo: '김아라',
-        artistEn: 'Ara Kim',
-        titleKo: '새벽의 경계',
-        titleEn: 'The Boundary of Dawn',
-        year: '2026',
-        mediumKo: '캔버스에 유채, 혼합재료',
-        mediumEn: 'Oil and mixed media on linen',
-        size: '116.8 × 91.0 cm (50F)',
-        price: '3,500,000원',
-        isNfs: false
-      },
-      {
-        id: 2,
-        artistKo: '김아라',
-        artistEn: 'Ara Kim',
-        titleKo: '푸른 잔상 No. 3',
-        titleEn: 'Blue Afterimage No. 3',
-        year: '2025',
-        mediumKo: '캔버스에 아크릴',
-        mediumEn: 'Acrylic on canvas',
-        size: '53.0 × 45.5 cm (10F)',
-        price: '1,200,000원',
-        isNfs: false
-      },
-      {
-        id: 3,
-        artistKo: '김아라',
-        artistEn: 'Ara Kim',
-        titleKo: '침묵의 심연',
-        titleEn: 'Abyss of Silence',
-        year: '2025',
-        mediumKo: '한지에 먹, 안료',
-        mediumEn: 'Ink and pigment on Korean paper',
-        size: '72.7 × 60.6 cm (20F)',
-        price: 'NFS (작가소장)',
-        isNfs: true
-      }
-    ];
+
+    // 데모 계정인 경우 샘플 3점 제공
+    if (user?.id === 'user-ara' || user?.email === 'ara.kim@sujango.com') {
+      return [
+        {
+          id: 1,
+          artistKo: '김아라',
+          artistEn: 'Ara Kim',
+          titleKo: '새벽의 경계',
+          titleEn: 'The Boundary of Dawn',
+          year: '2026',
+          mediumKo: '캔버스에 유채, 혼합재료',
+          mediumEn: 'Oil and mixed media on linen',
+          size: '116.8 × 91.0 cm (50F)',
+          price: '3,500,000원',
+          isNfs: false
+        },
+        {
+          id: 2,
+          artistKo: '김아라',
+          artistEn: 'Ara Kim',
+          titleKo: '푸른 잔상 No. 3',
+          titleEn: 'Blue Afterimage No. 3',
+          year: '2025',
+          mediumKo: '캔버스에 아크릴',
+          mediumEn: 'Acrylic on canvas',
+          size: '53.0 × 45.5 cm (10F)',
+          price: '1,200,000원',
+          isNfs: false
+        },
+        {
+          id: 3,
+          artistKo: '김아라',
+          artistEn: 'Ara Kim',
+          titleKo: '침묵의 심연',
+          titleEn: 'Abyss of Silence',
+          year: '2025',
+          mediumKo: '한지에 먹, 안료',
+          mediumEn: 'Ink and pigment on Korean paper',
+          size: '72.7 × 60.6 cm (20F)',
+          price: 'NFS (작가소장)',
+          isNfs: true
+        }
+      ];
+    }
+
+    // 실제 로그인 작가: 본인의 수장고에 등록된 작품이 있으면 자동으로 캡션 목록 구성
+    const userArts = getArtworks(user);
+    if (userArts && userArts.length > 0) {
+      return userArts.map((art, idx) => ({
+        id: idx + 1,
+        artistKo: art.artist || user?.name || '작가',
+        artistEn: user?.name || 'Artist',
+        titleKo: art.title || '무제',
+        titleEn: '',
+        year: art.year || new Date().getFullYear().toString(),
+        mediumKo: art.medium || '',
+        mediumEn: '',
+        size: art.size || '',
+        price: art.price || '',
+        isNfs: Boolean(art.isNfs)
+      }));
+    }
+
+    return [];
   });
 
   // 새 캡션 입력/수정 폼 상태
   const [form, setForm] = useState({
-    artistKo: '김아라',
-    artistEn: 'Ara Kim',
+    artistKo: user?.name || '작가',
+    artistEn: user?.name || 'Artist',
     titleKo: '',
     titleEn: '',
     year: new Date().getFullYear().toString(),
@@ -101,7 +129,8 @@ export default function CaptionStudio({ onBack }) {
   const saveCaptions = (newList) => {
     setCaptions(newList);
     try {
-      localStorage.setItem('artflow_captions', JSON.stringify(newList));
+      const key = getUserScopedKey('artflow_captions', user);
+      localStorage.setItem(key, JSON.stringify(newList));
     } catch (e) {
       console.error(e);
     }

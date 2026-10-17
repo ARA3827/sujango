@@ -12,6 +12,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { getArtworks } from '../utils/archiveStorage';
+import { getStoredUser, getUserScopedKey } from '../utils/authStorage';
 
 export default function Dashboard({ 
   onSelectView, 
@@ -20,37 +21,51 @@ export default function Dashboard({
   onOpenNewToolModal,
   user = null
 }) {
-  const [artworks, setArtworks] = useState([]);
+  const [artworks, setArtworks] = useState(() => getArtworks(user));
   const [inspoCount, setInspoCount] = useState(() => {
-    if (!user) return 2; // 게스트 모드 기본 샘플 개수
+    if (!user) return 0;
     try {
-      const saved = localStorage.getItem('sujango_inspo_vault_v1');
+      const key = getUserScopedKey('sujango_inspo_vault_v1', user);
+      const saved = localStorage.getItem(key);
       if (saved) return JSON.parse(saved).length;
     } catch (e) {}
     return 0;
   });
 
-  useEffect(() => {
+  const refreshVault = () => {
     setArtworks(getArtworks(user));
     if (user) {
       try {
-        const saved = localStorage.getItem('sujango_inspo_vault_v1');
+        const key = getUserScopedKey('sujango_inspo_vault_v1', user);
+        const saved = localStorage.getItem(key);
         if (saved) setInspoCount(JSON.parse(saved).length);
+        else setInspoCount(0);
       } catch (e) {}
     } else {
-      setInspoCount(2);
+      setInspoCount(0);
     }
+  };
+
+  useEffect(() => {
+    refreshVault();
+    // 윈도우 포커스 시 및 저장소 변경 시 실시간 동기화
+    window.addEventListener('focus', refreshVault);
+    window.addEventListener('storage', refreshVault);
+    return () => {
+      window.removeEventListener('focus', refreshVault);
+      window.removeEventListener('storage', refreshVault);
+    };
   }, [user]);
 
   const tools = [
     {
       id: 'statement',
-      title: '작가노트 & SNS',
-      tag: 'AI 글 생성',
+      title: 'AI 작가노트 & 새 작품 등록',
+      tag: 'AI 글 생성 & 수장고 보관',
       icon: <PenTool size={22} />,
       badge: null,
-      desc: '작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그, 블로그 후기를 동시에 추출하고 직접 수정합니다.',
-      actionText: '작가노트 쓰기'
+      desc: '작품 사진과 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션, 블로그 후기를 AI가 한 번에 완성하고 수장고에 등록합니다.',
+      actionText: '새 작품 등록 & 작가노트 쓰기'
     },
     {
       id: 'caption',
@@ -115,21 +130,22 @@ export default function Dashboard({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="archive-board-title">
-                📁 나의 작품 디지털 수장고
+                📁 {user?.name ? `${user.name} 작가님의 수장고` : '나의 작품 디지털 수장고'}
               </span>
               <span className="archive-board-count">
                 총 {artworks.length}점 보관 중
               </span>
             </div>
             <p style={{ fontSize: '0.83rem', color: '#64748B', margin: '4px 0 0 0' }}>
-              세월이 흘러도 변치 않는 나만의 프라이빗 디지털 수장고. 작품을 클릭하면 상세 도록과 작가노트, 캡션을 바로 열람할 수 있습니다.
+              세월이 흘러도 변치 않는 {user?.name || '작가'}님만의 프라이빗 디지털 수장고. 작품을 클릭하면 상세 도록과 작가노트, 캡션을 바로 열람할 수 있습니다.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <button 
-              onClick={() => onSelectView('archive')} 
+              onClick={() => onSelectView('statement')} 
               className="btn-outline"
               style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', gap: '5px' }}
+              title="AI 작가노트 생성과 함께 새 작품을 수장고에 등록합니다"
             >
               <Plus size={14} /> 새 작품 등록
             </button>
@@ -176,7 +192,7 @@ export default function Dashboard({
                       <div style={{ fontWeight: 600, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <span>《{art.title}》</span>
                       </div>
-                      <div style={{ fontSize: '0.78rem', color: '#64748B' }}>{art.artist || '김아라'}</div>
+                      <div style={{ fontSize: '0.78rem', color: '#64748B' }}>{art.artist || user?.name || '작가'}</div>
                     </td>
                     <td>
                       <span style={{ fontSize: '0.84rem', color: '#334155', fontWeight: 500 }}>{art.year}년</span>
@@ -205,8 +221,40 @@ export default function Dashboard({
             </table>
           </div>
         ) : (
-          <div className="archive-empty-box" onClick={() => onSelectView('archive')}>
-            <p>아직 등록된 작품이 없습니다. 클릭하여 첫 작품 사진과 작가노트를 등록해 보세요.</p>
+          <div 
+            className="archive-empty-box" 
+            onClick={() => onSelectView('archive')}
+            style={{
+              padding: '2.5rem 1.5rem',
+              background: '#FFFFFF',
+              border: '1.5px dashed #CBD5E1',
+              borderRadius: '12px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              marginTop: '0.5rem'
+            }}
+          >
+            <div style={{ width: '48px', height: '48px', margin: '0 auto 12px', borderRadius: '50%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ImageIcon size={22} color="#64748B" />
+            </div>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#0F172A', margin: '0 0 6px 0' }}>
+              {user?.name ? `${user.name} 작가님만의 프라이빗 수장고가 열렸습니다` : '아직 보관된 작품이 없습니다'}
+            </h3>
+            <p style={{ fontSize: '0.88rem', color: '#64748B', margin: '0 0 16px 0', lineHeight: 1.5 }}>
+              소중한 첫 작품 사진과 기본 정보를 등록해 보세요.<br />
+              미학적 작가노트, 전시 벽면 캡션, 인스타그램 피드 글까지 단정하게 정리해 드립니다.
+            </p>
+            <button 
+              className="btn-primary" 
+              style={{ padding: '0.55rem 1.25rem', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectView('statement');
+              }}
+            >
+              <Plus size={15} /> 첫 작품 등록하기
+            </button>
           </div>
         )}
       </div>

@@ -528,6 +528,12 @@ input, select, textarea {
   border-color: var(--border-focus);
 }
 
+.form-input::placeholder, .form-textarea::placeholder {
+  color: #94A3B8;
+  font-weight: 400;
+  opacity: 1;
+}
+
 .form-textarea {
   min-height: 110px;
   resize: vertical;
@@ -2475,6 +2481,40 @@ input, select, textarea {
   animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid #F1F5F9;
+  box-sizing: border-box;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.modal-body {
+  padding: 1.5rem 1.75rem;
+  box-sizing: border-box;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.75rem;
+  border-top: 1px solid #F1F5F9;
+  background: #FAFAFA;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+  box-sizing: border-box;
+}
+
 .modal-close-btn {
   background: transparent;
   border: none;
@@ -2507,6 +2547,16 @@ input, select, textarea {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+@keyframes modalPulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.modal-dialog.pulse-attention {
+  animation: modalPulse 0.22s ease-in-out !important;
 }
 
 @keyframes slideInRight {

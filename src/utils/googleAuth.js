@@ -1,12 +1,12 @@
 // Google Identity Services (GIS) 소셜 로그인 헬퍼 유틸리티
 
 const GOOGLE_CLIENT_ID_KEY = 'sujango_google_client_id';
-export const DEFAULT_GOOGLE_CLIENT_ID = '148488988252-hp2koqal6ita4ic8qh8f2j8l6l090sst.apps.googleusercontent.com';
+export const DEFAULT_GOOGLE_CLIENT_ID = '433294194712-f2gtl99p5s7kc0mtqfiukq2d3gut26cc.apps.googleusercontent.com';
 
-// 저장된 Google Client ID 조회 (LocalStorage 또는 Vite 환경변수 또는 프로젝트 기본값)
+// 저장된 Google Client ID 조회 (Vite 환경변수 또는 프로젝트 기본값 또는 LocalStorage)
 export function getGoogleClientId() {
   try {
-    return localStorage.getItem(GOOGLE_CLIENT_ID_KEY) || import.meta.env.VITE_GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID;
+    return import.meta.env.VITE_GOOGLE_CLIENT_ID || DEFAULT_GOOGLE_CLIENT_ID;
   } catch (e) {
     return DEFAULT_GOOGLE_CLIENT_ID;
   }
