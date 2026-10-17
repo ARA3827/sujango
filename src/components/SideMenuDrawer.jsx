@@ -25,6 +25,8 @@ export default function SideMenuDrawer({
   onOpenLogin,
   onLogout,
   onOpenInfoTab,
+  onNavigateAbout,
+  onNavigateGuide,
   onOpenPricing,
   onOpenFeedback,
   onOpenPolicy
@@ -136,7 +138,7 @@ export default function SideMenuDrawer({
           {/* 1. 수장고 소개 */}
           <button
             type="button"
-            onClick={() => { onClose(); onOpenInfoTab('about'); }}
+            onClick={() => { onClose(); if (onNavigateAbout) onNavigateAbout(); else onOpenInfoTab('about'); }}
             style={{ width: '100%', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
             onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
@@ -148,17 +150,17 @@ export default function SideMenuDrawer({
             <ChevronRight size={16} color="#CBD5E1" />
           </button>
 
-          {/* 2. 이용안내 (3단계 가이드) */}
+          {/* 2. 이용안내 (3단계 가이드 & Q&A) */}
           <button
             type="button"
-            onClick={() => { onClose(); onOpenInfoTab('guide'); }}
+            onClick={() => { onClose(); if (onNavigateGuide) onNavigateGuide(); else onOpenInfoTab('guide'); }}
             style={{ width: '100%', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
             onMouseEnter={(e) => e.currentTarget.style.background = '#F8FAFC'}
             onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <BookOpen size={18} color="#0284C7" />
-              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#334155' }}>이용안내 (3단계 가이드)</span>
+              <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#334155' }}>이용안내 & Q&A</span>
             </div>
             <ChevronRight size={16} color="#CBD5E1" />
           </button>

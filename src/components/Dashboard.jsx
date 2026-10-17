@@ -115,16 +115,14 @@ export default function Dashboard({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="archive-board-title">
-                {user ? '📁 나의 작품 디지털 수장고' : '📁 디지털 수장고 (체험용 샘플 도록)'}
+                📁 나의 작품 디지털 수장고
               </span>
               <span className="archive-board-count">
-                {user ? `총 ${artworks.length}점 보관 중` : '샘플 2점 체험 중'}
+                총 {artworks.length}점 보관 중
               </span>
             </div>
             <p style={{ fontSize: '0.83rem', color: '#64748B', margin: '4px 0 0 0' }}>
-              {user 
-                ? '세월이 흘러도 변치 않는 나만의 프라이빗 디지털 수장고. 작품을 클릭하면 상세 도록과 작가노트, 캡션을 바로 열람할 수 있습니다.'
-                : '둘러보기(게스트) 모드입니다. 작가님의 소중한 개인 작품과 정산 기록을 안전하게 관리하시려면 로그인해 주세요.'}
+              세월이 흘러도 변치 않는 나만의 프라이빗 디지털 수장고. 작품을 클릭하면 상세 도록과 작가노트, 캡션을 바로 열람할 수 있습니다.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

@@ -9,6 +9,8 @@ import ArchiveStudio from './components/ArchiveStudio';
 import InspoVaultView from './inspo_module/InspoVaultView';
 import NewToolModal from './components/NewToolModal';
 import LandingPage from './components/LandingPage';
+import AboutPage from './components/AboutPage';
+import GuidePage from './components/GuidePage';
 import LoginModal from './components/LoginModal';
 import PolicyModal from './components/PolicyModal';
 import PricingModal from './components/PricingModal';
@@ -24,7 +26,6 @@ import { UserCheck, UserX, Sparkles, Crown } from 'lucide-react';
 export default function App() {
   // 인증 상태 관리 (기본값: getStoredUser() 또는 null)
   const [user, setUser] = useState(getStoredUser);
-  const [isGuestExploring, setIsGuestExploring] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginInitialMode, setLoginInitialMode] = useState('select'); // 'select' | 'signup' | 'login'
 
@@ -78,8 +79,8 @@ export default function App() {
     const rawHash = window.location.hash.replace('#', '').split('?')[0];
     if (rawHash.startsWith('share')) return 'share';
 
-    const validViews = ['doc', 'statement', 'tax', 'caption', 'archive', 'inspo'];
-    return validViews.includes(rawHash) ? rawHash : 'dashboard';
+    const validViews = ['doc', 'statement', 'tax', 'caption', 'archive', 'inspo', 'about', 'guide', 'landing'];
+    return validViews.includes(rawHash) ? rawHash : (getStoredUser() ? 'dashboard' : 'landing');
   };
 
   const getArtIdFromHash = () => {
@@ -105,12 +106,12 @@ export default function App() {
     const handlePopState = () => {
       const v = getViewFromHash();
       setSelectedArtworkId(getArtIdFromHash());
-      if (v === 'share') {
-        setCurrentView('share');
+      if (v === 'share' || v === 'about' || v === 'guide') {
+        setCurrentView(v);
         return;
       }
-      if (!user && v !== 'dashboard') {
-        setCurrentView('dashboard');
+      if (!user && v !== 'landing' && v !== 'dashboard') {
+        setCurrentView('landing');
         setIsLoginModalOpen(true);
       } else {
         setCurrentView(v);
@@ -207,25 +208,26 @@ export default function App() {
     setUser(loggedInUser);
     saveUser(loggedInUser);
     syncUserProfile(loggedInUser);
-    setIsGuestExploring(false);
+    setCurrentView('dashboard');
   };
 
   // 로그아웃 처리: 모든 개인 세션 및 둘러보기 상태 완전 초기화 ➔ 무조건 서비스 소개 랜딩 페이지로 복귀
   const handleLogout = () => {
     setUser(null);
     saveUser(null);
-    setIsGuestExploring(false);
     setSelectedArtworkId(null);
     if (window.location.hash) {
       window.history.pushState(null, '', window.location.pathname);
     }
-    setCurrentView('dashboard');
+    setCurrentView('landing');
   };
 
   // 네비게이션 함수 (비로그인 접근 차단 로그인 월 적용 및 특정 작품 ID 연동)
   const navigate = (viewId, artworkId = null) => {
-    // 비로그인(게스트) 상태에서 세부 작업공간(서류, 정산, 작가노트 등) 진입 시 ➔ 로그인 모달 강제 팝업
-    if (!user && viewId !== 'dashboard') {
+    const isPublicView = ['about', 'guide', 'landing', 'share'].includes(viewId);
+
+    // 비로그인 상태에서 보호된 작업공간(서류, 정산, 작가노트, 대시보드 등) 진입 시 ➔ 로그인 모달 강제 팝업
+    if (!user && !isPublicView) {
       setIsLoginModalOpen(true);
       return;
     }
@@ -234,12 +236,12 @@ export default function App() {
       setSelectedArtworkId(artworkId);
     }
 
-    if (viewId === 'dashboard') {
+    if (viewId === 'dashboard' || viewId === 'landing') {
       setSelectedArtworkId(null);
       if (window.location.hash) {
         window.history.pushState(null, '', window.location.pathname + window.location.search);
       }
-      setCurrentView('dashboard');
+      setCurrentView(user ? 'dashboard' : 'landing');
     } else {
       const hashStr = artworkId ? `#${viewId}?artId=${artworkId}` : `#${viewId}`;
       window.history.pushState({ view: viewId, artworkId }, '', hashStr);
@@ -252,24 +254,21 @@ export default function App() {
     if (window.location.hash) {
       window.history.back();
     } else {
-      navigate('dashboard');
+      navigate(user ? 'dashboard' : 'landing');
     }
   };
-
-  // 비로그인 상태이고 둘러보기 모드가 아닐 때 (단, 보안 공유 링크는 제외) ➔ 랜딩 페이지 표시
-  const showLanding = !user && !isGuestExploring && currentView !== 'share';
 
   return (
     <div className="artflow-app">
       {/* 글로벌 헤더 */}
       <Header 
-        currentView={showLanding ? 'landing' : currentView} 
-        onGoHome={handleBack} 
+        currentView={currentView} 
+        onGoHome={() => navigate(user ? 'dashboard' : 'landing')} 
         user={user}
         onOpenLogin={handleOpenLogin}
         onLogout={handleLogout}
-        isGuestExploring={isGuestExploring}
-        onExitGuest={() => setIsGuestExploring(false)}
+        onNavigateAbout={() => navigate('about')}
+        onNavigateGuide={() => navigate('guide')}
         onOpenPricing={() => setIsPricingModalOpen(true)}
         onOpenSideMenu={() => setIsSideMenuOpen(true)}
       />
@@ -277,16 +276,29 @@ export default function App() {
       {/* 메인 뷰 컨테이너 */}
       <main className="artflow-main">
         {currentView === 'share' ? (
-          <ClientPreviewView onGoHome={() => navigate('dashboard')} />
-        ) : showLanding ? (
+          <ClientPreviewView onGoHome={() => navigate(user ? 'dashboard' : 'landing')} />
+        ) : currentView === 'about' ? (
+          /* 수장고 소개 (브랜드 스토리 및 철학) */
+          <AboutPage 
+            onOpenLogin={handleOpenLogin}
+            onNavigateToGuide={() => navigate('guide')}
+          />
+        ) : currentView === 'guide' ? (
+          /* 수장고 시각적 이용안내 및 FAQ (Q&A) */
+          <GuidePage 
+            onOpenLogin={handleOpenLogin}
+            onNavigateToAbout={() => navigate('about')}
+          />
+        ) : !user ? (
           /* 비로그인: 서비스 소개 및 쇼케이스 랜딩 페이지 */
           <LandingPage 
             onOpenLogin={handleOpenLogin}
-            onExploreGuest={() => setIsGuestExploring(true)}
+            onNavigateToGuide={() => navigate('guide')}
+            onNavigateToAbout={() => navigate('about')}
             onOpenPricing={() => setIsPricingModalOpen(true)}
           />
         ) : (
-          /* 로그인 또는 게스트 둘러보기: 실제 2-Depth 올인원 워크스페이스 */
+          /* 로그인 회원 전용: 실제 2-Depth 올인원 워크스페이스 */
           <>
             {currentView === 'dashboard' && (
               <Dashboard 
@@ -341,10 +353,6 @@ export default function App() {
         initialMode={loginInitialMode}
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
-        onExploreGuest={() => {
-          setIsGuestExploring(true);
-          setIsLoginModalOpen(false);
-        }}
       />
 
       {/* Pro 멤버십 요금제 모달 */}
@@ -404,6 +412,8 @@ export default function App() {
         user={user}
         onOpenLogin={handleOpenLogin}
         onLogout={handleLogout}
+        onNavigateAbout={() => navigate('about')}
+        onNavigateGuide={() => navigate('guide')}
         onOpenInfoTab={handleOpenInfoModal}
         onOpenPricing={() => setIsPricingModalOpen(true)}
         onOpenFeedback={() => setIsNewToolModalOpen(true)}

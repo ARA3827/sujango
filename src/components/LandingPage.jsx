@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 import { getFeedbacks } from '../utils/feedbackStorage';
 
-export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing }) {
+export default function LandingPage({ onOpenLogin, onNavigateToGuide, onNavigateToAbout, onOpenPricing }) {
   const [feedbacks, setFeedbacks] = useState([]);
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'yearly' | 'monthly'
 
@@ -55,7 +55,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
                 무료 회원가입 시작하기
               </button>
               <button 
-                onClick={onExploreGuest} 
+                onClick={onNavigateToGuide} 
                 className="btn-outline" 
                 style={{ 
                   padding: '0.82rem 1.4rem', 
@@ -69,7 +69,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
                   cursor: 'pointer'
                 }}
               >
-                로그인 없이 둘러보기 →
+                수장고 이용안내 둘러보기 →
               </button>
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
 
         <div className="landing-feature-grid">
           {/* 기능 1: 영감 노트 */}
-          <div className="feature-showcase-card" onClick={onExploreGuest}>
+          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#ECFDF5', color: '#059669' }}>
               <Sparkles size={24} />
             </div>
@@ -160,7 +160,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           </div>
 
           {/* 기능 2: 작가노트 & SNS */}
-          <div className="feature-showcase-card" onClick={onExploreGuest}>
+          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#FDF4FF', color: '#A855F7' }}>
               <PenTool size={24} />
             </div>
@@ -173,7 +173,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           </div>
 
           {/* 기능 3: 전시 캡션 출력기 */}
-          <div className="feature-showcase-card" onClick={onExploreGuest}>
+          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#F8FAFC', color: '#0F172A' }}>
               <Tag size={24} />
             </div>
@@ -186,7 +186,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           </div>
 
           {/* 기능 4: 서류·출강 스튜디오 */}
-          <div className="feature-showcase-card" onClick={onExploreGuest}>
+          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#F0FDF4', color: '#15803D' }}>
               <FileText size={24} />
             </div>
@@ -199,7 +199,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           </div>
 
           {/* 기능 5: 창작 가계부 */}
-          <div className="feature-showcase-card" onClick={onExploreGuest}>
+          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#FFFBEB', color: '#D97706' }}>
               <Receipt size={24} />
             </div>
@@ -212,7 +212,7 @@ export default function LandingPage({ onOpenLogin, onExploreGuest, onOpenPricing
           </div>
 
           {/* 기능 6: 나의 작품 디지털 수장고 */}
-          <div className="feature-showcase-card" onClick={onExploreGuest}>
+          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#EFF6FF', color: '#2563EB' }}>
               <Archive size={24} />
             </div>
