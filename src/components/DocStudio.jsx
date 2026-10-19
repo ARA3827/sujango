@@ -255,7 +255,7 @@ ${cvForm.collections.trim()}
           onClick={() => setActiveTab('cv')}
         >
           <UserCheck size={16} style={{ display: 'inline', marginRight: '6px' }} />
-          공모전 표준 약력(CV) 정리기
+          작가 프로필 등록
         </button>
         <button 
           className={`tab-btn ${activeTab === 'invoice' ? 'active' : ''}`}
@@ -400,11 +400,7 @@ ${cvForm.collections.trim()}
               {renderActionButtons(lectureResult, `${lectureForm.courseName || '강좌'}_강의계획서.txt`)}
             </div>
 
-            {lectureResult && (
-              <div className="print-tip-banner no-print">
-                <span>💡 <strong>인쇄 팁:</strong> 인쇄 창 오른쪽 [설정]에서 <strong>'머리글 및 바닥글'</strong> 체크를 해제하시면 URL(localhost) 없이 수장고 공식 라벨만 정갈하게 출력됩니다.</span>
-              </div>
-            )}
+            {/* 완성본 출력 영역 */}
 
             {lectureResult ? (
               <div className="output-box print-document-sheet">
@@ -500,15 +496,9 @@ ${cvForm.collections.trim()}
 
           <div className="panel-card printable">
             <div className="panel-card-title no-print">
-              <span>표준 작가 약력(CV) 출력본</span>
-              {renderActionButtons(cvResult, `${cvForm.nameKo || '작가'}_표준약력_CV.txt`)}
+              <span>작가 프로필(CV) 출력본</span>
+              {renderActionButtons(cvResult, `${cvForm.nameKo || '작가'}_작가프로필_CV.txt`)}
             </div>
-
-            {cvResult && (
-              <div className="print-tip-banner no-print">
-                <span>💡 <strong>인쇄 팁:</strong> 인쇄 창 오른쪽 [설정]에서 <strong>'머리글 및 바닥글'</strong> 체크를 해제하시면 URL(localhost) 없이 수장고 공식 라벨만 정갈하게 출력됩니다.</span>
-              </div>
-            )}
 
             {cvResult ? (
               <div className="output-box print-document-sheet">
@@ -612,11 +602,7 @@ ${cvForm.collections.trim()}
               {renderActionButtons(invoiceResult, `${invoiceForm.projectName || '프로젝트'}_견적청구서.txt`)}
             </div>
 
-            {invoiceResult && (
-              <div className="print-tip-banner no-print">
-                <span>💡 <strong>인쇄 팁:</strong> 인쇄 창 오른쪽 [설정]에서 <strong>'머리글 및 바닥글'</strong> 체크를 해제하시면 URL(localhost) 없이 수장고 공식 라벨만 정갈하게 출력됩니다.</span>
-              </div>
-            )}
+            {/* 완성본 출력 영역 */}
 
             {invoiceResult ? (
               <div className="output-box print-document-sheet">
