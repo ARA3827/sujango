@@ -486,7 +486,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             />
           </div>
 
-          {/* 좌측 액션 버튼: AI 작가노트 생성 & 바로 등록 나란히 배치 */}
+          {/* 좌측 액션 버튼: AI 작가노트 생성 & AI 없이 바로 등록 (1:1 나란히 배치) */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '1rem' }}>
             <button 
               type="button"
@@ -494,16 +494,16 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
               onClick={handleGenerate} 
               title="우측 화면에 미학 평론 작가노트와 SNS 글을 생성합니다"
             >
-              <Sparkles size={15} color="#A855F7" /> AI 작가노트 생성
+              <Sparkles size={16} color="#38BDF8" /> AI 작가노트 생성
             </button>
             <button 
               type="button"
               className="btn-action-save-direct" 
               onClick={handleSaveToArchive} 
               disabled={isSaving}
-              title="AI 글 생성 없이 현재 입력한 사진과 작품 정보만 수장고에 등록합니다"
+              title="AI 글 생성 없이 입력한 사진과 작품 정보만 수장고에 안전하게 등록합니다"
             >
-              <Archive size={15} /> 바로 등록
+              <Archive size={16} color="#15803D" /> AI 없이 바로 등록
             </button>
           </div>
         </div>
