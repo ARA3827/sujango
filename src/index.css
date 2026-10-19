@@ -1269,17 +1269,6 @@ input, select, textarea {
   color: #0F172A;
 }
 
-/* 서류 스튜디오 공식 머릿글 & 바닥글 */
-.print-official-doc-header {
-  text-align: center;
-  font-size: 0.78rem;
-  color: #64748B;
-  letter-spacing: -0.2px;
-  margin-bottom: 22px;
-  padding-bottom: 8px;
-  border-bottom: 1px dashed #E2E8F0;
-}
-
 .print-official-doc-footer {
   text-align: center;
   margin-top: 22px;
@@ -1296,7 +1285,7 @@ input, select, textarea {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 12mm 15mm 14mm 15mm;
+    margin: 14mm 15mm 14mm 15mm;
   }
 
   /* 입력 폼, 헤더, 푸터, 네비게이션 버튼 등 불필요한 UI 전면 숨김 */
@@ -1349,22 +1338,10 @@ input, select, textarea {
     line-height: 1.62 !important;
     white-space: pre-wrap !important;
     word-break: keep-all !important;
-    padding: 0 !important;
+    padding: 14px 0 0 0 !important; /* 상단 머릿글과 본문 타이틀 사이 시원한 간격 확보 */
     margin: 0 auto !important;
     width: 100% !important;
     box-sizing: border-box !important;
-  }
-
-  /* 상단 머릿글: 중앙 정렬 & 본문 타이틀과의 넉넉한 간격 */
-  .print-official-doc-header {
-    display: block !important;
-    text-align: center !important;
-    font-size: 8.5pt !important;
-    color: #64748B !important;
-    letter-spacing: -0.2px !important;
-    margin-bottom: 28px !important;
-    padding-bottom: 8px !important;
-    border-bottom: 0.75pt solid #CBD5E1 !important;
   }
 
   /* 하단 바닥글: 중앙 정렬 & 단정하고 깔끔한 마무리 */

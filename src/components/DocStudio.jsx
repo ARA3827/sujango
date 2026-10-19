@@ -408,9 +408,6 @@ ${cvForm.collections.trim()}
 
             {lectureResult ? (
               <div className="output-box print-document-sheet">
-                <div className="print-official-doc-header">
-                  Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
-                </div>
                 <div>{lectureResult}</div>
                 <div className="print-official-doc-footer">
                   Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
@@ -515,9 +512,6 @@ ${cvForm.collections.trim()}
 
             {cvResult ? (
               <div className="output-box print-document-sheet">
-                <div className="print-official-doc-header">
-                  Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
-                </div>
                 <div>{cvResult}</div>
                 <div className="print-official-doc-footer">
                   Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
@@ -626,9 +620,6 @@ ${cvForm.collections.trim()}
 
             {invoiceResult ? (
               <div className="output-box print-document-sheet">
-                <div className="print-official-doc-header">
-                  Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
-                </div>
                 <div>{invoiceResult}</div>
                 <div className="print-official-doc-footer">
                   Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
