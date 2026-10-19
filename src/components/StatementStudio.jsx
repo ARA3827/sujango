@@ -642,36 +642,36 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
           {/* 창작 배경 / 영감 메모 */}
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>창작 배경 / 영감 메모 (1~2줄)</span>
+              <span>창작 배경 / 영감 메모</span>
               <span style={{ fontSize: '0.78rem', color: '#94A3B8', fontWeight: 400 }}>선택사항 (비워두셔도 AI 자동 생성)</span>
             </label>
             <textarea 
               className="form-textarea" 
-              style={{ minHeight: '80px', fontSize: '0.86rem' }}
+              style={{ minHeight: '115px', fontSize: '0.88rem', lineHeight: '1.6' }}
               placeholder="예: 작업실 창가에 드리운 빛의 경계와 깊은 새벽의 공기에서 시작되었습니다."
               value={artwork.inspiration}
               onChange={(e) => setArtwork({...artwork, inspiration: e.target.value})}
             />
           </div>
 
-          {/* 좌측 액션 버튼: AI 작가노트 생성 & AI 없이 바로 등록 (1:1 나란히 배치) */}
+          {/* 좌측 액션 버튼: AI 초안 생성 & 내 글 바로 등록 (1:1 나란히 배치) */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '1rem' }}>
             <button 
               type="button"
               className="btn-action-generate" 
               onClick={handleGenerate} 
-              title="우측 화면에 미학 평론 작가노트와 SNS 글을 생성합니다"
+              title="우측 화면에 미학 평론 작가노트 초안과 SNS 글을 생성합니다"
             >
-              <Sparkles size={16} color="#38BDF8" /> AI 작가노트 생성
+              <Sparkles size={16} color="#0284C7" /> AI 초안 생성
             </button>
             <button 
               type="button"
               className="btn-action-save-direct" 
               onClick={handleSaveToArchive} 
               disabled={isSaving}
-              title="AI 글 생성 없이 입력한 사진과 작품 정보만 수장고에 안전하게 등록합니다"
+              title="입력한 사진과 작품 정보, 작가 본인의 글을 수장고에 안전하게 등록합니다"
             >
-              <Archive size={16} color="#15803D" /> AI 없이 바로 등록
+              <Archive size={16} color="#FFFFFF" /> 내 글 바로 등록
             </button>
           </div>
         </div>
