@@ -59,6 +59,16 @@ export default function Dashboard({
 
   const tools = [
     {
+      id: 'inspo',
+      title: '영감 노트',
+      tag: '창작 영감 & 문장',
+      icon: <Sparkles size={22} style={{ color: '#059669' }} />,
+      badge: user ? `✨ ${inspoCount}개 보관` : '✨ 샘플 2개',
+      badgeStyle: { background: '#F0FDFA', color: '#0F766E', border: '1px solid #CCFBF1' },
+      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 깔끔하게 정리하여 가져옵니다.',
+      actionText: '영감 노트 열기'
+    },
+    {
       id: 'statement',
       title: 'AI 작가노트 & 새 작품 등록',
       tag: 'AI 글 생성 & 수장고 보관',
@@ -99,16 +109,6 @@ export default function Dashboard({
         : { background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' },
       desc: '출강·작품 수입과 재료비 지출을 한눈에 관리하고, A4 지출 정산 증빙서를 인쇄 및 PDF로 저장합니다.',
       actionText: '가계부 열기'
-    },
-    {
-      id: 'inspo',
-      title: '영감 노트',
-      tag: '창작 영감 & 문장',
-      icon: <Sparkles size={22} style={{ color: '#059669' }} />,
-      badge: user ? `✨ ${inspoCount}개 보관` : '✨ 샘플 2개',
-      badgeStyle: { background: '#F0FDFA', color: '#0F766E', border: '1px solid #CCFBF1' },
-      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 깔끔하게 정리하여 가져옵니다.',
-      actionText: '영감 노트 열기'
     }
   ];
 
