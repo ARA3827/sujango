@@ -121,9 +121,9 @@ export default function SideMenuDrawer({
                 type="button"
                 onClick={() => { onClose(); onOpenLogin(); }}
                 className="btn-primary"
-                style={{ width: '100%', padding: '0.5rem', fontSize: '0.82rem', justifyContent: 'center' }}
+                style={{ width: '100%', padding: '0.5rem', fontSize: '0.84rem', justifyContent: 'center' }}
               >
-                <LogIn size={14} /> <span>간편 로그인 / 회원가입</span>
+                <LogIn size={14} /> <span>수장고 로그인</span>
               </button>
             </div>
           )}

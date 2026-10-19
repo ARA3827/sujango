@@ -63,7 +63,7 @@ export default function LandingPage({
                   {user.name && user.name !== '작가' ? `${user.name} 작가님의 수장고` : '내 수장고로 이동'} →
                 </button>
               ) : (
-                <button onClick={() => onOpenLogin('signup')} className="hero-primary-btn">
+                <button onClick={() => onOpenLogin('login')} className="hero-primary-btn">
                   <Sparkles size={18} />
                   수장고 시작하기
                 </button>

@@ -16,9 +16,9 @@ import { supabase, isSupabaseConfigured, signInWithEmail, signUpWithEmail } from
 import { registerLocalUser, loginLocalUser, findRegisteredUser, saveOrUpdateSocialUser } from '../utils/authStorage';
 import confetti from 'canvas-confetti';
 
-export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMode = 'signup' }) {
-  // 화면 모드: 'signup' (회원가입) | 'login' (로그인) | 'profile_setup' (구글 가입 후 작가명 확인)
-  const [viewMode, setViewMode] = useState(initialMode === 'login' ? 'login' : 'signup');
+export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMode = 'login' }) {
+  // 화면 모드: 'login' (기본 로그인) | 'signup' (간편 회원가입) | 'profile_setup' (구글 가입 후 작가명 확인)
+  const [viewMode, setViewMode] = useState(initialMode === 'signup' ? 'signup' : 'login');
 
   // 이메일 로그인/회원가입 입력값
   const [email, setEmail] = useState('');
@@ -35,7 +35,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     if (!isOpen) return;
     setErrorMessage('');
     setIsGoogleLoading(false);
-    setViewMode(initialMode === 'login' ? 'login' : 'signup');
+    setViewMode(initialMode === 'signup' ? 'signup' : 'login');
   }, [isOpen, initialMode]);
 
   if (!isOpen) return null;
@@ -62,9 +62,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
         // 1. 이미 등록된 활동명이 있는 기존 작가님인지 확인
         const existing = findRegisteredUser(googleUser.email);
         if (existing && existing.name && existing.name !== '작가') {
-          // 이미 활동명을 설정한 적이 있으면 재입력 창 없이 바로 입장!
+          // 이미 활동명을 설정한 적이 있으면 재입력 창 없이 바로 기존 로그인 입장!
           const loggedInUser = saveOrUpdateSocialUser({ ...googleUser, ...existing });
-          onLoginSuccess(loggedInUser);
+          onLoginSuccess(loggedInUser, { isNewUser: false });
           onClose();
           triggerConfetti();
           return;
@@ -79,7 +79,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
         setIsGoogleLoading(false);
         console.warn('Google login notice:', err);
         if (typeof err === 'string' && (err.includes('origin') || err.includes('not allowed'))) {
-          setErrorMessage('Google Cloud 승인 도메인 등록이 필요합니다. 아래 이메일로 바로 가입하실 수 있습니다.');
+          setErrorMessage('Google Cloud 승인 도메인 등록이 필요합니다. 아래 이메일로 바로 로그인하실 수 있습니다.');
         } else {
           setErrorMessage(typeof err === 'string' ? err : 'Google 로그인 창을 열지 못했습니다.');
         }
@@ -100,7 +100,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
       name: name.trim()
     });
 
-    onLoginSuccess(finalUser);
+    onLoginSuccess(finalUser, { isNewUser: true });
     onClose();
     triggerConfetti();
   };
@@ -156,7 +156,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           newUser = registerLocalUser(email.trim(), password.trim(), name.trim() || '작가');
         }
 
-        onLoginSuccess(newUser);
+        onLoginSuccess(newUser, { isNewUser: true });
         onClose();
         triggerConfetti();
       } else {
@@ -188,7 +188,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           loggedInUser = loginLocalUser(email.trim(), password.trim());
         }
 
-        onLoginSuccess(loggedInUser);
+        onLoginSuccess(loggedInUser, { isNewUser: false });
         onClose();
         triggerConfetti();
       }
@@ -200,7 +200,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           const fallbackUser = isSigningUp 
             ? registerLocalUser(email.trim(), password.trim(), name.trim() || '작가')
             : loginLocalUser(email.trim(), password.trim());
-          onLoginSuccess(fallbackUser);
+          onLoginSuccess(fallbackUser, { isNewUser: isSigningUp });
           onClose();
           triggerConfetti();
           return;
@@ -269,11 +269,53 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           </button>
         </div>
 
-        {/* 에러 안내 메시지 */}
+        {/* 에러 안내 메시지 및 스마트 전환 버튼 */}
         {errorMessage && (
-          <div style={{ padding: '0.75rem 0.9rem', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '8px', color: '#991B1B', fontSize: '0.8rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'flex-start', gap: '8px', lineHeight: 1.5 }}>
-            <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-            <span>{errorMessage}</span>
+          <div style={{ padding: '0.85rem 0.95rem', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '10px', color: '#991B1B', fontSize: '0.82rem', marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.5 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+              <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <span>{errorMessage}</span>
+            </div>
+            {errorMessage.includes('이미 등록된 이메일') && (
+              <button
+                type="button"
+                onClick={() => { setViewMode('login'); setErrorMessage(''); }}
+                style={{
+                  alignSelf: 'flex-start',
+                  marginTop: '2px',
+                  background: '#0F172A',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '5px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                기존 계정으로 로그인하기 →
+              </button>
+            )}
+            {errorMessage.includes('가입되지 않은 이메일') && (
+              <button
+                type="button"
+                onClick={() => { setViewMode('signup'); setErrorMessage(''); }}
+                style={{
+                  alignSelf: 'flex-start',
+                  marginTop: '2px',
+                  background: '#0F172A',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '5px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                새 계정으로 간편 회원가입 →
+              </button>
+            )}
           </div>
         )}
 

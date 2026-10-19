@@ -203,12 +203,28 @@ export default function App() {
     }
   }, []);
 
-  // 로그인 성공 처리
-  const handleLoginSuccess = (loggedInUser) => {
+  // 안내 토스트(Toast) 메시지 상태
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToastMessage({ message, type });
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4000);
+  };
+
+  // 로그인 성공 처리 (신규 가입 / 기존 로그인 명확한 피드백 제공)
+  const handleLoginSuccess = (loggedInUser, meta = {}) => {
     setUser(loggedInUser);
     saveUser(loggedInUser);
     syncUserProfile(loggedInUser);
     setCurrentView('dashboard');
+
+    if (meta.isNewUser) {
+      showToast(`🎉 수장고에 오신 것을 환영합니다! ${loggedInUser.name || '작가'}님의 회원가입이 완료되었습니다.`);
+    } else {
+      showToast(`✨ 다시 오신 것을 환영합니다, ${loggedInUser.name || '작가'}님! 기존 계정으로 로그인되었습니다.`);
+    }
   };
 
   // 로그아웃 처리: 모든 개인 세션 및 둘러보기 상태 완전 초기화 ➔ 무조건 서비스 소개 랜딩 페이지로 복귀
@@ -220,6 +236,7 @@ export default function App() {
       window.history.pushState(null, '', window.location.pathname);
     }
     setCurrentView('landing');
+    showToast('안전하게 로그아웃되었습니다.', 'info');
   };
 
   // 네비게이션 함수 (비로그인 접근 차단 로그인 월 적용 및 특정 작품 ID 연동)
@@ -279,6 +296,33 @@ export default function App() {
         onOpenPricing={() => setIsPricingModalOpen(true)}
         onOpenSideMenu={() => setIsSideMenuOpen(true)}
       />
+
+      {/* 🚀 상단 플로팅 안내 토스트 (로그인/회원가입/로그아웃 명확한 피드백) */}
+      {toastMessage && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: '72px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            background: '#0F172A',
+            color: '#FFFFFF',
+            padding: '0.65rem 1.25rem',
+            borderRadius: '999px',
+            boxShadow: '0 12px 28px -4px rgba(15, 23, 42, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '0.86rem',
+            fontWeight: 600,
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            pointerEvents: 'none'
+          }}
+        >
+          <span>{toastMessage.message}</span>
+        </div>
+      )}
 
       {/* 메인 뷰 컨테이너 */}
       <main className="artflow-main">
