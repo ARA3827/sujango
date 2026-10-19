@@ -537,7 +537,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
             <div className="panel-card-title" style={{ flexWrap: 'wrap', gap: '8px' }}>
               <div>
                 <span>
-                  {activeTab === 'statement' && '미술평론풍 정통 작가노트'}
+                  {activeTab === 'statement' && '미술평론풍 작가노트'}
                   {activeTab === 'insta' && '인스타그램 감성 피드 & 태그'}
                   {activeTab === 'blog' && '블로그 작업실 비하인드 스토리'}
                 </span>

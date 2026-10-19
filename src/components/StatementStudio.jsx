@@ -18,11 +18,29 @@ import {
 import confetti from 'canvas-confetti';
 import { saveSingleArtwork } from '../utils/archiveStorage';
 import { compressImage } from '../utils/imageCompressor';
+import { getUserScopedKey } from '../utils/authStorage';
 
 export default function StatementStudio({ onBack, user = null, onNavigateToArchive }) {
   const [activeTab, setActiveTab] = useState('statement'); // 'statement' | 'insta' | 'blog'
   const [copied, setCopied] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false); // 직접 수정 모드 토글
+
+  // 3번: 마지막으로 사용한 재료 복원 (초기값)
+  const getLastMedium = () => {
+    try {
+      const key = getUserScopedKey('sujango_last_medium', user);
+      const saved = localStorage.getItem(key);
+      if (saved) return saved;
+      return '지본채색'; // 누나의 단골 기법
+    } catch (e) {
+      return '지본채색';
+    }
+  };
+
+  // 2번: 크기 단위 및 가로/세로 숫자 전용 상태
+  const [sizeUnit, setSizeUnit] = useState('cm'); // 'cm' | 'inch' | 'direct'
+  const [sizeW, setSizeW] = useState('');
+  const [sizeH, setSizeH] = useState('');
 
   // 사진 상태
   const [artworkImage, setArtworkImage] = useState('');
@@ -36,13 +54,53 @@ export default function StatementStudio({ onBack, user = null, onNavigateToArchi
     title: '',
     artist: user?.name || '작가',
     year: new Date().getFullYear().toString(),
-    medium: '',
+    medium: getLastMedium(),
     size: '',
     price: '',
     isNfs: false,
     keywords: '',
     inspiration: ''
   });
+
+  // 크기 업데이트 함수 (숫자만 입력받아 자동으로 'W × H cm/inch' 포맷 완성)
+  const updateDimension = (w, h, unit) => {
+    setSizeW(w);
+    setSizeH(h);
+    if (unit === 'direct') return;
+    if (w.trim() && h.trim()) {
+      setArtwork(prev => ({ ...prev, size: `${w.trim()} × ${h.trim()} ${unit}` }));
+    } else if (w.trim() || h.trim()) {
+      setArtwork(prev => ({ ...prev, size: `${w.trim() || h.trim()} ${unit}` }));
+    } else {
+      setArtwork(prev => ({ ...prev, size: '' }));
+    }
+  };
+
+  const handleSizeWChange = (val) => {
+    const cleaned = val.replace(/[^0-9.]/g, '');
+    updateDimension(cleaned, sizeH, sizeUnit);
+  };
+
+  const handleSizeHChange = (val) => {
+    const cleaned = val.replace(/[^0-9.]/g, '');
+    updateDimension(sizeW, cleaned, sizeUnit);
+  };
+
+  const handleUnitChange = (newUnit) => {
+    setSizeUnit(newUnit);
+    if (newUnit !== 'direct') {
+      updateDimension(sizeW, sizeH, newUnit);
+    }
+  };
+
+  // 재료 변경 및 로컬 스토리지 실시간 영구 보관
+  const handleMediumChange = (val) => {
+    setArtwork(prev => ({ ...prev, medium: val }));
+    try {
+      const key = getUserScopedKey('sujango_last_medium', user);
+      localStorage.setItem(key, val);
+    } catch (e) {}
+  };
 
   // AI 생성 결과물 상태
   const [results, setResults] = useState({
@@ -399,9 +457,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             </div>
           </div>
 
-          {/* 제작 연도 & 크기 */}
+          {/* 제작 연도 & 크기 (2번 요구사항: 숫자만 입력 + cm/inch 선택) */}
           <div className="form-row" style={{ gap: '12px' }}>
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group" style={{ marginBottom: 0, width: '130px', flex: 'none' }}>
               <label className="form-label">제작 연도</label>
               <input 
                 type="text" 
@@ -410,28 +468,138 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                 onChange={(e) => setArtwork({...artwork, year: e.target.value})}
               />
             </div>
-            <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label">크기 / 호수</label>
-              <input 
-                type="text" 
-                className="form-input" 
-                placeholder="예: 53.0 × 45.5 cm (10F)"
-                value={artwork.size}
-                onChange={(e) => setArtwork({...artwork, size: e.target.value})}
-              />
+            <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                <label className="form-label" style={{ margin: 0 }}>크기 / 규격</label>
+                {/* cm / inch / 직접입력 단위 토글 버튼 */}
+                <div style={{ display: 'flex', gap: '2px', background: '#F1F5F9', padding: '2px', borderRadius: '5px' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleUnitChange('cm')}
+                    style={{
+                      border: 'none',
+                      background: sizeUnit === 'cm' ? '#FFFFFF' : 'transparent',
+                      color: sizeUnit === 'cm' ? '#0F172A' : '#64748B',
+                      fontWeight: sizeUnit === 'cm' ? 700 : 500,
+                      fontSize: '0.72rem',
+                      padding: '1px 6px',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      boxShadow: sizeUnit === 'cm' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                    }}
+                  >
+                    cm
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleUnitChange('inch')}
+                    style={{
+                      border: 'none',
+                      background: sizeUnit === 'inch' ? '#FFFFFF' : 'transparent',
+                      color: sizeUnit === 'inch' ? '#0F172A' : '#64748B',
+                      fontWeight: sizeUnit === 'inch' ? 700 : 500,
+                      fontSize: '0.72rem',
+                      padding: '1px 6px',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      boxShadow: sizeUnit === 'inch' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                    }}
+                  >
+                    inch
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleUnitChange('direct')}
+                    style={{
+                      border: 'none',
+                      background: sizeUnit === 'direct' ? '#FFFFFF' : 'transparent',
+                      color: sizeUnit === 'direct' ? '#0F172A' : '#64748B',
+                      fontWeight: sizeUnit === 'direct' ? 700 : 500,
+                      fontSize: '0.72rem',
+                      padding: '1px 6px',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      boxShadow: sizeUnit === 'direct' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                    }}
+                  >
+                    직접입력
+                  </button>
+                </div>
+              </div>
+
+              {sizeUnit !== 'direct' ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <input 
+                    type="text" 
+                    inputMode="decimal"
+                    className="form-input" 
+                    placeholder="가로" 
+                    value={sizeW}
+                    onChange={(e) => handleSizeWChange(e.target.value)}
+                    style={{ textAlign: 'center', fontWeight: 600 }}
+                  />
+                  <span style={{ color: '#94A3B8', fontWeight: 700, fontSize: '0.9rem' }}>×</span>
+                  <input 
+                    type="text" 
+                    inputMode="decimal"
+                    className="form-input" 
+                    placeholder="세로" 
+                    value={sizeH}
+                    onChange={(e) => handleSizeHChange(e.target.value)}
+                    style={{ textAlign: 'center', fontWeight: 600 }}
+                  />
+                  <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#475569', minWidth: '28px' }}>
+                    {sizeUnit}
+                  </span>
+                </div>
+              ) : (
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  placeholder="예: 53.0 × 45.5 cm (10F) 또는 자유 입력"
+                  value={artwork.size}
+                  onChange={(e) => setArtwork({...artwork, size: e.target.value})}
+                />
+              )}
             </div>
           </div>
 
-          {/* 재료 및 기법 */}
+          {/* 재료 및 기법 (3번 요구사항: 마지막 입력값 자동 유지 & 단골 재료 원클릭 칩) */}
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">재료 및 기법 (Medium)</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+              <label className="form-label" style={{ margin: 0 }}>재료 및 기법 (Medium)</label>
+              <span style={{ fontSize: '0.72rem', color: '#0284C7', fontWeight: 600 }}>💡 마지막 내용 자동 유지</span>
+            </div>
             <input 
               type="text" 
               className="form-input" 
-              placeholder="예: 캔버스에 유채, 혼합재료 (Oil and mixed media on canvas)"
+              placeholder="예: 캔버스에 유채, 지본채색, 혼합재료"
               value={artwork.medium}
-              onChange={(e) => setArtwork({...artwork, medium: e.target.value})}
+              onChange={(e) => handleMediumChange(e.target.value)}
             />
+            {/* 단골 재료 원클릭 칩 */}
+            <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginTop: '6px' }}>
+              {['지본채색', '캔버스에 유채', '한지에 수묵채색', '장지에 채색', '아크릴 및 혼합재료'].map((mat) => (
+                <button
+                  key={mat}
+                  type="button"
+                  onClick={() => handleMediumChange(mat)}
+                  style={{
+                    border: artwork.medium === mat ? '1px solid #0284C7' : '1px solid #E2E8F0',
+                    background: artwork.medium === mat ? '#F0F9FF' : '#F8FAFC',
+                    color: artwork.medium === mat ? '#0369A1' : '#64748B',
+                    fontSize: '0.73rem',
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    cursor: 'pointer',
+                    fontWeight: artwork.medium === mat ? 700 : 500,
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {mat}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* 작품 가격 & 비매품 */}
@@ -539,7 +707,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
           <div className="panel-card-title" style={{ flexWrap: 'wrap', gap: '8px', marginBottom: '0.75rem' }}>
             <div>
               <span>
-                {activeTab === 'statement' && '미술평론풍 정통 작가노트'}
+                {activeTab === 'statement' && '미술평론풍 작가노트'}
                 {activeTab === 'insta' && '인스타그램 감성 캡션 & 해시태그'}
                 {activeTab === 'blog' && '블로그 / 뉴스레터 작업실 일기'}
               </span>
