@@ -103,10 +103,26 @@ export default function SideMenuDrawer({
               <button
                 type="button"
                 onClick={() => { onClose(); onLogout(); }}
-                style={{ border: 'none', background: 'transparent', color: '#94A3B8', cursor: 'pointer', fontSize: '0.76rem', padding: '4px 6px' }}
+                style={{ 
+                  border: '1px solid #E2E8F0', 
+                  background: '#FFFFFF', 
+                  color: '#64748B', 
+                  cursor: 'pointer', 
+                  fontSize: '0.78rem', 
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  fontWeight: 600,
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.borderColor = '#FECACA'; e.currentTarget.style.background = '#FEF2F2'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.background = '#FFFFFF'; }}
                 title="로그아웃"
               >
-                <LogOut size={14} />
+                <LogOut size={13} />
+                <span>로그아웃</span>
               </button>
             </div>
           ) : (
@@ -212,6 +228,34 @@ export default function SideMenuDrawer({
             </div>
             <ChevronRight size={16} color="#CBD5E1" />
           </button>
+
+          {/* 로그인 회원 전용 로그아웃 메뉴 */}
+          {user && (
+            <button
+              type="button"
+              onClick={() => { onClose(); onLogout(); }}
+              style={{ 
+                width: '100%', 
+                padding: '0.85rem 1.5rem', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between', 
+                border: 'none', 
+                background: 'transparent', 
+                cursor: 'pointer', 
+                textAlign: 'left', 
+                transition: 'background 0.15s ease' 
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#FEF2F2'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <LogOut size={18} color="#EF4444" />
+                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#EF4444' }}>로그아웃</span>
+              </div>
+              <ChevronRight size={16} color="#FCA5A5" />
+            </button>
+          )}
 
           <div style={{ borderTop: '1px solid #F1F5F9', margin: '0.75rem 1.5rem' }} />
 

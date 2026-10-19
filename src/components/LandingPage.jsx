@@ -77,23 +77,6 @@ export default function LandingPage({
                   수장고 시작하기
                 </button>
               )}
-              <button 
-                onClick={onNavigateToGuide} 
-                className="btn-outline" 
-                style={{ 
-                  padding: '0.82rem 1.4rem', 
-                  borderRadius: '12px', 
-                  fontSize: '0.92rem', 
-                  fontWeight: 600,
-                  background: '#FFFFFF',
-                  borderColor: '#CBD5E1',
-                  color: '#334155',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
-                  cursor: 'pointer'
-                }}
-              >
-                수장고 이용안내 둘러보기 →
-              </button>
             </div>
           </div>
         </div>

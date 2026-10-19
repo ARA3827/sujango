@@ -88,8 +88,8 @@ export default function Header({
         {/* 3. 우측 사용자 컨트롤 & 상태 표시 */}
         <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           
-          {/* 2-Depth 세부 작업공간에서 대시보드 복귀 버튼 (로그인 회원 전용) */}
-          {user && currentView !== 'dashboard' && (
+          {/* 2-Depth 세부 작업공간에서 대시보드 복귀 버튼 (로그인 회원 전용, 메인 랜딩/대시보드 제외) */}
+          {user && currentView !== 'dashboard' && currentView !== 'landing' && (
             <button 
               onClick={() => onGoDashboard ? onGoDashboard() : onGoHome()}
               className="btn-outline"
@@ -114,7 +114,24 @@ export default function Header({
           {/* 로그인 상태에 따른 프로필 / 로그인 버튼 */}
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div className="user-profile-badge" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '0.3rem 0.65rem', borderRadius: '999px' }}>
+              <div 
+                className="user-profile-badge" 
+                onClick={() => onGoDashboard?.()}
+                role="button"
+                tabIndex={0}
+                title="내 수장고 대시보드로 이동"
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  background: '#F8FAFC', 
+                  border: '1px solid #E2E8F0', 
+                  padding: '0.3rem 0.65rem', 
+                  borderRadius: '999px',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s ease'
+                }}
+              >
                 <div className="user-avatar-circle" style={{ width: '26px', height: '26px', borderRadius: '50%', background: '#0F172A', color: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.78rem', fontWeight: 700, overflow: 'hidden' }}>
                   {user.avatarUrl ? (
                     <img 
@@ -132,15 +149,6 @@ export default function Header({
                   <span className="user-role" style={{ fontSize: '0.7rem', color: '#64748B' }}>{user.membership || (user.isPro ? 'Pro' : 'Free')}</span>
                 </div>
               </div>
-              <button 
-                onClick={onLogout}
-                className="btn-outline"
-                style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem', color: '#64748B', borderColor: '#E2E8F0', background: '#FFFFFF' }}
-                title="로그아웃"
-              >
-                <LogOut size={13} />
-                <span className="hide-mobile">로그아웃</span>
-              </button>
             </div>
           ) : (
             <button 
