@@ -65,7 +65,7 @@ export default function Dashboard({
       icon: <Sparkles size={22} style={{ color: '#059669' }} />,
       badge: user ? `✨ ${inspoCount}개 보관` : '✨ 샘플 2개',
       badgeStyle: { background: '#F0FDFA', color: '#0F766E', border: '1px solid #CCFBF1' },
-      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 아카이빙하고 카카오톡 대화를 깔끔하게 정리하여 가져옵니다.',
+      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 단정하게 아카이빙하고 창작의 씨앗으로 보관합니다.',
       actionText: '영감 노트 열기'
     },
     {

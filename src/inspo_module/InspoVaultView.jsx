@@ -18,30 +18,7 @@ import {
 import confetti from 'canvas-confetti';
 import { INITIAL_QUOTES } from './data/initialQuotes';
 import { formatSentenceBreak } from './utils/textFormatter';
-import { KakaoSheet } from './components/KakaoSheet';
 import './inspo_styles.css';
-
-// 카카오톡 공식 브랜드 심볼 SVG 아이콘
-function KakaoSymbol({ size = 18 }) {
-  return (
-    <svg 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ flexShrink: 0 }}
-    >
-      <circle cx="12" cy="12" r="11" fill="#FEE500" />
-      <path 
-        fillRule="evenodd" 
-        clipRule="evenodd" 
-        d="M12 5.8C8.47 5.8 5.6 7.95 5.6 10.6C5.6 12.28 6.7 13.76 8.4 14.58L7.73 17.1C7.65 17.39 7.99 17.61 8.24 17.45L11.25 15.44C11.5 15.46 11.75 15.47 12 15.47C15.53 15.47 18.4 13.32 18.4 10.67C18.4 8.02 15.53 5.8 12 5.8Z" 
-        fill="#3C1E1E" 
-      />
-    </svg>
-  );
-}
 
 import { getUserScopedKey } from '../utils/authStorage';
 
@@ -86,7 +63,6 @@ export function InspoVaultView({ onBack, user = null }) {
 
   // 4. 모달 상태
   const [selectedQuote, setSelectedQuote] = useState(null);
-  const [isKakaoSheetOpen, setIsKakaoSheetOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
 
   // 카테고리별 개수 산출
@@ -193,11 +169,6 @@ export function InspoVaultView({ onBack, user = null }) {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // 카카오톡 일괄 등록
-  const handleImportBatch = (items) => {
-    setQuotes((prev) => [...items, ...prev]);
-  };
-
   const getCategoryLabel = (cat) => {
     switch (cat) {
       case 'book': return '책';
@@ -215,42 +186,12 @@ export function InspoVaultView({ onBack, user = null }) {
         <button onClick={onBack} className="back-btn">
           ← 전체 도구 목록으로
         </button>
-        <button
-          type="button"
-          onClick={() => setIsKakaoSheetOpen(true)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '7px',
-            backgroundColor: '#FEE500',
-            border: '1px solid #E6CF00',
-            borderRadius: '6px',
-            padding: '7px 15px',
-            fontSize: '13px',
-            fontWeight: '700',
-            color: '#3C1E1E',
-            cursor: 'pointer',
-            boxShadow: '0 1px 2px rgba(60, 30, 30, 0.08)',
-            transition: 'all 0.15s ease'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = '#FDD835';
-            e.currentTarget.style.borderColor = '#D6B800';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = '#FEE500';
-            e.currentTarget.style.borderColor = '#E6CF00';
-          }}
-        >
-          <KakaoSymbol size={18} />
-          <span>카톡 대화 불러오기</span>
-        </button>
       </div>
 
       {/* 2. 타이틀 영역 */}
       <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
         <h2>영감 노트</h2>
-        <p>책, 영화, 일상에서 마주친 생각과 문장을 차곡차곡 기록하고, 카카오톡 메모도 간편하게 가져오세요.</p>
+        <p>책, 영화, 드라마, 일상에서 마주친 깊은 생각과 영감의 문장을 품격 있게 기록하세요.</p>
       </div>
 
       {/* 3. 데스크톱 2열 표준 워크스페이스 그리드 */}
@@ -665,15 +606,6 @@ export function InspoVaultView({ onBack, user = null }) {
         </div>
       )}
 
-      {/* ========================================================
-          5. 💬 카카오톡 연동 시트 모달
-         ======================================================== */}
-      {isKakaoSheetOpen && (
-        <KakaoSheet
-          onClose={() => setIsKakaoSheetOpen(false)}
-          onImportBatch={handleImportBatch}
-        />
-      )}
     </div>
   );
 }
