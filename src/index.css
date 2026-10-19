@@ -1269,15 +1269,25 @@ input, select, textarea {
   color: #0F172A;
 }
 
-.print-official-doc-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-  padding-top: 10px;
-  border-top: 1px dashed #CBD5E1;
+/* 서류 스튜디오 공식 머릿글 & 바닥글 */
+.print-official-doc-header {
+  text-align: center;
   font-size: 0.78rem;
   color: #64748B;
+  letter-spacing: -0.2px;
+  margin-bottom: 22px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #E2E8F0;
+}
+
+.print-official-doc-footer {
+  text-align: center;
+  margin-top: 22px;
+  padding-top: 10px;
+  border-top: 1px dashed #E2E8F0;
+  font-size: 0.78rem;
+  color: #64748B;
+  letter-spacing: -0.2px;
 }
 
 /* ===================================================================
@@ -1286,7 +1296,7 @@ input, select, textarea {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 14mm 15mm 14mm 15mm;
+    margin: 12mm 15mm 14mm 15mm;
   }
 
   /* 입력 폼, 헤더, 푸터, 네비게이션 버튼 등 불필요한 UI 전면 숨김 */
@@ -1323,11 +1333,9 @@ input, select, textarea {
     padding: 0 !important;
     margin: 0 auto !important;
     background: transparent !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
   }
 
-  /* 1. 서류·출강 스튜디오 A4 문서 본문 공문서 규격 최적화 (1장 맞춤) */
+  /* 1. 서류·출강 스튜디오 A4 문서 본문 공문서 규격 최적화 */
   .print-document-sheet,
   .output-box {
     border: none !important;
@@ -1345,20 +1353,32 @@ input, select, textarea {
     margin: 0 auto !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
   }
 
-  .print-official-doc-footer {
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    margin-top: 18px !important;
-    padding-top: 10px !important;
-    border-top: 1.5px solid #111827 !important;
+  /* 상단 머릿글: 중앙 정렬 & 본문 타이틀과의 넉넉한 간격 */
+  .print-official-doc-header {
+    display: block !important;
+    text-align: center !important;
     font-size: 8.5pt !important;
-    color: #4B5563 !important;
+    color: #64748B !important;
     letter-spacing: -0.2px !important;
+    margin-bottom: 28px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 0.75pt solid #CBD5E1 !important;
+  }
+
+  /* 하단 바닥글: 중앙 정렬 & 단정하고 깔끔한 마무리 */
+  .print-official-doc-footer {
+    display: block !important;
+    text-align: center !important;
+    margin-top: 22px !important;
+    padding-top: 10px !important;
+    border-top: 0.75pt solid #CBD5E1 !important;
+    font-size: 8.5pt !important;
+    color: #64748B !important;
+    letter-spacing: -0.2px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   /* 2. 전시 캡션 출력기 A4 용지 규격 인쇄 스타일 */

@@ -77,8 +77,7 @@ ${curriculum}
 • 기관/수강생 준비: 캔버스, 기본 붓 세트, 물통, 앞치마
 • 안전 수칙: 환기 시설 확보, 유화 테레핀/페트롤 사용 시 폐액 밀폐 처리 준수
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-작성일: ${new Date().toLocaleDateString('ko-KR')} / 작성자: ${lectureForm.instructorName}
-Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고`;
+작성일: ${new Date().toLocaleDateString('ko-KR')} / 작성자: ${lectureForm.instructorName}`;
 
     setLectureResult(docText);
     triggerConfetti();
@@ -106,8 +105,7 @@ ${cvForm.awards.trim()}
 [작품 소장 및 레지던시 (Collections & Residencies)]
 ${cvForm.collections.trim()}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-* 한국미술협회 및 주요 국공립 미술관 표준 심사 포맷 적용됨
-Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고`;
+* 한국미술협회 및 주요 국공립 미술관 표준 심사 포맷 적용됨`;
 
     setCvResult(cvText);
     triggerConfetti();
@@ -151,8 +149,7 @@ Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고`;
 [특이사항 및 비고]
 • ${invoiceForm.notes}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-위와 같이 성실히 작업을 수행함을 확인하며 견적/청구합니다.
-Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고`;
+위와 같이 성실히 작업을 수행함을 확인하며 견적/청구합니다.`;
 
     setInvoiceResult(invoiceText);
     triggerConfetti();
@@ -411,10 +408,12 @@ Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고`;
 
             {lectureResult ? (
               <div className="output-box print-document-sheet">
+                <div className="print-official-doc-header">
+                  Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
+                </div>
                 <div>{lectureResult}</div>
                 <div className="print-official-doc-footer">
-                  <strong>Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고</strong>
-                  <span>공식 공문서 표준 양식</span>
+                  Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
                 </div>
               </div>
             ) : (
@@ -516,10 +515,12 @@ Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고`;
 
             {cvResult ? (
               <div className="output-box print-document-sheet">
+                <div className="print-official-doc-header">
+                  Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
+                </div>
                 <div>{cvResult}</div>
                 <div className="print-official-doc-footer">
-                  <strong>Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고</strong>
-                  <span>공식 공문서 표준 양식</span>
+                  Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
                 </div>
               </div>
             ) : (
@@ -625,10 +626,12 @@ Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고`;
 
             {invoiceResult ? (
               <div className="output-box print-document-sheet">
+                <div className="print-official-doc-header">
+                  Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
+                </div>
                 <div>{invoiceResult}</div>
                 <div className="print-official-doc-footer">
-                  <strong>Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고</strong>
-                  <span>공식 공문서 표준 양식</span>
+                  Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
                 </div>
               </div>
             ) : (
