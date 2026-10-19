@@ -266,30 +266,49 @@ export default function ShortcutModal({ isOpen, onClose, installPrompt }) {
 
           {/* 3. PC 윈도우/맥 가이드 & 원클릭 파일 다운로드 */}
           {activeTab === 'pc' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
-              <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                <div>
-                  <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0F172A' }}>
-                    바탕화면 바로가기 파일 받기 (.url)
-                  </div>
-                  <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '2px' }}>
-                    다운로드 후 바탕화면에 끌어다 놓으시면 원클릭으로 열립니다.
-                  </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              
+              {/* 추천 1: 주소창 드래그 앤 드롭 (가장 쉽고 오류 없음) */}
+              <div style={{ background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '12px', padding: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.88rem', fontWeight: 700, color: '#0369A1', marginBottom: '6px' }}>
+                  <Sparkles size={16} /> 추천: 주소창 아이콘 끌어다 놓기
                 </div>
-                <button
-                  type="button"
-                  onClick={handleDownloadWindowsShortcut}
-                  className="btn-outline"
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', padding: '0.5rem 0.85rem', flexShrink: 0, background: '#FFFFFF', borderColor: '#CBD5E1', color: '#0F172A', fontWeight: 600 }}
-                >
-                  <Download size={14} /> 바로가기 다운
-                </button>
+                <div style={{ fontSize: '0.84rem', color: '#0C4A6E', lineHeight: 1.55 }}>
+                  브라우저 상단 주소창 맨 왼쪽의 <strong>자물쇠(🔒) 또는 설정 아이콘</strong>을 마우스로 꾹 누른 상태에서 <strong>바탕화면 빈 곳으로 끌어다 놓으시면</strong> 바로가기 아이콘이 즉시 완성됩니다!
+                </div>
               </div>
 
-              <div style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.6 }}>
-                <strong>크롬(Chrome) 및 엣지(Edge) 브라우저 이용 시:</strong><br />
-                주소창 오른쪽 끝에 나타나는 <strong>[앱 설치 아이콘(⊕)]</strong>을 누르시면 작업표시줄과 바탕화면에 독립 실행형 앱으로 등록됩니다.
+              {/* 추천 2: 크롬/엣지 공식 바로가기 만들기 */}
+              <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1rem' }}>
+                <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0F172A', marginBottom: '6px' }}>
+                  크롬 / 엣지 브라우저 메뉴로 만들기
+                </div>
+                <div style={{ fontSize: '0.82rem', color: '#475569', lineHeight: 1.55 }}>
+                  브라우저 오른쪽 상단 <strong>더보기 (점 3개 ⋮)</strong> ➔ <strong>[저장 및 공유]</strong> ➔ <strong>[바로가기 만들기]</strong>를 누르시면 바탕화면에 전용 수장고 아이콘이 쏙 들어갑니다.
+                </div>
               </div>
+
+              {/* 방법 3: 파일 다운로드 방식 & 앱 선택 팁 */}
+              <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0F172A' }}>
+                    바로가기 파일 받기 (.url)
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleDownloadWindowsShortcut}
+                    className="btn-outline"
+                    style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem', padding: '0.4rem 0.75rem', background: '#FFFFFF', borderColor: '#CBD5E1', color: '#0F172A', fontWeight: 600 }}
+                  >
+                    <Download size={13} /> 파일 다운
+                  </button>
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#64748B', lineHeight: 1.5, background: '#F8FAFC', padding: '8px 10px', borderRadius: '6px' }}>
+                  💡 <strong>'열 앱을 선택하세요' 창이 뜰 때:</strong><br />
+                  목록에서 <strong>Chrome</strong> 또는 <strong>Edge</strong>를 누르신 후, <strong>[항상]</strong>을 선택하시면 다음부터 클릭 시 바로 열립니다.
+                </div>
+              </div>
+
             </div>
           )}
         </div>
