@@ -486,42 +486,25 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             />
           </div>
 
-          {/* 좌측 액션 버튼군 (원클릭 등록 최우선) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '0.75rem' }}>
-            {/* 1순위 메인 버튼: AI 글 생성 & 수장고 즉시 등록 */}
+          {/* 좌측 액션 버튼: AI 작가노트 생성 & 바로 등록 나란히 배치 */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '1rem' }}>
             <button 
               type="button"
-              className="btn-action-main" 
-              onClick={handleGenerateAndSaveToArchive} 
-              disabled={isSaving}
+              className="btn-action-generate" 
+              onClick={handleGenerate} 
+              title="우측 화면에 미학 평론 작가노트와 SNS 글을 생성합니다"
             >
-              <Sparkles size={18} color="#38BDF8" /> 
-              <span>{isSaving ? '수장고에 등록 중...' : '🎨 AI 작가노트 생성 & 수장고 등록하기 →'}</span>
+              <Sparkles size={15} color="#A855F7" /> AI 작가노트 생성
             </button>
-            <div style={{ fontSize: '0.78rem', color: '#64748B', textAlign: 'center' }}>
-              💡 클릭 즉시 AI가 글 3종을 완성하여 작가님의 수장고에 안전하게 보관합니다.
-            </div>
-
-            {/* 2순위: AI 작가노트 생성 & 바로 등록 나란히 배치 */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '4px' }}>
-              <button 
-                type="button"
-                className="btn-action-generate" 
-                onClick={handleGenerate} 
-                title="우측 화면에 미학 평론 작가노트와 SNS 글을 생성합니다"
-              >
-                <Sparkles size={14} color="#A855F7" /> AI 작가노트 생성
-              </button>
-              <button 
-                type="button"
-                className="btn-action-save-direct" 
-                onClick={handleSaveToArchive} 
-                disabled={isSaving}
-                title="AI 글 생성 없이 현재 입력한 사진과 작품 정보만 수장고에 등록합니다"
-              >
-                <Archive size={14} /> 바로 등록
-              </button>
-            </div>
+            <button 
+              type="button"
+              className="btn-action-save-direct" 
+              onClick={handleSaveToArchive} 
+              disabled={isSaving}
+              title="AI 글 생성 없이 현재 입력한 사진과 작품 정보만 수장고에 등록합니다"
+            >
+              <Archive size={15} /> 바로 등록
+            </button>
           </div>
         </div>
 
