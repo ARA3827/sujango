@@ -301,8 +301,8 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
 
       <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-          <span style={{ fontSize: '1.25rem' }}>🎨</span>
-          <h2 style={{ margin: 0 }}>AI 새 작품 등록 & 작가노트 스튜디오</h2>
+          <span style={{ fontSize: '1.25rem' }}>✍️</span>
+          <h2 style={{ margin: 0 }}>작가노트 & SNS 스튜디오</h2>
         </div>
         <p>
           작품 사진과 키워드 3개만 넣으세요. AI가 미술평론 작가노트, 전시 벽면 캡션, 인스타그램 피드 글을 동시에 생성하여 {user?.name || '작가'}님의 프라이빗 수장고에 완벽한 도록으로 등록해 드립니다.

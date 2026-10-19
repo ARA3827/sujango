@@ -60,28 +60,34 @@ export default function Dashboard({
   const tools = [
     {
       id: 'inspo',
-      title: '영감 노트',
+      title: '✨ 영감 노트',
       tag: '창작 영감 & 문장',
-      icon: <Sparkles size={22} style={{ color: '#059669' }} />,
+      icon: <Sparkles size={24} />,
+      iconBg: '#ECFDF5',
+      iconColor: '#059669',
       badge: user ? `✨ ${inspoCount}개 보관` : '✨ 샘플 2개',
       badgeStyle: { background: '#F0FDFA', color: '#0F766E', border: '1px solid #CCFBF1' },
-      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 단정하게 아카이빙하고 창작의 씨앗으로 보관합니다.',
+      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 단정하게 아카이빙하고 창작의 소중한 씨앗으로 안전하게 보관합니다.',
       actionText: '영감 노트 열기'
     },
     {
       id: 'statement',
-      title: 'AI 작가노트 & 새 작품 등록',
-      tag: 'AI 글 생성 & 수장고 보관',
-      icon: <PenTool size={22} />,
+      title: '✍️ 작가노트 & SNS',
+      tag: 'AI 글 생성',
+      icon: <PenTool size={24} />,
+      iconBg: '#FDF4FF',
+      iconColor: '#A855F7',
       badge: null,
-      desc: '작품 사진과 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션, 블로그 후기를 AI가 한 번에 완성하고 수장고에 등록합니다.',
-      actionText: '새 작품 등록 & 작가노트 쓰기'
+      desc: '작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그, 블로그 후기를 동시에 추출하고 직접 수정합니다.',
+      actionText: '작가노트 & SNS 쓰기'
     },
     {
       id: 'caption',
-      title: '전시 캡션 출력기',
+      title: '🏛️ 전시 캡션 출력기',
       tag: '전시 & 아트페어',
-      icon: <Tag size={22} />,
+      icon: <Tag size={24} />,
+      iconBg: '#F8FAFC',
+      iconColor: '#0F172A',
       badge: user ? `🏷️ ${captionCount}점 준비` : '🏷️ 샘플 2점',
       badgeStyle: { background: '#F8FAFC', color: '#334155', border: '1px solid #E2E8F0' },
       desc: '작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고, 자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.',
@@ -89,18 +95,22 @@ export default function Dashboard({
     },
     {
       id: 'doc',
-      title: '서류·출강 스튜디오',
+      title: '📄 서류·출강 스튜디오',
       tag: '행정 서류',
-      icon: <FileText size={22} />,
+      icon: <FileText size={24} />,
+      iconBg: '#F0FDF4',
+      iconColor: '#15803D',
       badge: null,
       desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 공문서 규격으로 자동 완성합니다.',
       actionText: '서류 작성하기'
     },
     {
       id: 'tax',
-      title: '창작 가계부',
+      title: '💰 창작 가계부',
       tag: '수입 & 지출 증빙',
-      icon: <Receipt size={22} />,
+      icon: <Receipt size={24} />,
+      iconBg: '#FFFBEB',
+      iconColor: '#D97706',
       badge: user && taxSummary.pendingAmount > 0 
         ? `💰 미수금 ${taxSummary.pendingAmount.toLocaleString()}원` 
         : '💰 정산 완료',
@@ -278,7 +288,18 @@ export default function Dashboard({
           >
             <div>
               <div className="tool-card-header">
-                <div className="tool-card-icon">{tool.icon}</div>
+                <div 
+                  className="tool-card-icon"
+                  style={{
+                    background: tool.iconBg || 'var(--bg-subtle)',
+                    color: tool.iconColor || 'var(--accent-black)',
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '12px'
+                  }}
+                >
+                  {tool.icon}
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                   <span className="tool-tag">{tool.tag}</span>
                   {tool.badge && (
