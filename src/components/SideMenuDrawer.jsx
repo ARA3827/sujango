@@ -233,33 +233,24 @@ export default function SideMenuDrawer({
 
           {/* 6. 이용약관 및 개인정보 처리방침 */}
           {onOpenPolicy && (
-            <div style={{ padding: '0 1.5rem', display: 'flex', gap: '12px' }}>
+            <div style={{ padding: '0.85rem 1.5rem 1.5rem 1.5rem', display: 'flex', gap: '12px', alignItems: 'center' }}>
               <button
                 type="button"
                 onClick={() => { onClose(); onOpenPolicy('terms'); }}
-                style={{ border: 'none', background: 'transparent', color: '#64748B', fontSize: '0.78rem', cursor: 'pointer', padding: 0 }}
+                style={{ border: 'none', background: 'transparent', color: '#94A3B8', fontSize: '0.78rem', cursor: 'pointer', padding: 0 }}
               >
                 이용약관
               </button>
-              <span style={{ color: '#CBD5E1' }}>•</span>
+              <span style={{ color: '#E2E8F0' }}>•</span>
               <button
                 type="button"
                 onClick={() => { onClose(); onOpenPolicy('privacy'); }}
-                style={{ border: 'none', background: 'transparent', color: '#64748B', fontSize: '0.78rem', cursor: 'pointer', padding: 0 }}
+                style={{ border: 'none', background: 'transparent', color: '#94A3B8', fontSize: '0.78rem', cursor: 'pointer', padding: 0 }}
               >
                 개인정보처리방침
               </button>
             </div>
           )}
-        </div>
-
-        {/* 드로어 하단 푸터 (사업자 정보 & 문의 이메일) */}
-        <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid #E2E8F0', background: '#F8FAFC', fontSize: '0.76rem', color: '#64748B', lineHeight: 1.5 }}>
-          <div style={{ fontWeight: 600, color: '#0F172A', marginBottom: '2px' }}>Ara Agent Lab (김아라)</div>
-          <div>문의: support@araagentlab.com</div>
-          <div style={{ color: '#94A3B8', marginTop: '4px', fontSize: '0.7rem' }}>
-            ArtFlow Workstation • 고유 포트 5198
-          </div>
         </div>
       </div>
     </div>

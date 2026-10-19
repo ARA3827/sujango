@@ -198,9 +198,16 @@ export default function InfoModal({ isOpen, onClose, initialTab = 'about', onOpe
           {activeTab === 'faq' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem', color: '#334155', lineHeight: 1.6, fontSize: '0.88rem' }}>
               <div>
+                <strong style={{ color: '#0F172A' }}>Q. 등록한 작품 이미지는 어떤 기술 방식으로 보관되며 안전한가요?</strong>
+                <p style={{ margin: '3px 0 0 0', color: '#64748B', fontSize: '0.84rem' }}>
+                  글로벌 표준 클라우드 암호화 전송(SSL 256-bit) 및 최적화 분산 저장소 체계로 안전하게 보관됩니다. 타인에게 무단 공개되지 않으며, 만료 기한이 있는 보안 링크로만 전달됩니다. 단, 만약의 통신·기기 장애에 대비해 가장 소중한 마스터 원본 파일은 개인 외장하드나 로컬 드라이브에도 이중 보관(분산 백업)하시는 것을 권장합니다.
+                </p>
+              </div>
+
+              <div>
                 <strong style={{ color: '#0F172A' }}>Q. 업로드한 제 작품의 저작권은 누구에게 있나요?</strong>
                 <p style={{ margin: '3px 0 0 0', color: '#64748B', fontSize: '0.84rem' }}>
-                  <strong>100% 작가 본인에게 귀속됩니다.</strong> 수장고는 작가님의 작품 이미지를 외부 AI 학습이나 상업적 용도로 일절 사용하지 않으며 프라이빗 데이터 주권을 철저히 지킵니다.
+                  <strong>작가 본인에게 온전히 귀속됩니다.</strong> 수장고는 작가님의 작품 이미지를 외부 AI 학습이나 상업적 용도로 일절 사용하지 않으며 프라이빗 데이터 주권을 철저히 지킵니다.
                 </p>
               </div>
 
@@ -214,7 +221,7 @@ export default function InfoModal({ isOpen, onClose, initialTab = 'about', onOpe
               <div>
                 <strong style={{ color: '#0F172A' }}>Q. 보안 링크의 유효기간이 왜 7일인가요?</strong>
                 <p style={{ margin: '3px 0 0 0', color: '#64748B', fontSize: '0.84rem' }}>
-                  시안 유출과 무단 전재를 차단하기 위한 예술계 표준 보호 조치입니다. 검토 기간이 지나면 링크가 자동 무효화되어 외부 유출 걱정이 없습니다.
+                  시안 유출과 무단 전재를 차단하기 위한 예술계 표준 보호 조치입니다. 검토 기간이 지나면 링크가 자동 무효화되어 외부 유출 걱정 없이 안심하고 검토를 요청하실 수 있습니다.
                 </p>
               </div>
             </div>

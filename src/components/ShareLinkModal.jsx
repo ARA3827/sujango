@@ -91,7 +91,7 @@ export default function ShareLinkModal({ isOpen, onClose, artwork, user }) {
               클라이언트 전용 보안 공유 링크 생성
             </h3>
             <p style={{ fontSize: '0.84rem', color: '#64748B', marginTop: '4px', marginBottom: 0 }}>
-              고화질 원본은 절대 노출되지 않으며, <strong>워터마크가 합성된 1080px 안전 시안</strong>만 일정 기간 열람할 수 있는 프라이빗 링크를 발급합니다.
+              고화질 원본은 외부에 노출되지 않으며, <strong>워터마크가 합성된 1080px 안전 시안</strong>만 일정 기간 열람할 수 있는 프라이빗 링크를 발급합니다.
             </p>
           </div>
           <button onClick={onClose} className="modal-close-btn">
