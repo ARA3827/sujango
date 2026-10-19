@@ -155,7 +155,7 @@ export default function Dashboard({
               onClick={() => onSelectView('statement')} 
               className="btn-outline"
               style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', gap: '5px' }}
-              title="AI 작가노트 생성과 함께 새 작품을 수장고에 등록합니다"
+              title="새 작품 등록 및 작가노트 작성을 시작합니다"
             >
               <Plus size={14} /> 새 작품 등록
             </button>

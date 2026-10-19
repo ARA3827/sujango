@@ -847,11 +847,14 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
               <div className="output-box" style={{ color: '#9CA3AF', textAlign: 'center', padding: '4.5rem 1.5rem', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Sparkles size={36} color="#CBD5E1" style={{ marginBottom: '12px' }} />
                 <h4 style={{ fontSize: '1.05rem', color: '#475569', margin: '0 0 8px 0', fontWeight: 600 }}>
-                  아직 생성된 작가노트가 없습니다
+                  아직 작성된 작가노트가 없습니다
                 </h4>
-                <p style={{ fontSize: '0.88rem', color: '#64748B', maxWidth: '380px', lineHeight: 1.6, margin: 0 }}>
-                  좌측에 작품 제목과 키워드 3개를 입력한 후<br />
-                  <strong>[✨ AI 작가노트 생성]</strong>을 누르시면 평론풍 작가노트, 인스타 캡션, 블로그 글이 한 번에 완성됩니다.
+                <p style={{ fontSize: '0.88rem', color: '#64748B', maxWidth: '420px', lineHeight: 1.6, margin: 0 }}>
+                  좌측에 작품 정보를 입력한 후<br />
+                  <strong style={{ color: '#0284C7' }}>[✨ AI 초안 생성]</strong>을 누르시면 미술평론풍 작가노트, 인스타 캡션, 블로그 글이 함께 완성됩니다.<br />
+                  <span style={{ display: 'inline-block', marginTop: '8px', fontSize: '0.82rem', color: '#94A3B8' }}>
+                    (직접 작성하신 글이 있다면 <strong style={{ color: '#0F172A' }}>[📁 내 글 바로 등록]</strong>으로 수장고에 즉시 보관하실 수 있습니다.)
+                  </span>
                 </p>
               </div>
             )}
