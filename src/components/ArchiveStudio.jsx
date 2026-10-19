@@ -344,9 +344,9 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
             onClick={() => onNavigateToStatement ? onNavigateToStatement() : handleOpenAddModal()} 
             className="btn-primary" 
             style={{ width: 'auto', padding: '0.4rem 0.9rem', fontSize: '0.85rem' }}
-            title="AI 작가노트 생성과 함께 새 작품을 등록합니다"
+            title="새 작품을 수장고에 등록합니다"
           >
-            <Plus size={15} /> + 새 작품 등록 (AI 작가노트)
+            <Plus size={15} /> 새 작품 등록
           </button>
         </div>
       </div>
@@ -621,7 +621,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
             className="btn-primary" 
             style={{ width: 'auto', margin: '0 auto' }}
           >
-            <Plus size={16} /> + 첫 작품 등록하기 (AI 작가노트)
+            <Plus size={16} /> 첫 작품 등록하기
           </button>
         </div>
       )}
