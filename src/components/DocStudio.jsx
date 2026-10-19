@@ -236,13 +236,13 @@ ${cvForm.collections.trim()}
         </div>
       </div>
 
-      <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
+      <div className="workspace-title-area no-print" style={{ marginBottom: '1.5rem' }}>
         <h2>서류·출강 스튜디오</h2>
         <p>복잡한 행정 서류 양식 때문에 지치지 마세요. 기관과 미술관이 원하는 공문서 규격으로 단정하게 정리해 드립니다.</p>
       </div>
 
       {/* 내부 탭 내비게이션 */}
-      <div className="tab-nav">
+      <div className="tab-nav no-print">
         <button 
           className={`tab-btn ${activeTab === 'lecture' ? 'active' : ''}`}
           onClick={() => setActiveTab('lecture')}
@@ -269,7 +269,7 @@ ${cvForm.collections.trim()}
       {/* 1. 강의계획서 탭 */}
       {activeTab === 'lecture' && (
         <div className="workspace-grid">
-          <div className="panel-card">
+          <div className="panel-card no-print">
             <div className="panel-card-title">
               <span>강좌 정보 입력</span>
               <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 400 }}>교육청/문화재단 제출 규격</span>
@@ -395,13 +395,13 @@ ${cvForm.collections.trim()}
           </div>
 
           <div className="panel-card printable">
-            <div className="panel-card-title">
+            <div className="panel-card-title no-print">
               <span>완성된 강의계획서</span>
               {renderActionButtons(lectureResult, `${lectureForm.courseName || '강좌'}_강의계획서.txt`)}
             </div>
 
             {lectureResult ? (
-              <div className="output-box">{lectureResult}</div>
+              <div className="output-box print-document-sheet">{lectureResult}</div>
             ) : (
               <div className="output-box" style={{ color: '#9CA3AF', textAlign: 'center', padding: '3rem 1rem' }}>
                 좌측에서 강좌 정보를 확인한 후<br />
@@ -415,7 +415,7 @@ ${cvForm.collections.trim()}
       {/* 2. CV 약력 정리기 탭 */}
       {activeTab === 'cv' && (
         <div className="workspace-grid">
-          <div className="panel-card">
+          <div className="panel-card no-print">
             <div className="panel-card-title">
               <span>작가 이력 정보</span>
               <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 400 }}>최신순으로 줄바꿈 입력</span>
@@ -488,13 +488,13 @@ ${cvForm.collections.trim()}
           </div>
 
           <div className="panel-card printable">
-            <div className="panel-card-title">
+            <div className="panel-card-title no-print">
               <span>표준 작가 약력(CV) 출력본</span>
               {renderActionButtons(cvResult, `${cvForm.nameKo || '작가'}_표준약력_CV.txt`)}
             </div>
 
             {cvResult ? (
-              <div className="output-box">{cvResult}</div>
+              <div className="output-box print-document-sheet">{cvResult}</div>
             ) : (
               <div className="output-box" style={{ color: '#9CA3AF', textAlign: 'center', padding: '3rem 1rem' }}>
                 좌측의 이력을 입력하고<br />
@@ -508,7 +508,7 @@ ${cvForm.collections.trim()}
       {/* 3. 견적서/청구서 탭 */}
       {activeTab === 'invoice' && (
         <div className="workspace-grid">
-          <div className="panel-card">
+          <div className="panel-card no-print">
             <div className="panel-card-title">
               <span>견적 및 청구 정보</span>
               <span style={{ fontSize: '0.78rem', color: '#6B7280', fontWeight: 400 }}>A4 간이 서식</span>
@@ -585,13 +585,13 @@ ${cvForm.collections.trim()}
           </div>
 
           <div className="panel-card printable">
-            <div className="panel-card-title">
+            <div className="panel-card-title no-print">
               <span>완성된 견적·청구서</span>
               {renderActionButtons(invoiceResult, `${invoiceForm.projectName || '프로젝트'}_견적청구서.txt`)}
             </div>
 
             {invoiceResult ? (
-              <div className="output-box">{invoiceResult}</div>
+              <div className="output-box print-document-sheet">{invoiceResult}</div>
             ) : (
               <div className="output-box" style={{ color: '#9CA3AF', textAlign: 'center', padding: '3rem 1rem' }}>
                 좌측 금액 및 프로젝트 정보를 입력하고<br />

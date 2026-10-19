@@ -1256,21 +1256,67 @@ input, select, textarea {
    인쇄 전용 스타일 (Print CSS)
 =================================================================== */
 @media print {
-  .artflow-header, .artflow-footer, .workspace-top-bar, .panel-card.no-print, .btn-primary, .btn-outline, .tab-nav, .no-print {
+  @page {
+    size: A4 portrait;
+    margin: 20mm 18mm 20mm 18mm;
+  }
+
+  /* 입력 폼, 헤더, 푸터, 네비게이션 버튼 등 불필요한 UI 전면 숨김 */
+  .artflow-header, 
+  .artflow-footer, 
+  .workspace-top-bar, 
+  .workspace-title-area,
+  .panel-card.no-print, 
+  .panel-card:not(.printable),
+  .panel-card-title,
+  .btn-primary, 
+  .btn-outline, 
+  .btn-subtle-copy,
+  .tab-nav, 
+  .no-print {
     display: none !important;
   }
-  body, .artflow-app, .artflow-main {
+
+  body, .artflow-app, .artflow-main, .workspace-wrapper, .workspace-grid {
     background: #FFFFFF !important;
     padding: 0 !important;
     margin: 0 !important;
+    display: block !important;
+    width: 100% !important;
   }
+
+  /* 인쇄 대상 문서 패널 */
   .printable, .printable-caption-container {
     box-shadow: none !important;
     border: none !important;
     width: 100% !important;
+    max-width: 100% !important;
     padding: 0 !important;
+    margin: 0 auto !important;
     background: transparent !important;
   }
+
+  /* 1. 서류·출강 스튜디오 A4 문서 본문 공문서 규격 최적화 */
+  .print-document-sheet,
+  .output-box {
+    border: none !important;
+    box-shadow: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: #FFFFFF !important;
+    color: #111827 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", sans-serif !important;
+    font-size: 11pt !important;
+    line-height: 1.85 !important;
+    white-space: pre-wrap !important;
+    word-break: keep-all !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 2. 전시 캡션 출력기 A4 용지 규격 인쇄 스타일 */
   .a4-sheets-wrapper {
     gap: 0 !important;
     display: block !important;
@@ -1298,20 +1344,13 @@ input, select, textarea {
     height: auto !important;
   }
   .caption-card-item {
-    border: 0.75pt solid #CBD5E1 !important; /* 선을 따라 자를 수 있는 단정한 옅은 회색 테두리 */
+    border: 0.75pt solid #CBD5E1 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     padding: 0.6cm 0.7cm 0.9cm 0.7cm !important;
     height: auto !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-  }
-  .output-box {
-    border: none !important;
-    max-height: none !important;
-    padding: 0 !important;
-    font-size: 11pt !important;
-    color: #000000 !important;
   }
 
   /* A4 지출 정산 증빙서 인쇄 최적화 */
