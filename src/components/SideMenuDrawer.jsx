@@ -229,34 +229,6 @@ export default function SideMenuDrawer({
             <ChevronRight size={16} color="#CBD5E1" />
           </button>
 
-          {/* 로그인 회원 전용 로그아웃 메뉴 */}
-          {user && (
-            <button
-              type="button"
-              onClick={() => { onClose(); onLogout(); }}
-              style={{ 
-                width: '100%', 
-                padding: '0.85rem 1.5rem', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between', 
-                border: 'none', 
-                background: 'transparent', 
-                cursor: 'pointer', 
-                textAlign: 'left', 
-                transition: 'background 0.15s ease' 
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#FEF2F2'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <LogOut size={18} color="#EF4444" />
-                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#EF4444' }}>로그아웃</span>
-              </div>
-              <ChevronRight size={16} color="#FCA5A5" />
-            </button>
-          )}
-
           <div style={{ borderTop: '1px solid #F1F5F9', margin: '0.75rem 1.5rem' }} />
 
           {/* 6. 이용약관 및 개인정보 처리방침 */}
