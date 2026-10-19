@@ -28,7 +28,8 @@ export default function LandingPage({
   onNavigateToGuide, 
   onNavigateToAbout, 
   onOpenPricing,
-  onGoDashboard
+  onGoDashboard,
+  onSelectView
 }) {
   const [feedbacks, setFeedbacks] = useState([]);
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'yearly' | 'monthly'
@@ -36,6 +37,14 @@ export default function LandingPage({
   useEffect(() => {
     setFeedbacks(getFeedbacks());
   }, []);
+
+  const handleCardClick = (viewId) => {
+    if (user) {
+      if (onSelectView) onSelectView(viewId);
+    } else {
+      if (onOpenLogin) onOpenLogin('login');
+    }
+  };
   return (
     <div className="landing-wrapper">
       {/* 1. 히어로 섹션 (아틀리에 작업대 실물 전면 배경 적용) */}
@@ -161,7 +170,7 @@ export default function LandingPage({
 
         <div className="landing-feature-grid">
           {/* 기능 1: 영감 노트 */}
-          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
+          <div className="feature-showcase-card" onClick={() => handleCardClick('inspo')} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#ECFDF5', color: '#059669' }}>
               <Sparkles size={24} />
             </div>
@@ -174,7 +183,7 @@ export default function LandingPage({
           </div>
 
           {/* 기능 2: 작가노트 & SNS */}
-          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
+          <div className="feature-showcase-card" onClick={() => handleCardClick('statement')} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#FDF4FF', color: '#A855F7' }}>
               <PenTool size={24} />
             </div>
@@ -187,7 +196,7 @@ export default function LandingPage({
           </div>
 
           {/* 기능 3: 전시 캡션 출력기 */}
-          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
+          <div className="feature-showcase-card" onClick={() => handleCardClick('caption')} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#F8FAFC', color: '#0F172A' }}>
               <Tag size={24} />
             </div>
@@ -200,7 +209,7 @@ export default function LandingPage({
           </div>
 
           {/* 기능 4: 서류·출강 스튜디오 */}
-          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
+          <div className="feature-showcase-card" onClick={() => handleCardClick('doc')} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#F0FDF4', color: '#15803D' }}>
               <FileText size={24} />
             </div>
@@ -213,7 +222,7 @@ export default function LandingPage({
           </div>
 
           {/* 기능 5: 창작 가계부 */}
-          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
+          <div className="feature-showcase-card" onClick={() => handleCardClick('tax')} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#FFFBEB', color: '#D97706' }}>
               <Receipt size={24} />
             </div>
@@ -226,7 +235,7 @@ export default function LandingPage({
           </div>
 
           {/* 기능 6: 나의 작품 디지털 수장고 */}
-          <div className="feature-showcase-card" onClick={onNavigateToGuide} style={{ cursor: 'pointer' }}>
+          <div className="feature-showcase-card" onClick={() => handleCardClick('archive')} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#EFF6FF', color: '#2563EB' }}>
               <Archive size={24} />
             </div>

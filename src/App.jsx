@@ -349,6 +349,7 @@ export default function App() {
             onNavigateToAbout={() => navigate('about')}
             onOpenPricing={() => setIsPricingModalOpen(true)}
             onGoDashboard={() => navigate('dashboard')}
+            onSelectView={(viewId) => navigate(viewId)}
           />
         ) : (
           /* 로그인 회원 전용: 실제 2-Depth 올인원 워크스페이스 */
