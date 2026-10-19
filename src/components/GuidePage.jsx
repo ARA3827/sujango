@@ -28,27 +28,112 @@ export default function GuidePage({ onOpenLogin, onNavigateToAbout }) {
   const faqList = [
     {
       q: '수장고(Sujango) 서비스는 정말 무료로 시작할 수 있나요?',
-      a: '네, 그렇습니다! 기본 Free Artist 플랜으로 작품 30점 보관, AI 작가노트 생성, A4 전시 캡션(명패) 인쇄, 표준 계약서 및 간이 견적서 작성을 영구 무료로 자유롭게 이용하실 수 있습니다. 수백 기가바이트 단위의 원본 대용량 클라우드 금고나 무제한 보안 워터마크 링크가 필요하실 때만 Pro 또는 Studio 요금제로 업그레이드하시면 됩니다.'
+      answer: (
+        <div>
+          <p style={{ fontWeight: 700, color: '#0F172A', marginBottom: '0.65rem', fontSize: '0.96rem' }}>
+            네, 기본 <span style={{ color: '#0284C7' }}>Free Artist 플랜</span>으로 창작에 꼭 필요한 4대 기능을 영구 무료로 이용하실 수 있습니다.
+          </p>
+          <ul style={{ margin: '0 0 0.85rem 1.25rem', padding: 0, color: '#334155', lineHeight: 1.8, fontSize: '0.92rem' }}>
+            <li><strong>작품 30점 무료 보관:</strong> 웹 최적화 규격으로 안전하게 디지털 서고 보관</li>
+            <li><strong>AI 작가노트 생성:</strong> 미학 평론문, SNS 해시태그 무제한 추출</li>
+            <li><strong>A4 전시 캡션 출력:</strong> 국영문 미술관 표준 규격 캡션 원클릭 인쇄</li>
+            <li><strong>행정 서식 스튜디오:</strong> 출강 계획서, 표준 약력(CV), 간이 견적서 무제한 작성</li>
+          </ul>
+          <p style={{ margin: 0, fontSize: '0.86rem', color: '#64748B', lineHeight: 1.6, background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '0.65rem 0.95rem', borderRadius: '8px' }}>
+            ※ 수백 기가바이트(GB) 단위의 대용량 고화질 마스터 금고나 무제한 보안 워터마크 링크가 필요하실 때만 Pro 또는 Studio 요금제로 업그레이드하시면 됩니다.
+          </p>
+        </div>
+      )
     },
     {
       q: '등록한 작품 이미지는 어떤 기술 방식으로 저장·보관되며, 얼마나 안전한가요?',
-      a: '수장고는 글로벌 표준 클라우드 암호화 및 최적화 분산 보관 시스템을 통해 소중한 창작 자산을 관리합니다. 등록하신 작품 이미지는 웹 전시 및 캡션 출판에 적합한 최적화 포맷으로 변환된 후, 전송 구간 암호화(SSL 256-bit)를 거쳐 안전하게 클라우드 분산 저장소에 보관됩니다. 또한 보관된 작품 시안은 불특정 다수에게 공개되지 않으며, 작가님이 직접 생성한 만료 기한이 있는 보안 링크를 통해서만 전달됩니다. 단, 모든 디지털 클라우드 환경은 예기치 못한 천재지변이나 통신 장애의 가능성이 존재하므로, 작가님의 가장 소중한 마스터 원본 파일은 수장고 보관과 더불어 개인 외장하드나 안전한 로컬 저장장치에도 이중 보관(분산 백업)하시는 것을 정중히 권장합니다.'
+      answer: (
+        <div>
+          <p style={{ fontWeight: 700, color: '#0F172A', marginBottom: '0.75rem', fontSize: '0.96rem' }}>
+            수장고는 글로벌 표준 클라우드 암호화 및 최적화 분산 보관 시스템을 통해 소중한 창작 자산을 관리합니다.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1rem', fontSize: '0.92rem', color: '#334155', lineHeight: 1.7 }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+              <span style={{ color: '#0284C7', fontWeight: 700, minWidth: '18px' }}>1.</span>
+              <div>
+                <strong style={{ color: '#0F172A' }}>안전한 전송 및 분산 보관:</strong> 등록하신 작품 이미지는 웹 전시 및 캡션 출판에 적합한 최적화 포맷으로 변환된 후, 전송 구간 암호화(SSL 256-bit)를 거쳐 안전하게 클라우드 분산 저장소에 보관됩니다.
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+              <span style={{ color: '#0284C7', fontWeight: 700, minWidth: '18px' }}>2.</span>
+              <div>
+                <strong style={{ color: '#0F172A' }}>비공개 보안 링크(Signed URL):</strong> 보관된 작품 시안은 불특정 다수에게 공개되지 않으며, 작가님이 직접 생성한 만료 기한이 있는 보안 링크를 통해서만 전달됩니다.
+              </div>
+            </div>
+          </div>
+          <div style={{ background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '8px', padding: '0.85rem 1rem', fontSize: '0.88rem', color: '#0369A1', lineHeight: 1.65 }}>
+            <strong style={{ color: '#0284C7' }}>💡 작가님을 위한 안전 백업 권고:</strong><br />
+            모든 디지털 클라우드 환경은 예기치 못한 천재지변이나 통신 장애의 가능성이 존재하므로, 작가님의 가장 소중한 마스터 원본 파일은 수장고 보관과 더불어 <strong>개인 외장하드나 안전한 로컬 저장장치에도 이중 보관(분산 백업)</strong>하시는 것을 정중히 권장합니다.
+          </div>
+        </div>
+      )
     },
     {
       q: '등록한 작품 이미지의 저작권과 개인정보는 안전하게 보호되나요?',
-      a: '작가님의 창작 자산은 철저한 보안 원칙에 따라 안전하게 보호됩니다. 수장고에 등록되는 모든 이미지, 작가노트, 정산 내역의 저작권과 소유권은 전적으로 작가님 본인에게 귀속됩니다. 어떤 외부 기관이나 타인에게도 무단 공개되지 않으며, 외부 AI 학습 데이터로 무단 활용되지 않는 프라이빗 암호화 보안 체계 속에서 안전하게 보관됩니다.'
+      answer: (
+        <div>
+          <p style={{ fontWeight: 700, color: '#0F172A', marginBottom: '0.65rem', fontSize: '0.96rem' }}>
+            작가님의 창작 자산은 철저한 보안 원칙에 따라 안전하게 보호됩니다.
+          </p>
+          <ul style={{ margin: '0 0 0.5rem 1.25rem', padding: 0, color: '#334155', lineHeight: 1.8, fontSize: '0.92rem' }}>
+            <li><strong>저작권 전면 귀속:</strong> 수장고에 등록되는 모든 이미지, 작가노트, 정산 내역의 저작권과 소유권은 전적으로 작가님 본인에게 귀속됩니다.</li>
+            <li><strong>외부 비공개 원칙:</strong> 등록하신 데이터는 외부 기관이나 제3자에게 무단 공개되지 않습니다.</li>
+            <li><strong>AI 무단 학습 차단:</strong> 작가님의 작품과 글은 외부 AI 학습 데이터로 일절 활용되지 않는 프라이빗 암호화 체계 속에서 관리됩니다.</li>
+          </ul>
+        </div>
+      )
     },
     {
       q: '전시 캡션(명패) 출력은 일반 가정용·사무실 프린터로 바로 가능한가요?',
-      a: '네, 일반 A4 프린터로 즉시 인쇄하실 수 있습니다! 갤러리나 미술관 벽면에 부착하는 국영문 표준 규격에 맞추어, 칼이나 가위로 자르기 좋은 정밀 절취선과 함께 원클릭으로 A4 용지에 꽉 차게 일괄 인쇄 및 PDF 저장이 가능합니다.'
+      answer: (
+        <div>
+          <p style={{ fontWeight: 700, color: '#0F172A', marginBottom: '0.65rem', fontSize: '0.96rem' }}>
+            네, 일반 가정이나 작업실의 표준 A4 프린터로 즉시 인쇄하실 수 있습니다.
+          </p>
+          <ul style={{ margin: '0 0 0.5rem 1.25rem', padding: 0, color: '#334155', lineHeight: 1.8, fontSize: '0.92rem' }}>
+            <li><strong>미술관 국영문 규격:</strong> 갤러리 벽면 부착용 국영문 캡션 규격으로 자동 배치됩니다.</li>
+            <li><strong>정밀 절취선 가이드:</strong> 칼이나 가위로 자르기 좋은 가이드라인이 함께 인쇄되어 전시 준비가 간편합니다.</li>
+            <li><strong>원클릭 A4 일괄 출력:</strong> 여러 점의 캡션을 A4 1장에 모아 단번에 PDF로 저장하고 출력할 수 있습니다.</li>
+          </ul>
+        </div>
+      )
     },
     {
       q: '클라이언트나 갤러리에 시안을 보낼 때 도용 위험을 어떻게 막아주나요?',
-      a: '수장고의 [보안 시안 공유] 기능을 이용하시면, 원본 다운로드와 우클릭이 기본 차단되고 작가님의 텍스트 또는 로고 워터마크가 반투명하게 자동 합성된 7일 만료 전용 뷰어 링크가 생성됩니다. 클라이언트는 별도 가입 없이 스마트폰이나 PC에서 안전하게 작품 시안만 검토할 수 있습니다.'
+      answer: (
+        <div>
+          <p style={{ fontWeight: 700, color: '#0F172A', marginBottom: '0.65rem', fontSize: '0.96rem' }}>
+            수장고의 [보안 시안 공유] 기능을 통해 3중 보호 장치가 자동으로 적용됩니다.
+          </p>
+          <ul style={{ margin: '0 0 0.85rem 1.25rem', padding: 0, color: '#334155', lineHeight: 1.8, fontSize: '0.92rem' }}>
+            <li><strong>워터마크 자동 합성:</strong> 작가님의 성명 또는 로고가 반투명하게 얹어진 1080px 안전 시안으로 변환됩니다.</li>
+            <li><strong>다운로드 및 우클릭 차단:</strong> 원본 파일 저장과 우클릭 복사가 기본 방지됩니다.</li>
+            <li><strong>7일 자동 만료:</strong> 검토 기간이 지나면 링크가 자동으로 무효화되어 외부 유출을 방지합니다.</li>
+          </ul>
+          <p style={{ margin: 0, fontSize: '0.86rem', color: '#64748B', lineHeight: 1.6, background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '0.65rem 0.95rem', borderRadius: '8px' }}>
+            ※ 클라이언트는 번거로운 회원가입 없이 스마트폰이나 PC에서 링크 클릭만으로 안전하게 시안을 확인할 수 있습니다.
+          </p>
+        </div>
+      )
     },
     {
       q: '다른 작가가 제 작품이나 판매 금액, 견적서 내용을 볼 수 있나요?',
-      a: '다른 이용자에게 일절 공개되지 않습니다. 수장고는 모든 회원(작가)의 데이터가 체계적으로 독립 격리된 멀티 테넌트 보안 구조로 작동합니다. 오직 로그인하신 작가님 본인만이 본인의 수장고 대시보드와 서류를 열람하고 관리할 수 있습니다.'
+      answer: (
+        <div>
+          <p style={{ fontWeight: 700, color: '#0F172A', marginBottom: '0.65rem', fontSize: '0.96rem' }}>
+            다른 이용자에게 일절 공개되지 않으며, 오직 본인만 열람할 수 있습니다.
+          </p>
+          <ul style={{ margin: '0 0 0.5rem 1.25rem', padding: 0, color: '#334155', lineHeight: 1.8, fontSize: '0.92rem' }}>
+            <li><strong>체계적인 데이터 독립 격리:</strong> 모든 작가 계정의 작품, 가계부, 서류는 상호 접근이 불가능한 격리 구조로 저장됩니다.</li>
+            <li><strong>비공개 원칙:</strong> 작가님이 [보안 링크]로 지정한 대상 외에는 갤러리나 다른 작가라도 절대 내역을 확인할 수 없습니다.</li>
+          </ul>
+        </div>
+      )
     }
   ];
 
@@ -311,7 +396,7 @@ export default function GuidePage({ onOpenLogin, onNavigateToAbout }) {
                     onClick={() => toggleFaq(idx)}
                     style={{
                       width: '100%',
-                      padding: '1.25rem 1.5rem',
+                      padding: '1.35rem 1.75rem',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
@@ -319,25 +404,39 @@ export default function GuidePage({ onOpenLogin, onNavigateToAbout }) {
                       border: 'none',
                       textAlign: 'left',
                       cursor: 'pointer',
-                      gap: '12px'
+                      gap: '14px'
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ color: '#0284C7', fontWeight: 800, fontSize: '1.05rem' }}>Q.</span>
-                      <span style={{ fontSize: '0.98rem', fontWeight: 700, color: '#0F172A', lineHeight: 1.4 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ 
+                        color: '#0284C7', 
+                        fontWeight: 800, 
+                        fontSize: '1.15rem', 
+                        background: '#F0F9FF', 
+                        width: '32px', 
+                        height: '32px', 
+                        borderRadius: '8px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        flexShrink: 0
+                      }}>
+                        Q
+                      </span>
+                      <span style={{ fontSize: '1.02rem', fontWeight: 700, color: '#0F172A', lineHeight: 1.45 }}>
                         {item.q}
                       </span>
                     </div>
                     <div style={{ color: '#64748B', flexShrink: 0 }}>
-                      {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                      {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                     </div>
                   </button>
 
                   {isOpen && (
-                    <div style={{ padding: '0 1.5rem 1.35rem', borderTop: '1px solid #F1F5F9', paddingTop: '1rem' }}>
-                      <p style={{ fontSize: '0.92rem', color: '#475569', lineHeight: 1.75, margin: 0 }}>
-                        {item.a}
-                      </p>
+                    <div style={{ padding: '0 1.75rem 1.6rem', borderTop: '1px solid #F1F5F9', paddingTop: '1.25rem' }}>
+                      <div style={{ fontSize: '0.94rem', color: '#334155', lineHeight: 1.8 }}>
+                        {item.answer || item.a}
+                      </div>
                     </div>
                   )}
                 </div>
