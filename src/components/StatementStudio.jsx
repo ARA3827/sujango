@@ -552,25 +552,6 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
 
             {currentText && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                {/* 상단 즉시 수장고 저장 버튼 */}
-                <button
-                  type="button"
-                  onClick={handleSaveToArchive}
-                  disabled={isSaving}
-                  className="btn-primary"
-                  style={{
-                    fontSize: '0.8rem',
-                    padding: '0.35rem 0.8rem',
-                    background: '#0284C7',
-                    borderColor: '#0284C7',
-                    color: '#FFFFFF',
-                    gap: '5px'
-                  }}
-                  title="현재 작성된 내용으로 수장고에 등록"
-                >
-                  <Archive size={13} />
-                  <span>{isSaving ? '저장 중...' : '수장고 보관'}</span>
-                </button>
                 {/* 수정한 경우 원본 복원 버튼 */}
                 {isModified && (
                   <button 
@@ -678,21 +659,14 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                   <button 
                     onClick={handleSaveToArchive}
                     disabled={isSaving}
-                    className="btn-primary"
+                    className="btn-action-main"
                     style={{
                       padding: '0.85rem 1.5rem',
-                      fontSize: '0.96rem',
-                      background: '#0F172A',
-                      color: '#FFFFFF',
-                      boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px'
+                      fontSize: '0.96rem'
                     }}
                   >
                     <Archive size={18} />
-                    <span>{isSaving ? '수장고에 보관 중...' : '📁 이 작품을 내 수장고(Sujango)에 보관하기 →'}</span>
+                    <span>{isSaving ? '수장고에 저장 중...' : '📁 수장고에 저장하기 →'}</span>
                   </button>
                   {savedNotice && (
                     <p style={{ textAlign: 'center', fontSize: '0.84rem', color: '#059669', fontWeight: 600, marginTop: '8px', margin: '8px 0 0 0' }}>
