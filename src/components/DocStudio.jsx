@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Check, Printer, Sparkles, FileText, UserCheck, Calculator } from 'lucide-react';
+import { Copy, Check, Printer, Sparkles, FileText, UserCheck, Calculator, Download } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function DocStudio({ onBack }) {
@@ -160,6 +160,54 @@ ${cvForm.collections.trim()}
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = (content, filename) => {
+    if (!content) return;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename || 'document.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const renderActionButtons = (content, defaultFilename) => {
+    if (!content) return null;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+        <button 
+          className={`btn-subtle-copy ${copied ? 'copied' : ''}`}
+          onClick={() => handleCopy(content)}
+          title="클립보드 전체 복사"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px', fontSize: '0.78rem' }}
+        >
+          {copied ? <Check size={13} /> : <Copy size={13} />}
+          <span>{copied ? '복사 완료!' : '복사'}</span>
+        </button>
+        <button 
+          className="btn-subtle-copy"
+          onClick={() => handleDownload(content, defaultFilename)}
+          title="텍스트 파일로 저장"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px', fontSize: '0.78rem' }}
+        >
+          <Download size={13} />
+          <span>다운로드</span>
+        </button>
+        <button 
+          className="btn-subtle-copy"
+          onClick={() => window.print()}
+          title="A4 용지 규격 인쇄 및 PDF 저장"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px', fontSize: '0.78rem' }}
+        >
+          <Printer size={13} />
+          <span>A4 인쇄 / PDF</span>
+        </button>
+      </div>
+    );
   };
 
   const triggerConfetti = () => {
@@ -349,15 +397,7 @@ ${cvForm.collections.trim()}
           <div className="panel-card printable">
             <div className="panel-card-title">
               <span>완성된 강의계획서</span>
-              {lectureResult && (
-                <button 
-                  className={`btn-subtle-copy ${copied ? 'copied' : ''}`}
-                  onClick={() => handleCopy(lectureResult)}
-                >
-                  {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? '복사 완료!' : '전체 복사'}
-                </button>
-              )}
+              {renderActionButtons(lectureResult, `${lectureForm.courseName || '강좌'}_강의계획서.txt`)}
             </div>
 
             {lectureResult ? (
@@ -450,15 +490,7 @@ ${cvForm.collections.trim()}
           <div className="panel-card printable">
             <div className="panel-card-title">
               <span>표준 작가 약력(CV) 출력본</span>
-              {cvResult && (
-                <button 
-                  className={`btn-subtle-copy ${copied ? 'copied' : ''}`}
-                  onClick={() => handleCopy(cvResult)}
-                >
-                  {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? '복사 완료!' : '전체 복사'}
-                </button>
-              )}
+              {renderActionButtons(cvResult, `${cvForm.nameKo || '작가'}_표준약력_CV.txt`)}
             </div>
 
             {cvResult ? (
@@ -555,15 +587,7 @@ ${cvForm.collections.trim()}
           <div className="panel-card printable">
             <div className="panel-card-title">
               <span>완성된 견적·청구서</span>
-              {invoiceResult && (
-                <button 
-                  className={`btn-subtle-copy ${copied ? 'copied' : ''}`}
-                  onClick={() => handleCopy(invoiceResult)}
-                >
-                  {copied ? <Check size={14} /> : <Copy size={14} />}
-                  {copied ? '복사 완료!' : '전체 복사'}
-                </button>
-              )}
+              {renderActionButtons(invoiceResult, `${invoiceForm.projectName || '프로젝트'}_견적청구서.txt`)}
             </div>
 
             {invoiceResult ? (
