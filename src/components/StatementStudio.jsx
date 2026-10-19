@@ -491,22 +491,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             {/* 1순위 메인 버튼: AI 글 생성 & 수장고 즉시 등록 */}
             <button 
               type="button"
-              className="btn-primary" 
+              className="btn-action-main" 
               onClick={handleGenerateAndSaveToArchive} 
               disabled={isSaving}
-              style={{ 
-                padding: '0.9rem 1.25rem', 
-                fontSize: '0.96rem',
-                fontWeight: 700,
-                background: '#0F172A',
-                color: '#FFFFFF',
-                boxShadow: '0 4px 14px rgba(15, 23, 42, 0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                cursor: 'pointer'
-              }}
             >
               <Sparkles size={18} color="#38BDF8" /> 
               <span>{isSaving ? '수장고에 등록 중...' : '🎨 AI 작가노트 생성 & 수장고 등록하기 →'}</span>
@@ -515,26 +502,24 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
               💡 클릭 즉시 AI가 글 3종을 완성하여 작가님의 수장고에 안전하게 보관합니다.
             </div>
 
-            {/* 2순위 보조 버튼군: 미리보기 / 글 없이 등록 */}
+            {/* 2순위: AI 작가노트 생성 & 바로 등록 나란히 배치 */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '4px' }}>
               <button 
                 type="button"
-                className="btn-outline" 
+                className="btn-action-generate" 
                 onClick={handleGenerate} 
-                style={{ padding: '0.5rem', fontSize: '0.8rem', color: '#0F172A', fontWeight: 600 }}
-                title="등록하기 전에 우측 화면에서 AI 글을 먼저 확인하고 수정합니다"
+                title="우측 화면에 미학 평론 작가노트와 SNS 글을 생성합니다"
               >
-                <Eye size={13} /> 글 먼저 확인 (미리보기)
+                <Sparkles size={14} color="#A855F7" /> AI 작가노트 생성
               </button>
               <button 
                 type="button"
-                className="btn-outline" 
+                className="btn-action-save-direct" 
                 onClick={handleSaveToArchive} 
                 disabled={isSaving}
-                style={{ padding: '0.5rem', fontSize: '0.8rem', color: '#64748B' }}
-                title="글을 새로 생성하지 않고 현재 입력한 사진과 기본 정보만 수장고에 등록합니다"
+                title="AI 글 생성 없이 현재 입력한 사진과 작품 정보만 수장고에 등록합니다"
               >
-                <Archive size={13} /> AI 글 없이 바로 등록
+                <Archive size={14} /> 바로 등록
               </button>
             </div>
           </div>
@@ -741,7 +726,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                 </h4>
                 <p style={{ fontSize: '0.88rem', color: '#64748B', maxWidth: '380px', lineHeight: 1.6, margin: 0 }}>
                   좌측에 작품 제목과 키워드 3개를 입력한 후<br />
-                  <strong>[✨ AI 작가노트 & SNS 3종 생성하기]</strong>를 누르시면 평론풍 작가노트, 인스타 캡션, 블로그 글이 한 번에 완성됩니다.
+                  <strong>[✨ AI 작가노트 생성]</strong>을 누르시면 평론풍 작가노트, 인스타 캡션, 블로그 글이 한 번에 완성됩니다.
                 </p>
               </div>
             )}

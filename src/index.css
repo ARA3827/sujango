@@ -2668,4 +2668,90 @@ input, select, textarea {
   color: #0284C7;
 }
 
+/* ==========================================================================
+   작품 등록 / 작가노트 스튜디오 전용 액션 버튼 및 호버 인터랙션
+   ========================================================================== */
+.btn-action-main {
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  font-size: 0.96rem;
+  font-weight: 700;
+  background: #0F172A;
+  color: #FFFFFF;
+  border: 1px solid #0F172A;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-action-main:hover:not(:disabled) {
+  background: #1E293B;
+  border-color: #1E293B;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.3);
+}
+
+.btn-action-main:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* 좌측: AI 작가노트 생성 버튼 (보라색 호버) */
+.btn-action-generate {
+  width: 100%;
+  padding: 0.68rem 0.85rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  color: #0F172A;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-action-generate:hover:not(:disabled) {
+  background: #F5F3FF;
+  border-color: #A855F7;
+  color: #7C3AED;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.16);
+}
+
+/* 우측: 바로 등록 버튼 (에메랄드/그린 호버) */
+.btn-action-save-direct {
+  width: 100%;
+  padding: 0.68rem 0.85rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  color: #475569;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-action-save-direct:hover:not(:disabled) {
+  background: #F0FDF4;
+  border-color: #22C55E;
+  color: #15803D;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.16);
+}
+
+
 
