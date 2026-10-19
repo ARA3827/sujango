@@ -1252,13 +1252,41 @@ input, select, textarea {
   box-sizing: border-box;
 }
 
+/* 서류 스튜디오 인쇄 팁 배너 & 공식 푸터 */
+.print-tip-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+  color: #475569;
+}
+.print-tip-banner strong {
+  color: #0F172A;
+}
+
+.print-official-doc-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px dashed #CBD5E1;
+  font-size: 0.78rem;
+  color: #64748B;
+}
+
 /* ===================================================================
    인쇄 전용 스타일 (Print CSS)
 =================================================================== */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 20mm 18mm 20mm 18mm;
+    margin: 14mm 15mm 14mm 15mm;
   }
 
   /* 입력 폼, 헤더, 푸터, 네비게이션 버튼 등 불필요한 UI 전면 숨김 */
@@ -1273,6 +1301,7 @@ input, select, textarea {
   .btn-outline, 
   .btn-subtle-copy,
   .tab-nav, 
+  .print-tip-banner,
   .no-print {
     display: none !important;
   }
@@ -1294,9 +1323,11 @@ input, select, textarea {
     padding: 0 !important;
     margin: 0 auto !important;
     background: transparent !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
-  /* 1. 서류·출강 스튜디오 A4 문서 본문 공문서 규격 최적화 */
+  /* 1. 서류·출강 스튜디오 A4 문서 본문 공문서 규격 최적화 (1장 맞춤) */
   .print-document-sheet,
   .output-box {
     border: none !important;
@@ -1306,14 +1337,28 @@ input, select, textarea {
     background: #FFFFFF !important;
     color: #111827 !important;
     font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", sans-serif !important;
-    font-size: 11pt !important;
-    line-height: 1.85 !important;
+    font-size: 9.8pt !important;
+    line-height: 1.62 !important;
     white-space: pre-wrap !important;
     word-break: keep-all !important;
     padding: 0 !important;
     margin: 0 auto !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .print-official-doc-footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-top: 18px !important;
+    padding-top: 10px !important;
+    border-top: 1.5px solid #111827 !important;
+    font-size: 8.5pt !important;
+    color: #4B5563 !important;
+    letter-spacing: -0.2px !important;
   }
 
   /* 2. 전시 캡션 출력기 A4 용지 규격 인쇄 스타일 */

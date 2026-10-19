@@ -77,7 +77,8 @@ ${curriculum}
 • 기관/수강생 준비: 캔버스, 기본 붓 세트, 물통, 앞치마
 • 안전 수칙: 환기 시설 확보, 유화 테레핀/페트롤 사용 시 폐액 밀폐 처리 준수
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-작성일: ${new Date().toLocaleDateString('ko-KR')} / 작성자: ${lectureForm.instructorName}`;
+작성일: ${new Date().toLocaleDateString('ko-KR')} / 작성자: ${lectureForm.instructorName}
+Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고`;
 
     setLectureResult(docText);
     triggerConfetti();
@@ -105,7 +106,8 @@ ${cvForm.awards.trim()}
 [작품 소장 및 레지던시 (Collections & Residencies)]
 ${cvForm.collections.trim()}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-* 한국미술협회 및 주요 국공립 미술관 표준 심사 포맷 적용됨`;
+* 한국미술협회 및 주요 국공립 미술관 표준 심사 포맷 적용됨
+Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고`;
 
     setCvResult(cvText);
     triggerConfetti();
@@ -149,7 +151,8 @@ ${cvForm.collections.trim()}
 [특이사항 및 비고]
 • ${invoiceForm.notes}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-위와 같이 성실히 작업을 수행함을 확인하며 견적/청구합니다.`;
+위와 같이 성실히 작업을 수행함을 확인하며 견적/청구합니다.
+Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고`;
 
     setInvoiceResult(invoiceText);
     triggerConfetti();
@@ -400,8 +403,20 @@ ${cvForm.collections.trim()}
               {renderActionButtons(lectureResult, `${lectureForm.courseName || '강좌'}_강의계획서.txt`)}
             </div>
 
+            {lectureResult && (
+              <div className="print-tip-banner no-print">
+                <span>💡 <strong>인쇄 팁:</strong> 인쇄 창 오른쪽 [설정]에서 <strong>'머리글 및 바닥글'</strong> 체크를 해제하시면 URL(localhost) 없이 수장고 공식 라벨만 정갈하게 출력됩니다.</span>
+              </div>
+            )}
+
             {lectureResult ? (
-              <div className="output-box print-document-sheet">{lectureResult}</div>
+              <div className="output-box print-document-sheet">
+                <div>{lectureResult}</div>
+                <div className="print-official-doc-footer">
+                  <strong>Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고</strong>
+                  <span>공식 공문서 표준 양식</span>
+                </div>
+              </div>
             ) : (
               <div className="output-box" style={{ color: '#9CA3AF', textAlign: 'center', padding: '3rem 1rem' }}>
                 좌측에서 강좌 정보를 확인한 후<br />
@@ -493,8 +508,20 @@ ${cvForm.collections.trim()}
               {renderActionButtons(cvResult, `${cvForm.nameKo || '작가'}_표준약력_CV.txt`)}
             </div>
 
+            {cvResult && (
+              <div className="print-tip-banner no-print">
+                <span>💡 <strong>인쇄 팁:</strong> 인쇄 창 오른쪽 [설정]에서 <strong>'머리글 및 바닥글'</strong> 체크를 해제하시면 URL(localhost) 없이 수장고 공식 라벨만 정갈하게 출력됩니다.</span>
+              </div>
+            )}
+
             {cvResult ? (
-              <div className="output-box print-document-sheet">{cvResult}</div>
+              <div className="output-box print-document-sheet">
+                <div>{cvResult}</div>
+                <div className="print-official-doc-footer">
+                  <strong>Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고</strong>
+                  <span>공식 공문서 표준 양식</span>
+                </div>
+              </div>
             ) : (
               <div className="output-box" style={{ color: '#9CA3AF', textAlign: 'center', padding: '3rem 1rem' }}>
                 좌측의 이력을 입력하고<br />
@@ -590,8 +617,20 @@ ${cvForm.collections.trim()}
               {renderActionButtons(invoiceResult, `${invoiceForm.projectName || '프로젝트'}_견적청구서.txt`)}
             </div>
 
+            {invoiceResult && (
+              <div className="print-tip-banner no-print">
+                <span>💡 <strong>인쇄 팁:</strong> 인쇄 창 오른쪽 [설정]에서 <strong>'머리글 및 바닥글'</strong> 체크를 해제하시면 URL(localhost) 없이 수장고 공식 라벨만 정갈하게 출력됩니다.</span>
+              </div>
+            )}
+
             {invoiceResult ? (
-              <div className="output-box print-document-sheet">{invoiceResult}</div>
+              <div className="output-box print-document-sheet">
+                <div>{invoiceResult}</div>
+                <div className="print-official-doc-footer">
+                  <strong>Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고</strong>
+                  <span>공식 공문서 표준 양식</span>
+                </div>
+              </div>
             ) : (
               <div className="output-box" style={{ color: '#9CA3AF', textAlign: 'center', padding: '3rem 1rem' }}>
                 좌측 금액 및 프로젝트 정보를 입력하고<br />
