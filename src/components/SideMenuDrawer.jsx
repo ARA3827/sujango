@@ -12,7 +12,8 @@ import {
   LogIn,
   LogOut,
   Mail,
-  Building
+  Building,
+  Smartphone
 } from 'lucide-react';
 
 /**
@@ -29,7 +30,8 @@ export default function SideMenuDrawer({
   onNavigateGuide,
   onOpenPricing,
   onOpenFeedback,
-  onOpenPolicy
+  onOpenPolicy,
+  onOpenShortcut
 }) {
   // ESC 키로 드로어 닫기
   useEffect(() => {
@@ -225,6 +227,24 @@ export default function SideMenuDrawer({
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <HelpCircle size={18} color="#059669" />
               <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#334155' }}>자주 묻는 질문 (FAQ)</span>
+            </div>
+            <ChevronRight size={16} color="#CBD5E1" />
+          </button>
+
+          {/* 6. 바탕화면 / 모바일 바로가기 생성 */}
+          <button
+            type="button"
+            onClick={() => { onClose(); if (onOpenShortcut) onOpenShortcut(); }}
+            style={{ width: '100%', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: 'none', background: 'transparent', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#F0F9FF'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Smartphone size={18} color="#0284C7" />
+              <div>
+                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0F172A' }}>바로가기 아이콘 추가</span>
+                <span style={{ fontSize: '0.68rem', color: '#0284C7', background: '#E0F2FE', padding: '1px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 700 }}>바탕화면·모바일</span>
+              </div>
             </div>
             <ChevronRight size={16} color="#CBD5E1" />
           </button>

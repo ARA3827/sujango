@@ -19,6 +19,7 @@ import PaymentResultModal from './components/PaymentResultModal';
 import ClientPreviewView from './components/ClientPreviewView';
 import SideMenuDrawer from './components/SideMenuDrawer';
 import InfoModal from './components/InfoModal';
+import ShortcutModal from './components/ShortcutModal';
 import { getStoredUser, saveUser, DEMO_USER } from './utils/authStorage';
 import { syncUserProfile } from './utils/supabaseClient';
 import { UserCheck, UserX, Sparkles, Crown } from 'lucide-react';
@@ -44,6 +45,19 @@ export default function App() {
   const [selectedPlanForCheckout, setSelectedPlanForCheckout] = useState(null);
   const [selectedBillingCycle, setSelectedBillingCycle] = useState('yearly');
   const [paymentResult, setPaymentResult] = useState({ isOpen: false, status: 'success', details: null });
+
+  // PWA 바탕화면/홈화면 바로가기 프롬프트 및 모달 상태
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+  }, []);
 
   const handleOpenCheckout = (plan, billingCycle = 'yearly') => {
     setSelectedPlanForCheckout(plan);
@@ -478,6 +492,14 @@ export default function App() {
         onOpenPricing={() => setIsPricingModalOpen(true)}
         onOpenFeedback={() => setIsNewToolModalOpen(true)}
         onOpenPolicy={handleOpenPolicy}
+        onOpenShortcut={() => setIsShortcutModalOpen(true)}
+      />
+
+      {/* 바탕화면 / 모바일 홈 화면 바로가기 추가 모달 */}
+      <ShortcutModal 
+        isOpen={isShortcutModalOpen}
+        onClose={() => setIsShortcutModalOpen(false)}
+        installPrompt={installPrompt}
       />
 
       {/* 수장고 소개 / 이용안내 / FAQ 2-Depth 안내 센터 모달 */}
