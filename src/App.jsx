@@ -22,13 +22,18 @@ import InfoModal from './components/InfoModal';
 import ShortcutModal from './components/ShortcutModal';
 import { getStoredUser, saveUser, DEMO_USER } from './utils/authStorage';
 import { syncUserProfile } from './utils/supabaseClient';
-import { UserCheck, UserX, Sparkles, Crown } from 'lucide-react';
+import { exportArchiveBackup } from './utils/archiveStorage';
+import { requestPersistentStorage, migrateArtworksToV6 } from './utils/artworkModel';
+import { UserCheck, UserX, Sparkles, Crown, AlertCircle, Download, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
   // 인증 상태 관리 (기본값: getStoredUser() 또는 null)
   const [user, setUser] = useState(getStoredUser);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginInitialMode, setLoginInitialMode] = useState('select'); // 'select' | 'signup' | 'login'
+
+  // 스토리지 안전 알림 배너 상태
+  const [storageBanner, setStorageBanner] = useState(null); // { type: 'warning' | 'error', message: string, showDownload: boolean }
 
   const handleOpenLogin = (mode = 'select') => {
     setLoginInitialMode(mode);
@@ -58,6 +63,52 @@ export default function App() {
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
   }, []);
+
+  // 6-2-A: 브라우저 영구 보존(Persistent Storage) 요청 & IndexedDB 안전 마이그레이션 실행
+  useEffect(() => {
+    // 1. 브라우저 영구 보존(Persistent Storage) 자동 요청
+    requestPersistentStorage();
+
+    // 2. 안전 마이그레이션 실행 (IndexedDB 스냅샷 기반, 멱등성 보장)
+    if (user) {
+      migrateArtworksToV6(user);
+    }
+
+    // 3. 자가 치유 및 용량 부족 이벤트 리스너 등록
+    const handleSelfHealing = (e) => {
+      setToastMessage({
+        message: e.detail?.message || '저장 공간 확보를 위해 화면 표시용 이미지를 경량화했습니다. 원본은 금고에 무손실 보존되어 있습니다.',
+        type: 'info'
+      });
+      setTimeout(() => setToastMessage(null), 4000);
+    };
+
+    const handleStorageFullNoVault = (e) => {
+      setStorageBanner({
+        type: 'warning',
+        message: e.detail?.message || '브라우저 저장 공간이 부족합니다. 소중한 기록을 안전하게 보존하기 위해 백업 파일을 먼저 내려받거나 불필요한 작품을 정리해 주세요.',
+        showDownload: true
+      });
+    };
+
+    const handleMigrationError = (e) => {
+      setStorageBanner({
+        type: 'error',
+        message: '데이터 정리 중 문제가 생겼어요. 작가님의 소중한 기록은 안전하게 남아 있으니 안심하세요.',
+        showDownload: true
+      });
+    };
+
+    window.addEventListener('sujango_self_healing_applied', handleSelfHealing);
+    window.addEventListener('sujango_storage_full_no_vault', handleStorageFullNoVault);
+    window.addEventListener('sujango_migration_error', handleMigrationError);
+
+    return () => {
+      window.removeEventListener('sujango_self_healing_applied', handleSelfHealing);
+      window.removeEventListener('sujango_storage_full_no_vault', handleStorageFullNoVault);
+      window.removeEventListener('sujango_migration_error', handleMigrationError);
+    };
+  }, [user]);
 
   const handleOpenCheckout = (plan, billingCycle = 'yearly') => {
     setSelectedPlanForCheckout(plan);
@@ -335,6 +386,67 @@ export default function App() {
           }}
         >
           <span>{toastMessage.message}</span>
+        </div>
+      )}
+
+      {/* 6-2-A: 스토리지 안전 배너 (저장 공간 부족 / 변환 실패 시 안심 안내 및 백업 다운로드 버튼) */}
+      {storageBanner && (
+        <div 
+          style={{
+            maxWidth: '1120px',
+            margin: '0.75rem auto 0',
+            padding: '0.85rem 1.25rem',
+            background: storageBanner.type === 'error' ? '#FEF2F2' : '#FFFBEB',
+            border: `1px solid ${storageBanner.type === 'error' ? '#FECACA' : '#FDE68A'}`,
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            flexWrap: 'wrap',
+            boxSizing: 'border-box'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: storageBanner.type === 'error' ? '#991B1B' : '#92400E', fontSize: '0.88rem', fontWeight: 500 }}>
+            <AlertCircle size={18} style={{ flexShrink: 0 }} />
+            <span>{storageBanner.message}</span>
+          </div>
+          {storageBanner.showDownload && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                onClick={() => exportArchiveBackup(user)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  background: '#0F172A',
+                  color: '#FFFFFF',
+                  borderRadius: '6px',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <Download size={14} />
+                <span>백업 파일 내려받기</span>
+              </button>
+              <button
+                onClick={() => setStorageBanner(null)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#64748B',
+                  fontSize: '0.78rem',
+                  cursor: 'pointer',
+                  padding: '4px'
+                }}
+              >
+                닫기
+              </button>
+            </div>
+          )}
         </div>
       )}
 

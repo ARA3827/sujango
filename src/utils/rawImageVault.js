@@ -184,3 +184,38 @@ export async function deleteOriginalFromVault(artworkId) {
     return false;
   }
 }
+
+/**
+ * 원본 금고에 해당 작품의 무손실 원본 파일이 실제로 존재하는지 확인 (자가 치유 안전 검사용)
+ */
+export async function hasOriginalInVault(artworkId) {
+  if (!artworkId) return false;
+
+  try {
+    const db = await openDatabase();
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction([STORE_NAME], 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const countRequest = store.count(artworkId);
+
+        countRequest.onsuccess = () => {
+          const hasItem = countRequest.result > 0;
+          try { db.close(); } catch (e) {}
+          resolve(hasItem);
+        };
+
+        countRequest.onerror = () => {
+          try { db.close(); } catch (e) {}
+          resolve(false);
+        };
+      } catch (e) {
+        try { db.close(); } catch (err) {}
+        resolve(false);
+      }
+    });
+  } catch (error) {
+    return false;
+  }
+}
+

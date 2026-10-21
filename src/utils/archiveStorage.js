@@ -1,5 +1,7 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient';
 import { getStoredUser, getUserScopedKey } from './authStorage';
+import { hasOriginalInVault } from './rawImageVault';
+import { isMigrationLocked, normalizeArtwork } from './artworkModel';
 
 // 초기 기본 시연용 미술관 샘플 작품 데이터 2점 (데모 계정 전용)
 const DEFAULT_ARTWORKS = [
@@ -68,9 +70,20 @@ export function getArtworks(user = null) {
 }
 
 // 2. 작가 전용 금고에 저장 (브라우저 5MB 한도 자가 치유 Self-Healing 엔진 탑재)
-export function saveArtworks(artworks, user = null) {
+export async function saveArtworks(artworks, user = null) {
   const currentUser = user || getStoredUser();
   const key = getUserScopedKey('artflow_artworks', currentUser);
+
+  // 0. 마이그레이션 진행 중에는 자가 치유 엔진 완전 잠금
+  if (isMigrationLocked()) {
+    try {
+      localStorage.setItem(key, JSON.stringify(artworks));
+      return true;
+    } catch (e) {
+      console.warn('[Storage] 변환 중 쓰기 잠금 상태:', e);
+      return false;
+    }
+  }
 
   // 1차: 실시간 합성 가능한 중복 대형 필드(previewImageUrl) 제거하여 수 MB 용량 사전 확보
   const cleanedList = artworks.map(item => {
@@ -83,69 +96,103 @@ export function saveArtworks(artworks, user = null) {
     localStorage.setItem(key, JSON.stringify(cleanedList));
     return true;
   } catch (err) {
-    console.warn('[Storage] 1차 저장 실패 (5MB 한도 초과 감지), 자가 치유(Self-Healing) 가동:', err);
+    console.warn('[Storage] 1차 저장 실패 (5MB 한도 초과 감지), 자가 치유 안전성 검증 착수:', err);
 
-    // 2차: 자가 치유 가동 (원본은 IndexedDB 금고에 무손실 보존되어 있으므로 뷰어 거품만 1/10 다이어트)
+    // 2. 용량 초과 감지 시: 썸네일로 교체할 대상 작품들이 실제로 IndexedDB 금고에 있는지 비동기 사전 검증
+    const candidateItems = cleanedList.filter(
+      item => item.thumbnailUrl && item.imageUrl && item.imageUrl.length > 150000
+    );
+
+    let allOriginalsSafe = true;
+    for (const cand of candidateItems) {
+      const exists = await hasOriginalInVault(cand.id);
+      if (!exists) {
+        allOriginalsSafe = false;
+        console.error(`[Storage] 위험 감지: 작품 [${cand.title || cand.id}]의 무손실 원본이 금고에 없습니다! 썸네일 강제 축소를 즉시 중단합니다.`);
+        break;
+      }
+    }
+
+    // 만약 금고에 원본이 없는 작품이 하나라도 있다면:
+    // 원본 손실을 막기 위해 절대 강제로 썸네일 교체하지 않고, 사용자에게 안내 창을 띄우고 저장을 안전 중단!
+    if (!allOriginalsSafe || candidateItems.length === 0) {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('sujango_storage_full_no_vault', {
+          detail: {
+            message: '브라우저 저장 공간이 부족합니다. 소중한 기록을 안전하게 보존하기 위해 백업 파일을 먼저 내려받거나 불필요한 작품을 정리해 주세요.'
+          }
+        }));
+      }
+      return false;
+    }
+
+    // 모든 대상 작품의 원본이 금고에 안전하게 존재함이 100% 입증된 경우에만:
+    // 화면 표시용 사본만 썸네일로 경량화하여 저장
     try {
       const slimList = cleanedList.map(item => {
         const slim = { ...item };
         if (slim.thumbnailUrl && slim.imageUrl && slim.imageUrl.length > 150000) {
           slim.imageUrl = slim.thumbnailUrl;
+          slim.hasOriginalVault = true;
         }
         return slim;
       });
 
       localStorage.setItem(key, JSON.stringify(slimList));
-      console.log('[Storage] 자가 치유 성공: 용량 거품을 걷어내고 안전하게 저장 완료!');
+      console.log('[Storage] 자가 치유 안전 적용: 금고 원본 보존 검증 완료 후 화면용 사본 경량화 저장 성공!');
+
+      // 사용자에게 조용히 넘기지 않고 투명하게 안내 토스트 발송
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('sujango_self_healing_applied', {
+          detail: {
+            count: candidateItems.length,
+            message: '저장 공간 확보를 위해 화면 표시용 이미지를 경량화했습니다. 원본은 금고에 무손실 보존되어 있습니다.'
+          }
+        }));
+      }
       return true;
     } catch (err2) {
-      console.warn('[Storage] 2차 슬림화 실패, 3차 메타데이터 중심 초경량 저장 가동:', err2);
-
-      // 3차: 극단적 자가 치유 (모든 작품의 뷰어용을 경량 썸네일로 전환하여 100% 저장 보장)
-      try {
-        const minimalList = cleanedList.map(item => {
-          const min = { ...item };
-          if (min.thumbnailUrl) min.imageUrl = min.thumbnailUrl;
-          return min;
-        });
-
-        localStorage.setItem(key, JSON.stringify(minimalList));
-        console.log('[Storage] 3차 자가 치유 완료: 작품 목록 100% 저장 성공!');
-        return true;
-      } catch (err3) {
-        console.error('[Storage] 저장 실패:', err3);
-        return false;
+      console.error('[Storage] 슬림화 저장 최종 실패:', err2);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('sujango_storage_full_no_vault', {
+          detail: {
+            message: '브라우저 저장 공간이 가득 찼습니다. 안전을 위해 백업 파일을 내려받아 주세요.'
+          }
+        }));
       }
+      return false;
     }
   }
 }
 
 // 3. 단일 작품 추가 또는 업데이트 (작가 계정별 격리 저장 + 클라우드 백업)
-export function saveSingleArtwork(artwork, user = null) {
+export async function saveSingleArtwork(artwork, user = null) {
   const currentUser = user || getStoredUser();
   const list = getArtworks(currentUser);
-  const index = list.findIndex(item => item.id === artwork.id);
+  const normalized = normalizeArtwork(artwork, currentUser);
+  const index = list.findIndex(item => item.id === normalized.id);
   let savedItem;
   
   if (index >= 0) {
     savedItem = { 
       ...list[index], 
-      ...artwork, 
-      artist: artwork.artist || currentUser?.name || '작가',
-      updatedAt: new Date().toISOString().split('T')[0] 
+      ...normalized, 
+      artist: normalized.artist || currentUser?.name || '작가',
+      updatedAt: new Date().toISOString()
     };
     list[index] = savedItem;
   } else {
     savedItem = {
-      ...artwork,
-      id: artwork.id || 'art-' + Date.now(),
-      artist: artwork.artist || currentUser?.name || '작가',
-      createdAt: new Date().toISOString().split('T')[0]
+      ...normalized,
+      id: normalized.id,
+      artist: normalized.artist || currentUser?.name || '작가',
+      createdAt: normalized.createdAt || new Date().toISOString().split('T')[0],
+      updatedAt: new Date().toISOString()
     };
     list.unshift(savedItem); // 최신 작품을 맨 앞으로
   }
   
-  saveArtworks(list, currentUser);
+  await saveArtworks(list, currentUser);
 
   // Supabase 클라우드 비동기 백업
   if (isSupabaseConfigured() && supabase && currentUser?.email) {
