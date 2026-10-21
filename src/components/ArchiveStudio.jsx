@@ -810,6 +810,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
             <form 
               id="artwork-modal-form"
               onSubmit={handleSaveModal} 
+              autoComplete="off"
               className="modal-body" 
               style={{ 
                 padding: '1.5rem 1.75rem', 
@@ -836,7 +837,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
               
               {/* 이미지 업로드 영역 */}
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">작품 사진 첨부 (선택사항 - 자동 다이어트 압축됨)</label>
+                <label className="form-label">작품 사진 첨부 (선택사항)</label>
                 <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                   <div 
                     onClick={() => fileInputRef.current?.click()}
@@ -862,7 +863,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                       <>
                         <ImageIcon size={22} color="#94A3B8" />
                         <span style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '4px' }}>
-                          {isCompressing ? '압축 중...' : '사진 선택'}
+                          {isCompressing ? '저장 중...' : '사진 선택'}
                         </span>
                       </>
                     )}
@@ -875,13 +876,16 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                     onChange={handleImageUpload} 
                   />
                   <div style={{ fontSize: '0.82rem', color: '#64748B', lineHeight: 1.5 }}>
-                    스마트폰이나 카메라 원본 사진(20MB 등)을 그대로 올려도,
-                    브라우저에서 <strong>가벼운 웹 최적화 이미지(300KB)</strong>로 자동 압축하여 기기에 안전하게 보관합니다.
+                    스마트폰이나 고화질 카메라 원본 사진(수십 MB)도 단 1바이트 손실 없이,
+                    브라우저 내장 대용량 금고에 <strong>100% 무손실 원본 그대로</strong> 안전하게 보관합니다.
                     {modalForm.imageUrl && (
                       <div style={{ marginTop: '6px' }}>
                         <button 
                           type="button" 
-                          onClick={() => setModalForm(prev => ({ ...prev, imageUrl: '' }))}
+                          onClick={() => {
+                            setModalForm(prev => ({ ...prev, imageUrl: '' }));
+                            setPendingRawFile(null);
+                          }}
                           style={{ fontSize: '0.75rem', color: '#EF4444', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textDecoration: 'underline' }}
                         >
                           사진 제거
@@ -898,6 +902,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                   <label className="form-label">작품 제목 (필수)</label>
                   <input 
                     type="text" 
+                    name="artwork-title"
+                    autoComplete="off"
                     className="form-input" 
                     placeholder="예: 새벽의 경계"
                     value={modalForm.title}
@@ -909,6 +915,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                   <label className="form-label">작가명</label>
                   <input 
                     type="text" 
+                    name="artwork-artist"
+                    autoComplete="off"
                     className="form-input" 
                     value={modalForm.artist}
                     onChange={(e) => setModalForm({ ...modalForm, artist: e.target.value })}
@@ -921,6 +929,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                   <label className="form-label">제작 연도</label>
                   <input 
                     type="text" 
+                    name="artwork-year"
+                    autoComplete="off"
                     className="form-input" 
                     value={modalForm.year}
                     onChange={(e) => setModalForm({ ...modalForm, year: e.target.value })}
@@ -930,6 +940,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                   <label className="form-label">크기 / 호수</label>
                   <input 
                     type="text" 
+                    name="artwork-size"
+                    autoComplete="off"
                     className="form-input" 
                     placeholder="예: 53.0 × 45.5 cm (10F)"
                     value={modalForm.size}
@@ -942,6 +954,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                 <label className="form-label">재료 및 기법</label>
                 <input 
                   type="text" 
+                  name="artwork-medium"
+                  autoComplete="off"
                   className="form-input" 
                   placeholder="예: 캔버스에 유채, 혼합재료"
                   value={modalForm.medium}
@@ -954,6 +968,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                   <label className="form-label">작품 가격 / 비매품</label>
                   <input 
                     type="text" 
+                    name="artwork-price"
+                    autoComplete="off"
                     className="form-input" 
                     placeholder={modalForm.isNfs ? 'NFS (비매품)' : '예: 2,500,000원'}
                     value={modalForm.isNfs ? '' : modalForm.price}
