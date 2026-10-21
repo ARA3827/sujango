@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Copy, 
   Check, 
@@ -13,19 +13,44 @@ import {
   Archive,
   Upload,
   ArrowRight,
-  Plus
+  Plus,
+  FolderOpen,
+  AlertCircle,
+  Search,
+  Link as LinkIcon,
+  X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { saveSingleArtwork } from '../utils/archiveStorage';
+import { saveSingleArtwork, getArtworks } from '../utils/archiveStorage';
+import { generateArtworkId } from '../utils/artworkModel';
 import { compressImage } from '../utils/imageCompressor';
 import { getUserScopedKey } from '../utils/authStorage';
 import { saveOriginalToVault } from '../utils/rawImageVault';
+
 
 export default function StatementStudio({ onBack, user = null, onNavigateToArchive }) {
   const [activeTab, setActiveTab] = useState('statement'); // 'statement' | 'insta' | 'blog'
   const [copied, setCopied] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false); // 직접 수정 모드 토글
   const [rawUploadFile, setRawUploadFile] = useState(null); // 무손실 원본 대용량 파일 (31.5MB 등)
+
+  // 수장고 연동 및 버전 히스토리 상태 (Step 6-2-C)
+  const [artworkId, setArtworkId] = useState(null); // 불러온 수장고 작품 고유 ID
+  const [artworkUpdatedAt, setArtworkUpdatedAt] = useState(null); // 작품 최종 수정 시각
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false); // 수장고 작품 불러오기 모달
+  const [importSearchQuery, setImportSearchQuery] = useState(''); // 모달 내 검색어
+  const [syncWithVaultOnCreate, setSyncWithVaultOnCreate] = useState(true); // 새 작품 등록 시 수장고에도 보관
+  const [vaultDiffNotice, setVaultDiffNotice] = useState(null); // 수장고 변경 감지 알림
+  const [statementHistory, setStatementHistory] = useState(null); // 직전 1개 버전 히스토리 { statement, insta, blog, savedAt }
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // 토스트 안내 헬퍼
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(prev => (prev === msg ? null : prev));
+    }, 2800);
+  };
 
   // 3번: 마지막으로 사용한 재료 복원 (초기값)
   const getLastMedium = () => {
@@ -118,6 +143,122 @@ export default function StatementStudio({ onBack, user = null, onNavigateToArchi
     blog: ''
   });
 
+  // 수장고에서 작품 선택 시 폼 및 글 채우기
+  const handleSelectArtworkFromVault = (art) => {
+    // 크기 파싱 시도 (가로/세로 규격 자동 복원)
+    const rawSize = art.size || '';
+    let parsedW = '';
+    let parsedH = '';
+    let parsedUnit = 'cm';
+
+    if (rawSize.includes('×') || rawSize.includes('x')) {
+      const parts = rawSize.split(/[×x]/);
+      if (parts.length >= 2) {
+        parsedW = parts[0].replace(/[^0-9.]/g, '').trim();
+        parsedH = parts[1].replace(/[^0-9.]/g, '').trim();
+        if (rawSize.toLowerCase().includes('inch')) parsedUnit = 'inch';
+        else if (rawSize.toLowerCase().includes('cm')) parsedUnit = 'cm';
+        else parsedUnit = 'direct';
+      }
+    }
+
+    setSizeW(parsedW);
+    setSizeH(parsedH);
+    setSizeUnit(parsedUnit);
+
+    setArtwork({
+      title: art.title || '',
+      artist: art.artist || user?.name || '작가',
+      year: art.year || new Date().getFullYear().toString(),
+      medium: art.medium || getLastMedium(),
+      size: art.size || '',
+      price: art.price || '',
+      isNfs: Boolean(art.isNfs || art.price?.includes('NFS')),
+      keywords: art.keywords || '',
+      inspiration: art.inspiration || ''
+    });
+
+    setArtworkImage(art.imageUrl || '');
+    setRawUploadFile(null);
+
+    // 기존에 작성해둔 글이 있다면 즉시 뷰어에 로드
+    const existingTexts = {
+      statement: art.statement || '',
+      insta: art.instaCaption || '',
+      blog: art.blogStory || ''
+    };
+    setResults(existingTexts);
+    setOriginalResults(existingTexts);
+
+    // 기존 히스토리 로드
+    if (art.statementHistory) {
+      setStatementHistory(art.statementHistory);
+    } else {
+      setStatementHistory(null);
+    }
+
+    setArtworkId(art.id);
+    setArtworkUpdatedAt(art.updatedAt || art.createdAt || null);
+    setIsImportModalOpen(false);
+    setVaultDiffNotice(null);
+
+    showToast(`'${art.title || '작품'}'의 정보를 수장고에서 불러왔습니다.`);
+  };
+
+  // 연결 해제 (독립 작품으로 전환)
+  const handleClearArtworkLink = () => {
+    setArtworkId(null);
+    setArtworkUpdatedAt(null);
+    setVaultDiffNotice(null);
+    showToast('수장고 연결을 해제했습니다. 이 글은 독립적으로 관리됩니다.');
+  };
+
+  // 수장고 변경 사항을 현재 폼에 반영
+  const handleApplyVaultChanges = () => {
+    if (!vaultDiffNotice?.artwork) return;
+    const v = vaultDiffNotice.artwork;
+    setArtwork(prev => ({
+      ...prev,
+      title: v.title || prev.title,
+      artist: v.artist || prev.artist,
+      year: v.year || prev.year,
+      size: v.size || prev.size,
+      medium: v.medium || prev.medium,
+      price: v.price || prev.price,
+      isNfs: Boolean(v.isNfs)
+    }));
+    if (v.imageUrl) setArtworkImage(v.imageUrl);
+    setArtworkUpdatedAt(v.updatedAt || new Date().toISOString());
+    setVaultDiffNotice(null);
+    showToast('수장고의 최신 작품 정보를 반영했습니다.');
+  };
+
+  // 현재 글을 직전 버전 히스토리로 백업
+  const backupCurrentToHistory = () => {
+    if (results.statement || results.insta || results.blog) {
+      setStatementHistory({
+        statement: results.statement || '',
+        insta: results.insta || '',
+        blog: results.blog || '',
+        savedAt: new Date().toISOString()
+      });
+    }
+  };
+
+  // [이전 버전으로 되돌리기] 핸들러
+  const handleRevertHistory = () => {
+    if (!statementHistory) return;
+    setResults({
+      statement: statementHistory.statement || '',
+      insta: statementHistory.insta || '',
+      blog: statementHistory.blog || ''
+    });
+    setIsEditMode(false);
+    showToast('직전 버전의 글로 안전하게 되돌렸습니다.');
+    triggerConfetti();
+  };
+
+
   // AI 글 3종 텍스트 생성 헬퍼
   const createGeneratedTexts = () => {
     const { title, year, medium, size, keywords, inspiration } = artwork;
@@ -188,13 +329,25 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
     };
   };
 
-  // 1) 글 먼저 확인 (미리보기만 생성)
+  // 1) 글 먼저 확인 (AI 초안 생성 - 기존 글이 있으면 직전 히스토리 자동 보관)
   const handleGenerate = (e) => {
-    if (e) e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+    if (!artwork.title.trim()) {
+      alert('작품 제목을 먼저 입력해 주세요.');
+      return;
+    }
+
+    // 기존 작성된 글이 있었다면 덮어쓰기 전 직전 히스토리로 안전 보관
+    if (results.statement || results.insta || results.blog) {
+      backupCurrentToHistory();
+    }
+
     const generated = createGeneratedTexts();
     setResults(generated);
     setOriginalResults(generated);
+    setIsEditMode(false);
     triggerConfetti();
+    showToast('AI가 미술평론풍 작가노트와 SNS 글을 새롭게 작성했습니다.');
   };
 
   // 2) [원클릭 메인 핵심] AI 글 생성과 동시에 수장고에 즉시 영구 등록!
@@ -215,49 +368,10 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
       setOriginalResults(finalTexts);
     }
 
-    const authorName = artwork.artist || user?.name || '작가';
-    const savedId = 'art-' + Date.now();
-    const itemToSave = {
-      id: savedId,
-      title: artwork.title.trim(),
-      artist: authorName,
-      year: artwork.year || new Date().getFullYear().toString(),
-      medium: artwork.medium || '',
-      size: artwork.size || '',
-      price: artwork.isNfs ? 'NFS (비매품)' : (artwork.price ? artwork.price : '가격 협의'),
-      isNfs: Boolean(artwork.isNfs),
-      imageUrl: artworkImage,
-      statement: finalTexts.statement || '',
-      instaCaption: finalTexts.insta || '',
-      blogStory: finalTexts.blog || '',
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-
-    // 1. IndexedDB 무손실 금고에 대용량 원본 파일(31.5MB 등) 안전 보관
-    if (rawUploadFile) {
-      try {
-        await saveOriginalToVault(savedId, rawUploadFile, rawUploadFile.name);
-      } catch (e) {
-        console.warn('[StatementStudio] 금고 저장 알림:', e);
-      }
-    }
-
-    const updatedList = saveSingleArtwork(itemToSave, user);
-    triggerConfetti();
-    setSavedNotice(true);
-
-    setTimeout(() => {
-      setIsSaving(false);
-      if (onNavigateToArchive) {
-        const savedItem = updatedList.find(a => a.id === savedId) || updatedList[0];
-        onNavigateToArchive(savedItem ? savedItem.id : null);
-      } else if (onBack) {
-        onBack();
-      }
-    }, 850);
+    await executeSaveToArchive(finalTexts);
   };
 
-  // 3) AI 글 없이 기본 정보만 수장고에 등록
+  // 3) AI 글 없이 기본 정보 또는 현재 작성된 글 수장고에 등록 (중복 작품 방지 핵심)
   const handleSaveToArchive = async () => {
     if (!artwork.title.trim()) {
       alert('작품 제목을 먼저 입력해 주세요.');
@@ -265,11 +379,36 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
     }
 
     setIsSaving(true);
+    await executeSaveToArchive(results);
+  };
+
+  // 실제 저장 실행 함수 (기존 작품은 해당 ID 갱신, 신규 작품은 수장고 보관 연동)
+  const executeSaveToArchive = async (textsToSave) => {
     const authorName = artwork.artist || user?.name || '작가';
-    const savedId = 'art-' + Date.now();
+    let targetId = artworkId;
+    const isUpdatingExisting = Boolean(targetId);
+
+    if (!targetId) {
+      // 새 작품인 경우
+      if (syncWithVaultOnCreate) {
+        targetId = generateArtworkId();
+      } else {
+        setIsSaving(false);
+        showToast('작성된 글이 화면에 유지됩니다.');
+        return;
+      }
+    }
+
+    // 기존 작품 목록 조회
+    const allArts = getArtworks(user) || [];
+    const existingArt = isUpdatingExisting ? allArts.find(a => a.id === targetId) : null;
+
+    // 히스토리 보관 (현재 수정된 적이 있다면 기존 버전을 statementHistory에 보관)
+    const historyToKeep = statementHistory || (existingArt && existingArt.statementHistory) || null;
 
     const itemToSave = {
-      id: savedId,
+      ...(existingArt || {}),
+      id: targetId,
       title: artwork.title.trim(),
       artist: authorName,
       year: artwork.year || new Date().getFullYear().toString(),
@@ -277,36 +416,45 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
       size: artwork.size || '',
       price: artwork.isNfs ? 'NFS (비매품)' : (artwork.price ? artwork.price : '가격 협의'),
       isNfs: Boolean(artwork.isNfs),
-      imageUrl: artworkImage,
-      statement: results.statement || '',
-      instaCaption: results.insta || '',
-      blogStory: results.blog || '',
-      createdAt: new Date().toISOString().split('T')[0]
+      imageUrl: artworkImage || (existingArt && existingArt.imageUrl) || '',
+      statement: textsToSave.statement || '',
+      instaCaption: textsToSave.insta || '',
+      blogStory: textsToSave.blog || '',
+      keywords: artwork.keywords || '',
+      inspiration: artwork.inspiration || '',
+      statementHistory: historyToKeep,
+      createdAt: existingArt?.createdAt || new Date().toISOString().split('T')[0],
+      updatedAt: new Date().toISOString()
     };
 
     // 1. IndexedDB 무손실 금고에 대용량 원본 파일(31.5MB 등) 안전 보관
     if (rawUploadFile) {
       try {
-        await saveOriginalToVault(savedId, rawUploadFile, rawUploadFile.name);
+        await saveOriginalToVault(targetId, rawUploadFile, rawUploadFile.name);
       } catch (e) {
         console.warn('[StatementStudio] 금고 저장 알림:', e);
       }
     }
 
-    const updatedList = saveSingleArtwork(itemToSave, user);
+    const updatedList = await saveSingleArtwork(itemToSave, user);
+    setArtworkId(targetId);
+    setArtworkUpdatedAt(itemToSave.updatedAt);
     triggerConfetti();
     setSavedNotice(true);
+
+    showToast(isUpdatingExisting ? '기존 수장고 작품의 작가노트가 안전하게 갱신되었습니다.' : '수장고에 새 작품과 작가노트가 안전하게 보관되었습니다.');
 
     setTimeout(() => {
       setIsSaving(false);
       if (onNavigateToArchive) {
-        const savedItem = updatedList.find(a => a.id === savedId) || updatedList[0];
+        const savedItem = updatedList.find(a => a.id === targetId) || updatedList[0];
         onNavigateToArchive(savedItem ? savedItem.id : null);
       } else if (onBack) {
         onBack();
       }
     }, 850);
   };
+
 
   // 이미지 파일 선택 시 자동 압축 및 대용량 원본(31.5MB 등) 안전 보관
   const handleImageUpload = async (e) => {
@@ -403,7 +551,70 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             <span style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 400 }}>필수 정보 입력</span>
           </div>
 
+          {/* 수장고에서 작품 불러오기 버튼 (단정하고 정갈한 원클릭 로더) */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsImportModalOpen(true);
+              setImportSearchQuery('');
+            }}
+            className="btn-import-vault"
+            style={{ marginBottom: '0.2rem' }}
+            title="수장고에 보관된 작품 목록을 확인하고 작가노트로 가져옵니다"
+          >
+            <FolderOpen size={16} />
+            수장고에서 작품 불러오기
+          </button>
+
+          {/* 수장고 원본 변경 감지 알림 배너 */}
+          {vaultDiffNotice && (
+            <div className="caption-vault-diff-banner" style={{ margin: 0 }}>
+              <div className="caption-vault-diff-header">
+                <AlertCircle size={15} />
+                <span>수장고의 작품 정보가 변경되었습니다</span>
+              </div>
+              <div className="caption-vault-diff-msg">
+                수장고의 원본 내용이 업데이트되었습니다. 작가노트에도 새 작품 정보를 반영할까요?
+              </div>
+              <div className="caption-vault-diff-actions">
+                <button
+                  type="button"
+                  onClick={handleApplyVaultChanges}
+                  className="btn-diff-apply"
+                >
+                  수장고 내용 반영하기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVaultDiffNotice(null)}
+                  className="btn-diff-dismiss"
+                >
+                  현재 내용 유지하기
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 연결된 수장고 작품 인디케이터 */}
+          {artworkId && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.55rem 0.85rem', background: '#F1F5F9', borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '0.8rem', color: '#334155' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <LinkIcon size={14} color="#2563EB" />
+                <span>수장고 작품과 연결됨: <strong>《{artwork.title || '작품'}》</strong></span>
+              </span>
+              <button
+                type="button"
+                onClick={handleClearArtworkLink}
+                style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', fontSize: '0.75rem', textDecoration: 'underline' }}
+                title="연결을 해제하고 새 작품으로 분리합니다"
+              >
+                연결 해제
+              </button>
+            </div>
+          )}
+
           {/* 작품 사진 첨부 */}
+
           <div className="form-group" style={{ marginBottom: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
               <label className="form-label" style={{ margin: 0 }}>작품 사진 (선택 - 자동 다이어트 압축)</label>
@@ -700,7 +911,25 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             />
           </div>
 
+          {/* 새 작품인 경우 수장고 동시 보관 체크박스 */}
+          {!artworkId && (
+            <div className="caption-vault-sync-box" style={{ margin: '0.4rem 0 0 0' }}>
+              <label className="caption-vault-sync-label">
+                <input
+                  type="checkbox"
+                  checked={syncWithVaultOnCreate}
+                  onChange={(e) => setSyncWithVaultOnCreate(e.target.checked)}
+                />
+                <span>이 작품을 수장고에도 함께 보관하기</span>
+              </label>
+              <div className="caption-vault-sync-desc">
+                수장고에 새 작품으로 자동 보관되어 도록과 전시 캡션 출력기에서도 바로 활용할 수 있습니다.
+              </div>
+            </div>
+          )}
+
           {/* 좌측 액션 버튼: AI 초안 생성 & 내 글 바로 등록 (1:1 나란히 배치) */}
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '1rem' }}>
             <button 
               type="button"
@@ -766,6 +995,19 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
 
             {currentText && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {/* 직전 버전 히스토리 되돌리기 버튼 (Step 6-2-C) */}
+                {statementHistory && (
+                  <button 
+                    type="button"
+                    onClick={handleRevertHistory}
+                    className="btn-outline"
+                    style={{ fontSize: '0.78rem', padding: '0.3rem 0.65rem', color: '#0F172A', borderColor: '#CBD5E1', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    title="직전에 작성했던 이전 글 버전으로 복원합니다"
+                  >
+                    <RotateCcw size={13} /> 이전 버전으로 되돌리기
+                  </button>
+                )}
+
                 {/* 수정한 경우 원본 복원 버튼 */}
                 {isModified && (
                   <button 
@@ -777,6 +1019,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                     <RotateCcw size={13} /> 초안 복원
                   </button>
                 )}
+
 
                 {/* 보기 모드 vs 직접 수정 모드 토글 */}
                 <button
@@ -907,6 +1150,122 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
           </div>
         </div>
       </div>
+
+      {/* 수장고에서 작품 불러오기 모달 (Step 6-2-C) */}
+      {isImportModalOpen && (() => {
+        const allVaultArts = getArtworks(user) || [];
+        const filteredArts = allVaultArts.filter(art => {
+          if (!importSearchQuery.trim()) return true;
+          const q = importSearchQuery.toLowerCase();
+          const targetText = `${art.title || ''} ${art.year || ''} ${art.medium || ''} ${art.size || ''} ${art.artist || ''}`.toLowerCase();
+          return targetText.includes(q);
+        });
+
+        return (
+          <div className="modal-overlay" onClick={() => setIsImportModalOpen(false)}>
+            <div className="caption-import-modal" onClick={(e) => e.stopPropagation()}>
+              {/* 모달 헤더 */}
+              <div className="caption-import-header">
+                <div className="caption-import-title">
+                  <FolderOpen size={18} color="#0F172A" />
+                  <span>수장고 작품 불러오기</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsImportModalOpen(false)}
+                  className="caption-import-close-btn"
+                  title="닫기"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* 검색창 */}
+              <div className="caption-import-search-bar">
+                <Search size={15} className="caption-import-search-icon" />
+                <input
+                  type="text"
+                  className="caption-import-search-input"
+                  placeholder="작품 제목, 연도, 재료 등으로 검색..."
+                  value={importSearchQuery}
+                  onChange={(e) => setImportSearchQuery(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              {/* 작품 리스트 */}
+              <div className="caption-import-list">
+                {filteredArts.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748B', fontSize: '0.88rem' }}>
+                    {allVaultArts.length === 0 ? (
+                      <>
+                        수장고에 등록된 작품이 없습니다.<br />
+                        수장고 아카이브에 먼저 작품을 등록해 보세요.
+                      </>
+                    ) : (
+                      '검색 결과와 일치하는 작품이 없습니다.'
+                    )}
+                  </div>
+                ) : (
+                  filteredArts.map(art => (
+                    <div key={art.id} className="caption-import-item">
+                      <div className="caption-import-item-left">
+                        {art.imageUrl ? (
+                          <img
+                            src={art.imageUrl}
+                            alt={art.title || '작품'}
+                            className="caption-import-thumb"
+                          />
+                        ) : (
+                          <div className="caption-import-thumb">
+                            <FolderOpen size={20} />
+                          </div>
+                        )}
+                        <div className="caption-import-info">
+                          <div className="caption-import-name" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>{art.title || '무제'}</span>
+                            {art.year && <span style={{ fontWeight: 400, color: '#64748B', fontSize: '0.82rem' }}>({art.year})</span>}
+                            {art.statement && (
+                              <span style={{ fontSize: '0.68rem', background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
+                                작가노트 보관됨
+                              </span>
+                            )}
+                          </div>
+                          <div className="caption-import-sub">
+                            {art.size ? `${art.size} · ` : ''}{art.medium || '재료 미기재'}
+                          </div>
+                          {art.price && (
+                            <div style={{ fontSize: '0.78rem', color: '#0F172A', fontWeight: 600 }}>
+                              {art.isNfs ? 'NFS (비매품)' : art.price}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectArtworkFromVault(art)}
+                        className="btn-import-select"
+                        title="이 작품의 정보를 작가노트 스튜디오로 가져옵니다"
+                      >
+                        선택
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* 작가노트 스튜디오 작업 토스트 안내 */}
+      {toastMessage && (
+        <div className="caption-studio-toast">
+          <Check size={16} color="#10B981" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }
+
