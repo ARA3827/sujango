@@ -140,32 +140,47 @@ export default function PricingModal({
               <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>창작과 행정 서식이 필요한 모든 예술가를 위한 기본 지원</p>
             </div>
             
-            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '1.25rem' }}>
+            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '1rem' }}>
               0원 <span style={{ fontSize: '0.85rem', fontWeight: 400, color: '#64748B' }}>(평생 무료)</span>
             </div>
 
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.7rem', flex: 1 }}>
+            {/* 무료 보관 한도 강조 박스 */}
+            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0.65rem 0.85rem', marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
+                작품 최대 30점 보관
+              </div>
+              <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '3px' }}>
+                이 기기의 브라우저에 저장됩니다
+              </div>
+            </div>
+
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.25rem 0', display: 'flex', flexDirection: 'column', gap: '0.7rem', flex: 1 }}>
               <li style={{ fontSize: '0.83rem', color: '#0F172A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>작품 수장고 최대 30점 보관</span>
+                <span>출강 강의계획서 · 전시 약력(CV) · 견적서 작성</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>내 PC 브라우저 안전 저장</span>
+                <span>전시 캡션 A4 PDF 인쇄</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>출강 강의계획서 & 표준 CV 약력 무제한</span>
+                <span>웹 확인용 압축본 보관</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>3.3% 사업소득세 원천징수 정산 장부</span>
+                <span>AI 작가노트 초안 (월 3회)</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>전시 캡션 A4 단일 PDF 출력</span>
+                <span>JSON 파일로 백업 · 복원</span>
               </li>
             </ul>
+
+            {/* 무료 플랜 로컬 저장 안내 문구 */}
+            <div style={{ fontSize: '0.74rem', color: '#64748B', background: '#F8FAFC', border: '1px dashed #CBD5E1', borderRadius: '6px', padding: '0.55rem 0.65rem', marginBottom: '0.85rem', lineHeight: 1.5 }}>
+              무료 플랜은 이 기기에만 저장돼요. 브라우저 기록을 지우거나 기기를 바꾸면 사라질 수 있으니, 정기적으로 백업 파일을 내려받거나 Pro로 클라우드에 안전하게 보관하세요.
+            </div>
 
             <button 
               type="button" 
@@ -192,14 +207,25 @@ export default function PricingModal({
                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>Sujango Pro</h4>
                 <Crown size={16} color="#0284C7" />
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>개인 작가를 위한 100GB 초고화질 무손실 원본 보관</p>
+              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>
+                큐레이터에게 보낼 프라이빗 원본 링크와 100GB 무손실 원본 보관
+              </p>
             </div>
 
-            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.4rem' }}>
-              {billingCycle === 'yearly' ? '월 7,900원' : '월 9,900원'}
+            <div style={{ marginBottom: '0.4rem' }}>
+              <span style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A' }}>
+                {billingCycle === 'yearly' ? '월 7,900원' : '월 9,900원'}
+              </span>
             </div>
             <div style={{ fontSize: '0.78rem', color: '#0284C7', fontWeight: 600, marginBottom: '1.25rem' }}>
-              {billingCycle === 'yearly' ? '연 94,800원 일괄 결제' : '월간 구독'}
+              {billingCycle === 'yearly' ? (
+                <>
+                  <span style={{ textDecoration: 'line-through', color: '#94A3B8', marginRight: '6px' }}>월 9,900원</span>
+                  연 94,800원 일괄 결제 (20% 할인)
+                </>
+              ) : (
+                '월간 정기 구독'
+              )}
             </div>
 
             <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0.65rem 0.85rem', marginBottom: '1rem' }}>
@@ -214,23 +240,31 @@ export default function PricingModal({
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.7rem', flex: 1 }}>
               <li style={{ fontSize: '0.83rem', color: '#0F172A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>작품 등록 한도 무제한 해제</span>
+                <span>큐레이터 전용 프라이빗 이미지 공유 링크</span>
+              </li>
+              <li style={{ fontSize: '0.83rem', color: '#0F172A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#0284C7" />
+                <span>작품 등록 한도 없음 (무제한)</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>PC • 스마트폰 어디서나 실시간 자동 동기화</span>
+                <span>100GB 무손실 원본 클라우드 보관</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>초고화질 무손실 원본 클라우드 금고 (100GB)</span>
+                <span>PC · 스마트폰 어디서나 자동 동기화</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>웹 시안용 1080px 자동 압축 프리뷰 제공</span>
+                <span>웹 공유용 1080px 사본 자동 생성</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0284C7" />
-                <span>큐레이터 전용 프라이빗 도록 공유 링크</span>
+                <span>AI 작가노트 초안 (무제한)</span>
+              </li>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#0284C7" />
+                <span>3중 분산 저장으로 안전하게 보관</span>
               </li>
             </ul>
 
@@ -256,14 +290,23 @@ export default function PricingModal({
                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0F172A', margin: 0 }}>Sujango Studio</h4>
                 <Crown size={16} color="#7C3AED" />
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>영상•설치•대형 프로젝트 작가 및 작업실 전용</p>
+              <p style={{ fontSize: '0.8rem', color: '#64748B', margin: '4px 0 0 0' }}>영상 · 설치 · 대형 프로젝트 작가 및 작업실 전용</p>
             </div>
 
-            <div style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.4rem' }}>
-              {billingCycle === 'yearly' ? '월 23,200원' : '월 29,000원'}
+            <div style={{ marginBottom: '0.4rem' }}>
+              <span style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0F172A' }}>
+                {billingCycle === 'yearly' ? '월 23,200원' : '월 29,000원'}
+              </span>
             </div>
             <div style={{ fontSize: '0.78rem', color: '#7C3AED', fontWeight: 600, marginBottom: '1.25rem' }}>
-              {billingCycle === 'yearly' ? '연 278,400원 일괄 결제' : '월간 구독'}
+              {billingCycle === 'yearly' ? (
+                <>
+                  <span style={{ textDecoration: 'line-through', color: '#94A3B8', marginRight: '6px' }}>월 29,000원</span>
+                  연 278,400원 일괄 결제 (20% 할인)
+                </>
+              ) : (
+                '월간 정기 구독'
+              )}
             </div>
 
             <div style={{ background: '#FAF5FF', border: '1px solid #E9D5FF', borderRadius: '8px', padding: '0.65rem 0.85rem', marginBottom: '1rem' }}>
@@ -271,34 +314,42 @@ export default function PricingModal({
                 4K 고화질 영상 약 20편 또는 사진 약 25,000장 보관
               </div>
               <div style={{ fontSize: '0.74rem', color: '#7E22CE', marginTop: '3px' }}>
-                대용량 원본 안전 클라우드 보관 & 2-Way 워터마크 보안
+                대용량 원본 안전 클라우드 보관 & 서명·로고 워터마크
               </div>
             </div>
 
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.7rem', flex: 1 }}>
+              <li style={{ fontSize: '0.83rem', color: '#7C3AED', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#7C3AED" />
+                <span>Pro의 모든 기능 +</span>
+              </li>
               <li style={{ fontSize: '0.83rem', color: '#0F172A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#7C3AED" />
                 <span>500GB 초대용량 무손실 클라우드 금고</span>
               </li>
-              <li style={{ fontSize: '0.83rem', color: '#7C3AED', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#7C3AED" />
-                <span>나만의 워터마크 자동 합성 (문구 & 서명 로고)</span>
+                <span>작품에 내 서명 · 로고 워터마크 자동 삽입</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#7C3AED" />
-                <span>7일 만료 보안 공유 링크 (Signed URL 기술)</span>
+                <span>7일 뒤 자동 만료되는 보안 공유 링크</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#7C3AED" />
-                <span>선택적 4자리 PIN 비밀번호 클라이언트 잠금</span>
+                <span>공유 링크에 4자리 비밀번호 설정</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#7C3AED" />
-                <span>클라이언트 실시간 피드백/리뷰 수합 기능</span>
+                <span>공유받은 사람의 의견을 한곳에 모아보기</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#7C3AED" />
-                <span>3중 분산 데이터센터 보관 (11 9s 내구성)</span>
+                <span>AI 작가노트 초안 (무제한)</span>
+              </li>
+              <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Check size={16} color="#7C3AED" />
+                <span>3중 분산 저장으로 안전하게 보관</span>
               </li>
             </ul>
 
@@ -309,7 +360,7 @@ export default function PricingModal({
               style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.88rem', fontWeight: 700, borderColor: '#7C3AED', color: '#7C3AED' }}
               disabled={isUpgrading}
             >
-              <span>Studio 플랜 결제 및 시작하기</span>
+              <span>Studio 플랜 시작하기</span>
             </button>
           </div>
         </div>

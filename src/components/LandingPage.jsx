@@ -393,22 +393,27 @@ export default function LandingPage({
 
             <div className="plan-capacity-box">
               <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
-                작품 수장고 최대 30점 보관
+                작품 최대 30점 보관
               </div>
               <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '3px' }}>
-                내 PC 브라우저 안전 저장 & 단일 JSON 백업
+                이 기기의 브라우저에 저장됩니다
               </div>
             </div>
 
             <ul className="plan-features">
-              <li><CheckCircle2 size={16} color="#059669" /> <strong>작품 수장고 최대 30점</strong> 보관</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 웹 최적화 확인용 압축 보관 (내 PC 브라우저 안전 저장)</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 기기 교체 시 단일 JSON 파일 백업/복원 이동</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 출강 강의계획서 & 표준 CV 약력 & 견적서 무제한</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 전시 캡션 A4 단일 PDF 일괄 인쇄</li>
+              <li><CheckCircle2 size={16} color="#059669" /> <span>출강 강의계획서 · 전시 약력(CV) · 견적서 작성</span></li>
+              <li><CheckCircle2 size={16} color="#059669" /> <span>전시 캡션 A4 PDF 인쇄</span></li>
+              <li><CheckCircle2 size={16} color="#059669" /> <span>웹 확인용 압축본 보관</span></li>
+              <li><CheckCircle2 size={16} color="#059669" /> <span>AI 작가노트 초안 (월 3회)</span></li>
+              <li><CheckCircle2 size={16} color="#059669" /> <span>JSON 파일로 백업 · 복원</span></li>
             </ul>
-            <button onClick={onOpenLogin} className="btn-outline" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center' }}>
-              작품 30점 무료 이용
+
+            <div style={{ fontSize: '0.74rem', color: '#64748B', background: '#F8FAFC', border: '1px dashed #CBD5E1', borderRadius: '6px', padding: '0.55rem 0.65rem', marginTop: '1rem', lineHeight: 1.5 }}>
+              무료 플랜은 이 기기에만 저장돼요. 브라우저 기록을 지우거나 기기를 바꾸면 사라질 수 있으니, 정기적으로 백업 파일을 내려받거나 Pro로 클라우드에 안전하게 보관하세요.
+            </div>
+
+            <button onClick={onOpenLogin} className="btn-outline" style={{ width: '100%', marginTop: '1rem', justifyContent: 'center' }}>
+              무료로 시작하기
             </button>
           </div>
 
@@ -428,13 +433,18 @@ export default function LandingPage({
                   {billingCycle === 'yearly' ? '7,900' : '9,900'}
                 </span>
                 <span className="plan-price-unit">
-                  {billingCycle === 'yearly' ? '원 / 월 (연 94,800원 일괄 결제)' : '원 / 월 (월간 정기 구독)'}
+                  {billingCycle === 'yearly' ? (
+                    <>
+                      <span style={{ textDecoration: 'line-through', color: '#94A3B8', marginRight: '4px' }}>월 9,900원</span>
+                      원 / 월 (연 94,800원 일괄 결제, 20% 할인)
+                    </>
+                  ) : (
+                    '원 / 월 (월간 정기 구독)'
+                  )}
                 </span>
               </div>
               <p className="plan-desc">
-                {billingCycle === 'yearly'
-                  ? '개인 작가를 위한 100GB 초고화질 무손실 원본 보관 (연간 20% 할인)'
-                  : '개인 작가를 위한 100GB 초고화질 무손실 원본 보관 (부담 없는 월간 결제)'}
+                큐레이터에게 보낼 프라이빗 원본 링크와 100GB 무손실 원본 보관
               </p>
             </div>
 
@@ -448,12 +458,13 @@ export default function LandingPage({
             </div>
 
             <ul className="plan-features">
-              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>작품 등록 한도 무제한 해제</strong></li>
-              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>PC • 스마트폰 어디서나 실시간 동기화</strong></li>
-              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>100GB 초고화질 무손실 원본</strong> 클라우드 금고</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 웹 시안용 1080px 자동 압축 프리뷰 제공</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 큐레이터 전용 <strong>프라이빗 도록 공유 링크</strong></li>
-              <li><CheckCircle2 size={16} color="#059669" /> 3중 분산 데이터센터 안전 보관 (11 9s)</li>
+              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>큐레이터 전용 프라이빗 이미지 공유 링크</strong></li>
+              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>작품 등록 한도 없음 (무제한)</strong></li>
+              <li><CheckCircle2 size={16} color="#0284C7" /> <strong>100GB 무손실 원본</strong> 클라우드 금고</li>
+              <li><CheckCircle2 size={16} color="#059669" /> PC · 스마트폰 어디서나 자동 동기화</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 웹 공유용 1080px 사본 자동 생성</li>
+              <li><CheckCircle2 size={16} color="#059669" /> AI 작가노트 초안 (무제한)</li>
+              <li><CheckCircle2 size={16} color="#059669" /> 3중 분산 저장으로 안전하게 보관</li>
             </ul>
             <button onClick={onOpenPricing} className="btn-primary" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center', background: '#0F172A' }}>
               <Crown size={16} color="#EAB308" />
@@ -474,13 +485,18 @@ export default function LandingPage({
                   {billingCycle === 'yearly' ? '23,200' : '29,000'}
                 </span>
                 <span className="plan-price-unit">
-                  {billingCycle === 'yearly' ? '원 / 월 (연 278,400원 일괄 결제)' : '원 / 월 (월간 정기 구독)'}
+                  {billingCycle === 'yearly' ? (
+                    <>
+                      <span style={{ textDecoration: 'line-through', color: '#94A3B8', marginRight: '4px' }}>월 29,000원</span>
+                      원 / 월 (연 278,400원 일괄 결제, 20% 할인)
+                    </>
+                  ) : (
+                    '원 / 월 (월간 정기 구독)'
+                  )}
                 </span>
               </div>
               <p className="plan-desc">
-                {billingCycle === 'yearly'
-                  ? '영상•설치•대형 프로젝트 작가 및 작업실 전용 (연간 20% 할인)'
-                  : '영상•설치•대형 프로젝트 작가 및 작업실 전용 (부담 없는 월간 결제)'}
+                영상 · 설치 · 대형 프로젝트 작가 및 작업실 전용
               </p>
             </div>
 
@@ -489,17 +505,19 @@ export default function LandingPage({
                 4K 고화질 영상 약 20편 또는 사진 약 25,000장 보관
               </div>
               <div style={{ fontSize: '0.74rem', color: '#7E22CE', marginTop: '3px' }}>
-                대용량 원본 안전 클라우드 보관 & 2-Way 워터마크 보안
+                대용량 원본 안전 클라우드 보관 & 서명·로고 워터마크
               </div>
             </div>
 
             <ul className="plan-features">
+              <li><CheckCircle2 size={16} color="#7C3AED" /> <strong style={{ color: '#7C3AED' }}>Pro의 모든 기능 +</strong></li>
               <li><CheckCircle2 size={16} color="#7C3AED" /> <strong>500GB 초대용량 무손실 클라우드 금고</strong></li>
-              <li><CheckCircle2 size={16} color="#7C3AED" /> <strong>나만의 워터마크 자동 합성 (문구 & 로고)</strong></li>
-              <li><CheckCircle2 size={16} color="#7C3AED" /> <strong>7일 만료 보안 공유 링크 (Signed URL)</strong></li>
-              <li><CheckCircle2 size={16} color="#059669" /> 선택적 4자리 PIN 비밀번호 클라이언트 잠금</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 클라이언트 실시간 피드백 및 리뷰 수합</li>
-              <li><CheckCircle2 size={16} color="#059669" /> 3중 분산 데이터센터 안전 보관 (11 9s)</li>
+              <li><CheckCircle2 size={16} color="#7C3AED" /> <span>작품에 내 서명 · 로고 워터마크 자동 삽입</span></li>
+              <li><CheckCircle2 size={16} color="#7C3AED" /> <span>7일 뒤 자동 만료되는 보안 공유 링크</span></li>
+              <li><CheckCircle2 size={16} color="#059669" /> <span>공유 링크에 4자리 비밀번호 설정</span></li>
+              <li><CheckCircle2 size={16} color="#059669" /> <span>공유받은 사람의 의견을 한곳에 모아보기</span></li>
+              <li><CheckCircle2 size={16} color="#059669" /> <span>AI 작가노트 초안 (무제한)</span></li>
+              <li><CheckCircle2 size={16} color="#059669" /> <span>3중 분산 저장으로 안전하게 보관</span></li>
             </ul>
             <button onClick={onOpenPricing} className="btn-outline" style={{ width: '100%', marginTop: '1.5rem', justifyContent: 'center', borderColor: '#7C3AED', color: '#7C3AED', fontWeight: 600 }}>
               <span>Studio 플랜 시작하기</span>
