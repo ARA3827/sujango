@@ -18,7 +18,9 @@ import {
   AlertCircle,
   Search,
   Link as LinkIcon,
-  X
+  X,
+  Quote,
+  CheckCircle2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { saveSingleArtwork, getArtworks } from '../utils/archiveStorage';
@@ -26,6 +28,7 @@ import { generateArtworkId } from '../utils/artworkModel';
 import { compressImage } from '../utils/imageCompressor';
 import { getUserScopedKey } from '../utils/authStorage';
 import { saveOriginalToVault } from '../utils/rawImageVault';
+import { INITIAL_QUOTES } from '../inspo_module/data/initialQuotes';
 
 
 export default function StatementStudio({ onBack, user = null, onNavigateToArchive, initialArtworkId = null }) {
@@ -33,6 +36,11 @@ export default function StatementStudio({ onBack, user = null, onNavigateToArchi
   const [copied, setCopied] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false); // 직접 수정 모드 토글
   const [rawUploadFile, setRawUploadFile] = useState(null); // 무손실 원본 대용량 파일 (31.5MB 등)
+
+  // 7단계: 영감 노트 연결 및 선택 상태
+  const [isInspoModalOpen, setIsInspoModalOpen] = useState(false);
+  const [selectedInspoQuotes, setSelectedInspoQuotes] = useState([]); // 1~3개 선택된 문장 객체들
+  const [inspoSearchQuery, setInspoSearchQuery] = useState('');
 
   // 수장고 연동 및 버전 히스토리 상태 (Step 6-2-C)
   const [artworkId, setArtworkId] = useState(null); // 불러온 수장고 작품 고유 ID
@@ -270,7 +278,67 @@ export default function StatementStudio({ onBack, user = null, onNavigateToArchi
   };
 
 
-  // AI 글 3종 텍스트 생성 헬퍼
+  // 7단계-1: 현재 작가의 최근 작가노트 3편 추출 및 문체 분석 (오직 현재 작가 금고 데이터만 참조)
+  const getAuthorStyleAnalysis = () => {
+    try {
+      const allArts = getArtworks(user) || [];
+      // 현재 편집 중인 작품 제외하고 statement가 15자 이상 있는 최근 3점 추출
+      const candidates = allArts
+        .filter(a => a.id !== artworkId && a.statement && a.statement.trim().length >= 15)
+        .slice(0, 3);
+
+      if (candidates.length === 0) {
+        return { hasStyle: false, count: 0, tone: 'contemplative', frequentWords: [], samples: [] };
+      }
+
+      const combinedText = candidates.map(c => c.statement).join(' ');
+
+      // 어미 스타일 분석 (~다 / ~한다 / ~바란다 vs ~습니다)
+      let tone = 'contemplative';
+      if (combinedText.includes('습니다') || combinedText.includes('합니다')) {
+        tone = 'polite';
+      }
+
+      // 작가가 자주 쓰는 대표적인 어휘들 (2자 이상 빈출 단어 추출)
+      const aestheticKeywords = ['경계', '시간', '호흡', '침묵', '빛', '어둠', '기억', '여백', '찰나', '물성', '퇴적', '심연', '울림', '자연', '시선', '결', '공간'];
+      const frequentWords = aestheticKeywords.filter(w => combinedText.includes(w));
+
+      return {
+        hasStyle: true,
+        count: candidates.length,
+        tone,
+        frequentWords,
+        samples: candidates.map(c => ({
+          title: c.title,
+          year: c.year,
+          statement: c.statement
+        }))
+      };
+    } catch (e) {
+      console.warn('문체 분석 오류:', e);
+      return { hasStyle: false, count: 0, tone: 'contemplative', frequentWords: [], samples: [] };
+    }
+  };
+
+  // 7단계-2: 현재 작가의 영감 노트 목록 조회 (오직 현재 작가 영감노트만 격리)
+  const getInspoQuotesList = () => {
+    try {
+      const storageKey = getUserScopedKey('sujango_inspo_vault_v1', user);
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    if (user?.id === 'user-ara' || user?.email === 'ara.kim@sujango.com' || !user) {
+      return INITIAL_QUOTES;
+    }
+    return [];
+  };
+
+  // AI 글 3종 텍스트 생성 헬퍼 (7단계: 작가 고유 문체 및 영감 노트 문장 반영)
   const createGeneratedTexts = () => {
     const { title, year, medium, size, keywords, inspiration } = artwork;
     const authorName = artwork.artist || user?.name || '작가';
@@ -280,8 +348,52 @@ export default function StatementStudio({ onBack, user = null, onNavigateToArchi
     const displayKeywords = keywords.trim() || '빛과 어둠의 경계, 시간의 퇴적, 고요한 울림';
     const displayInspiration = inspiration.trim() || '작업실 창가에 드리운 빛의 경계와 깊은 새벽의 공기에서 시작되었습니다.';
 
-    // 1. 미술평론풍 작가노트
-    const statementText = `[작가노트 (Artist Statement)]
+    // 1) 작가 고유 문체 분석 결과 반영
+    const styleAnalysis = getAuthorStyleAnalysis();
+
+    // 2) 선택된 영감 노트 문장 텍스트 가공
+    const inspoQuotesText = selectedInspoQuotes.length > 0
+      ? selectedInspoQuotes.map(q => `“${q.text.trim()}” (${q.workTitle || q.creator || '영감 노트'})`).join('\n')
+      : '';
+
+    // 문체 어휘 연결 구절
+    const styleWordsClause = (styleAnalysis.hasStyle && styleAnalysis.frequentWords.length > 0)
+      ? styleAnalysis.frequentWords.slice(0, 3).join(', ')
+      : '호흡과 시간의 결';
+
+    // 1. 미술평론풍 작가노트 (Statement)
+    let statementText = '';
+    if (selectedInspoQuotes.length > 0) {
+      // 영감 문장이 있을 때의 유기적 사유 결합
+      const mainQuote = selectedInspoQuotes[0];
+      statementText = `[작가노트 (Artist Statement)]
+《${displayTitle}》 (${year})
+${displayMedium}, ${displaySize}
+
+“${mainQuote.text.trim()}”
+— ${mainQuote.workTitle || mainQuote.creator || '영감의 기록'} 중에서
+
+우리의 시선이 닿지 않는 어둠의 끝자락에는 언제나 형언할 수 없는 고요한 찰나가 존재한다.
+이번 작업 《${displayTitle}》은 ${displayInspiration}
+
+화면에 새겨진 '${displayKeywords}'의 조형 언어는 단순히 형태의 재현을 넘어, 내면의 사유와 ${styleWordsClause}을 시각화하는 과정이다. 캔버스 위에 중첩된 안료의 층위와 붓질의 궤적은 관람자에게 눈앞의 사물을 넘어 비가시적인 감정의 심연을 마주하게 한다.
+
+경계란 단절이 아니라 새로운 상태로의 이행이자 연결이다. 화면에 응축된 시간과 침묵이 누군가의 내면에 가만히 말을 건네기를 바란다.`;
+    } else if (styleAnalysis.hasStyle) {
+      // 이전 작가노트 문체가 있을 때의 반영 템플릿
+      statementText = `[작가노트 (Artist Statement)]
+《${displayTitle}》 (${year})
+${displayMedium}, ${displaySize}
+
+우리의 시선이 닿지 않는 어둠의 끝자락에는 언제나 형언할 수 없는 고요한 찰나가 존재한다.
+이번 작업 《${displayTitle}》은 ${displayInspiration}
+
+캔버스 위에 중첩된 안료의 층위는 단순히 색채의 배열을 넘어, ${styleWordsClause}을 화면 위에 은은하게 정착시키는 과정이다. 화면을 채우는 ‘${displayKeywords}’의 감각은 구체적인 형태를 벗어나 화면 전체에 묵직한 긴장감과 울림을 형성한다. 붓질의 호흡과 물성의 번짐이 교차하는 지점에서, 관람자는 비가시적인 감정의 심연을 마주하게 된다.
+
+경계란 단절이 아니라 새로운 상태로의 이행이자 연결이다. 어둠이 흩어지고 빛이 스며드는 그 찰나의 순간, 캔버스에 응축된 시간들이 누군가의 내면에 가만히 말을 건네기를 바란다.`;
+    } else {
+      // 기본 표준 템플릿
+      statementText = `[작가노트 (Artist Statement)]
 《${displayTitle}》 (${year})
 ${displayMedium}, ${displaySize}
 
@@ -291,13 +403,19 @@ ${displayMedium}, ${displaySize}
 캔버스 위에 중첩된 안료의 층위는 단순히 색채의 배열을 넘어, 시간의 퇴적과 내면의 심상을 시각화하는 과정이다. 화면을 채우는 ‘${displayKeywords}’의 감각은 구체적인 형태를 벗어나 화면 전체에 은은한 긴장감과 울림을 형성한다. 붓질의 호흡과 물성의 번짐이 교차하는 지점에서, 관람자는 대상의 재현이 아닌 비가시적인 감정의 심연을 마주하게 된다.
 
 경계란 단절이 아니라 새로운 상태로의 이행이자 연결이다. 어둠이 흩어지고 빛이 스며드는 그 찰나의 순간, 캔버스에 응축된 시간들이 누군가의 내면에 가만히 말을 건네기를 바란다.`;
+    }
 
     // 2. 인스타그램 감성 캡션
     const hashtags = `#현대미술 #작업실 #회화 #${authorName.replace(/\s+/g, '')}작가 #아트컬렉터 #아티스트 #캔버스 #미술관 #전시회 #ContemporaryArt #OilPainting #StudioLife #ArtCollector #KoreanArt #ArtistStudio #Canvas #Artwork`;
+    
+    let instaQuoteSection = '';
+    if (selectedInspoQuotes.length > 0) {
+      instaQuoteSection = `\n“${selectedInspoQuotes[0].text.trim()}”\n`;
+    }
 
     const instaText = `어둠이 완전히 걷히기 전,
 작업실 창가에 머물던 푸른 공기와 미세한 빛.
-
+${instaQuoteSection}
 《${displayTitle}》
 ${year}
 ${displayMedium}
@@ -316,6 +434,11 @@ ${displayInspiration}
 ${hashtags}`;
 
     // 3. 블로그/뉴스레터 작업실 비하인드
+    let blogQuoteSection = '';
+    if (selectedInspoQuotes.length > 0) {
+      blogQuoteSection = `\n마음에 품고 있던 문장이 하나 있습니다.\n${inspoQuotesText}\n이 문장이 주는 울림이 이번 화폭에 고스란히 담겼습니다.\n`;
+    }
+
     const blogText = `[작업실 비하인드 스토리]
 《${displayTitle}》이 태어나기까지의 기록
 
@@ -324,8 +447,7 @@ ${hashtags}`;
 이번에 새롭게 완성한 작업 《${displayTitle}》에 대해 조금 더 편안하고 솔직한 이야기를 들려드리려 합니다.
 
 1. 어디서 시작된 작업인가요?
-${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머릿속을 떠나지 않았고, 결국 이 감각을 화폭에 옮기지 않고는 견딜 수 없었습니다.
-
+${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머릿속을 떠나지 않았고, 결국 이 감각을 화폭에 옮기지 않고는 견딜 수 없었습니다.${blogQuoteSection}
 2. 물성과 붓질의 고민
 이번 작업에서는 ${displayMedium}을 주재료로 사용했습니다. ${displayKeywords}의 느낌을 살리기 위해 안료를 묽게 여러 번 겹쳐 올리는 기법을 택했는데요, 밑칠이 비쳐 나오며 깊은 공간감을 낼 때까지 며칠 동안 말리고 올리는 인내의 시간을 보냈습니다.
 
@@ -356,9 +478,19 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
     const generated = createGeneratedTexts();
     setResults(generated);
     setOriginalResults(generated);
-    setIsEditMode(false);
+    setIsEditMode(true); // 7단계-3: 생성 완료 시 즉시 편집 가능한 상태로 열어줌!
     triggerConfetti();
-    showToast('AI가 미술평론풍 작가노트와 SNS 글을 새롭게 작성했습니다.');
+
+    const styleInfo = getAuthorStyleAnalysis();
+    if (styleInfo.hasStyle && selectedInspoQuotes.length > 0) {
+      showToast(`이전 작가노트 ${styleInfo.count}편의 문체와 영감 문장이 반영된 초안이 생성되었습니다.`);
+    } else if (styleInfo.hasStyle) {
+      showToast(`이전 작가노트 ${styleInfo.count}편의 고유 문체가 반영된 초안이 생성되었습니다.`);
+    } else if (selectedInspoQuotes.length > 0) {
+      showToast(`선택하신 영감 문장이 자연스럽게 반영된 초안이 생성되었습니다.`);
+    } else {
+      showToast('AI가 미술평론풍 작가노트 초안을 새롭게 작성했습니다.');
+    }
   };
 
   // 2) [원클릭 메인 핵심] AI 글 생성과 동시에 수장고에 즉시 영구 등록!
@@ -911,20 +1043,120 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             />
           </div>
 
-          {/* 창작 배경 / 영감 메모 */}
+          {/* 창작 배경 / 영감 메모 (7단계: 영감 노트 연결) */}
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>창작 배경 / 영감 메모</span>
-              <span style={{ fontSize: '0.78rem', color: '#94A3B8', fontWeight: 400 }}>선택사항 (비워두셔도 AI 자동 생성)</span>
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '6px' }}>
+              <label className="form-label" style={{ margin: 0 }}>창작 배경 / 영감 메모</label>
+              <button
+                type="button"
+                onClick={() => setIsInspoModalOpen(true)}
+                className="btn-outline"
+                style={{
+                  padding: '3px 9px',
+                  fontSize: '0.78rem',
+                  color: '#0284C7',
+                  borderColor: '#BAE6FD',
+                  background: '#F0F9FF',
+                  borderRadius: '999px',
+                  fontWeight: 600,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: 'pointer'
+                }}
+                title="영감 노트에 모아둔 명문장과 사유를 가져와 AI 초안에 반영합니다"
+              >
+                <Quote size={12} color="#0284C7" /> 영감 노트에서 문장 가져오기
+              </button>
+            </div>
+
+            {/* 선택된 영감 문장 칩 목록 */}
+            {selectedInspoQuotes.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '8px' }}>
+                <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
+                  💡 참고할 영감 문장 ({selectedInspoQuotes.length} / 3개):
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {selectedInspoQuotes.map((q, idx) => (
+                    <div 
+                      key={q.id || idx}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        background: '#F8FAFC',
+                        border: '1px solid #E2E8F0',
+                        borderRadius: '6px',
+                        padding: '6px 10px',
+                        fontSize: '0.78rem',
+                        color: '#334155'
+                      }}
+                    >
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85%' }}>
+                        “{q.text}” <small style={{ color: '#94A3B8' }}>— {q.workTitle || q.creator || '영감 노트'}</small>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedInspoQuotes(prev => prev.filter(item => (item.id || item.text) !== (q.id || q.text)))}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: '2px', display: 'flex' }}
+                        title="제외하기"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <textarea 
               className="form-textarea" 
-              style={{ minHeight: '115px', fontSize: '0.88rem', lineHeight: '1.6' }}
+              style={{ minHeight: '100px', fontSize: '0.88rem', lineHeight: '1.6' }}
               placeholder="예: 작업실 창가에 드리운 빛의 경계와 깊은 새벽의 공기에서 시작되었습니다."
               value={artwork.inspiration}
               onChange={(e) => setArtwork({...artwork, inspiration: e.target.value})}
             />
           </div>
+
+          {/* 7단계-1: 작가 문체 학습 안내 배지 */}
+          {(() => {
+            const styleInfo = getAuthorStyleAnalysis();
+            return (
+              <div style={{ marginTop: '0.5rem' }}>
+                {styleInfo.hasStyle ? (
+                  <div style={{
+                    fontSize: '0.76rem',
+                    color: '#059669',
+                    background: '#ECFDF5',
+                    border: '1px solid #A7F3D0',
+                    padding: '6px 10px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px'
+                  }}>
+                    <CheckCircle2 size={13} color="#059669" />
+                    <span>작가님의 최근 작가노트 <strong>{styleInfo.count}편</strong>의 고유 문체가 초안에 자동 반영됩니다.</span>
+                  </div>
+                ) : (
+                  <div style={{
+                    fontSize: '0.76rem',
+                    color: '#64748B',
+                    background: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    padding: '6px 10px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px'
+                  }}>
+                    <Sparkles size={13} color="#64748B" />
+                    <span>수장고 표준 미술평론 어휘와 조형 언어로 단아하게 작성됩니다.</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* 새 작품인 경우 수장고 동시 보관 체크박스 */}
           {!artworkId && (
@@ -1076,18 +1308,25 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             {currentText ? (
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                {/* 7단계-3: AI 초안 안내 배지 */}
+                <div style={{
+                  background: '#F0F9FF',
+                  border: '1px solid #BAE6FD',
+                  borderRadius: '6px',
+                  padding: '6px 12px',
+                  marginBottom: '0.65rem',
+                  fontSize: '0.8rem',
+                  color: '#0369A1',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  <Sparkles size={13} color="#0284C7" />
+                  <span>AI 초안입니다. 작가님의 언어로 다듬어 완성하세요.</span>
+                </div>
+
                 {isEditMode ? (
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <div style={{
-                      fontSize: '0.8rem',
-                      color: '#059669',
-                      marginBottom: '0.5rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px'
-                    }}>
-                      <span>✍️ <strong>수정 모드:</strong> 원하시는 문구를 자유롭게 보완하세요. 수정된 글이 수장고에 함께 등록됩니다.</span>
-                    </div>
                     <textarea 
                       className={`output-editor ${activeTab === 'statement' ? 'serif' : ''}`}
                       style={{ flex: 1, minHeight: '340px' }}
@@ -1267,6 +1506,165 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                     </div>
                   ))
                 )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* 7단계-2: 영감 노트에서 문장 가져오기 모달 */}
+      {isInspoModalOpen && (() => {
+        const allInspoQuotes = getInspoQuotesList();
+        const filteredQuotes = allInspoQuotes.filter(q => {
+          if (!inspoSearchQuery.trim()) return true;
+          const query = inspoSearchQuery.toLowerCase();
+          const target = `${q.text || ''} ${q.workTitle || ''} ${q.creator || ''} ${q.userThought || ''} ${(q.tags || []).join(' ')}`.toLowerCase();
+          return target.includes(query);
+        });
+
+        const isQuoteSelected = (quote) => {
+          return selectedInspoQuotes.some(item => (item.id && item.id === quote.id) || item.text === quote.text);
+        };
+
+        const toggleQuoteSelection = (quote) => {
+          if (isQuoteSelected(quote)) {
+            setSelectedInspoQuotes(prev => prev.filter(item => (item.id && item.id !== quote.id) || item.text !== quote.text));
+          } else {
+            if (selectedInspoQuotes.length >= 3) {
+              alert('영감 문장은 최대 3개까지 선택하실 수 있습니다.');
+              return;
+            }
+            setSelectedInspoQuotes(prev => [...prev, quote]);
+          }
+        };
+
+        return (
+          <div className="modal-overlay" onClick={() => setIsInspoModalOpen(false)}>
+            <div className="caption-import-modal" style={{ maxWidth: '640px' }} onClick={(e) => e.stopPropagation()}>
+              {/* 모달 헤더 */}
+              <div className="caption-import-header">
+                <div className="caption-import-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Quote size={18} color="#0284C7" />
+                  <span>영감 노트에서 문장 가져오기</span>
+                  <span style={{ fontSize: '0.78rem', background: '#F1F5F9', color: '#475569', padding: '2px 8px', borderRadius: '999px', fontWeight: 600 }}>
+                    선택: {selectedInspoQuotes.length} / 3개
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsInspoModalOpen(false)}
+                  className="caption-import-close-btn"
+                  title="닫기"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* 검색창 */}
+              <div className="caption-import-search-bar">
+                <Search size={15} className="caption-import-search-icon" />
+                <input
+                  type="text"
+                  placeholder="문장, 출처(도서/영화), 작가 생각 또는 태그로 검색..."
+                  value={inspoSearchQuery}
+                  onChange={(e) => setInspoSearchQuery(e.target.value)}
+                  className="caption-import-search-input"
+                  autoFocus
+                />
+                {inspoSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setInspoSearchQuery('')}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: '4px' }}
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+
+              {/* 문장 카드 목록 */}
+              <div className="caption-import-list" style={{ maxHeight: '380px', overflowY: 'auto', padding: '0.75rem 1rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {filteredQuotes.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#94A3B8', fontSize: '0.9rem' }}>
+                    {inspoSearchQuery ? '일치하는 영감 문장이 없습니다.' : '아직 영감 노트에 저장된 문장이 없습니다. 영감 노트 메뉴에서 명문장을 모아보세요.'}
+                  </div>
+                ) : (
+                  filteredQuotes.map((q, idx) => {
+                    const selected = isQuoteSelected(q);
+                    return (
+                      <div
+                        key={q.id || idx}
+                        onClick={() => toggleQuoteSelection(q)}
+                        style={{
+                          border: selected ? '1.5px solid #0284C7' : '1px solid #E2E8F0',
+                          background: selected ? '#F0F9FF' : '#FFFFFF',
+                          borderRadius: '10px',
+                          padding: '12px 14px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          gap: '12px',
+                          alignItems: 'flex-start',
+                          transition: 'all 0.15s ease',
+                          boxShadow: selected ? '0 2px 8px rgba(2, 132, 199, 0.12)' : 'none'
+                        }}
+                      >
+                        {/* 체크 아이콘 */}
+                        <div style={{ marginTop: '2px', color: selected ? '#0284C7' : '#CBD5E1' }}>
+                          {selected ? <CheckCircle2 size={18} /> : <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '1.5px solid #CBD5E1' }} />}
+                        </div>
+
+                        {/* 본문 정보 */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ margin: '0 0 6px 0', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', lineHeight: 1.5 }}>
+                            “{q.text}”
+                          </p>
+                          <div style={{ fontSize: '0.76rem', color: '#64748B', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                            {(q.workTitle || q.creator) && (
+                              <span style={{ fontWeight: 600, color: '#334155' }}>
+                                📖 {q.workTitle ? q.workTitle : ''} {q.creator ? `(${q.creator})` : ''}
+                              </span>
+                            )}
+                            {q.userThought && (
+                              <span style={{ color: '#059669', background: '#ECFDF5', padding: '1px 6px', borderRadius: '4px' }}>
+                                💭 {q.userThought.slice(0, 32)}...
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* 모달 푸터 */}
+              <div style={{ padding: '0.9rem 1.25rem', borderTop: '1px solid #F1F5F9', background: '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.78rem', color: '#64748B' }}>
+                  최대 3개까지 선택하여 AI 초안의 사유로 반영합니다.
+                </span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsInspoModalOpen(false)}
+                    className="btn-outline"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.84rem' }}
+                  >
+                    닫기
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsInspoModalOpen(false);
+                      if (selectedInspoQuotes.length > 0) {
+                        showToast(`영감 문장 ${selectedInspoQuotes.length}개가 작가노트 초안 참고 자료로 지정되었습니다.`);
+                      }
+                    }}
+                    className="btn-primary"
+                    style={{ padding: '0.45rem 1.2rem', fontSize: '0.84rem', width: 'auto', background: '#0F172A' }}
+                  >
+                    선택 완료 ({selectedInspoQuotes.length}개)
+                  </button>
+                </div>
               </div>
             </div>
           </div>
