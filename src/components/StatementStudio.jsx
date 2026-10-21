@@ -968,7 +968,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             </div>
           </div>
 
-          {/* 재료 및 기법 (3번 요구사항: 마지막 입력값 자동 유지 & 단골 재료 원클릭 칩) */}
+          {/* 재료 및 기법 (3번 요구사항: 마지막 입력값 자동 유지) */}
           <div className="form-group" style={{ marginBottom: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
               <label className="form-label" style={{ margin: 0 }}>재료 및 기법 (Medium)</label>
@@ -981,29 +981,6 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
               value={artwork.medium}
               onChange={(e) => handleMediumChange(e.target.value)}
             />
-            {/* 단골 재료 원클릭 칩 */}
-            <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginTop: '6px' }}>
-              {['지본채색', '캔버스에 유채', '한지에 수묵채색', '장지에 채색', '아크릴 및 혼합재료'].map((mat) => (
-                <button
-                  key={mat}
-                  type="button"
-                  onClick={() => handleMediumChange(mat)}
-                  style={{
-                    border: artwork.medium === mat ? '1px solid #0284C7' : '1px solid #E2E8F0',
-                    background: artwork.medium === mat ? '#F0F9FF' : '#F8FAFC',
-                    color: artwork.medium === mat ? '#0369A1' : '#64748B',
-                    fontSize: '0.73rem',
-                    padding: '2px 8px',
-                    borderRadius: '999px',
-                    cursor: 'pointer',
-                    fontWeight: artwork.medium === mat ? 700 : 500,
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  {mat}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* 작품 가격 & 비매품 */}
@@ -1043,30 +1020,34 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             />
           </div>
 
-          {/* 창작 배경 / 영감 메모 (7단계: 영감 노트 연결 - 컴팩트 칩 & 동적 높이) */}
+          {/* 창작 배경 / 영감 메모 (방안 1: 눈에 확 띄는 선명한 블루 액션 버튼) */}
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '6px' }}>
               <label className="form-label" style={{ margin: 0 }}>창작 배경 / 영감 메모</label>
               <button
                 type="button"
                 onClick={() => setIsInspoModalOpen(true)}
-                className="btn-outline"
                 style={{
-                  padding: '2px 8px',
-                  fontSize: '0.75rem',
-                  color: '#0284C7',
-                  borderColor: '#BAE6FD',
-                  background: '#F0F9FF',
-                  borderRadius: '999px',
-                  fontWeight: 600,
+                  padding: '4px 10px',
+                  fontSize: '0.78rem',
+                  color: '#FFFFFF',
+                  background: '#0284C7',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: 700,
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '4px',
-                  cursor: 'pointer'
+                  gap: '5px',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 6px rgba(2, 132, 199, 0.25)',
+                  transition: 'all 0.15s ease'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#0369A1'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#0284C7'}
                 title="영감 노트에 모아둔 명문장과 사유를 가져와 AI 초안에 반영합니다"
               >
-                <Quote size={11} color="#0284C7" /> 영감 노트 문장 ({selectedInspoQuotes.length}/3)
+                <Quote size={12} color="#FFFFFF" />
+                <span>+ 영감 노트에서 문장 가져오기{selectedInspoQuotes.length > 0 ? ` (${selectedInspoQuotes.length}/3)` : ''}</span>
               </button>
             </div>
 
