@@ -19,11 +19,13 @@ import confetti from 'canvas-confetti';
 import { saveSingleArtwork } from '../utils/archiveStorage';
 import { compressImage } from '../utils/imageCompressor';
 import { getUserScopedKey } from '../utils/authStorage';
+import { saveOriginalToVault } from '../utils/rawImageVault';
 
 export default function StatementStudio({ onBack, user = null, onNavigateToArchive }) {
   const [activeTab, setActiveTab] = useState('statement'); // 'statement' | 'insta' | 'blog'
   const [copied, setCopied] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false); // 직접 수정 모드 토글
+  const [rawUploadFile, setRawUploadFile] = useState(null); // 무손실 원본 대용량 파일 (31.5MB 등)
 
   // 3번: 마지막으로 사용한 재료 복원 (초기값)
   const getLastMedium = () => {
@@ -196,8 +198,8 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
   };
 
   // 2) [원클릭 메인 핵심] AI 글 생성과 동시에 수장고에 즉시 영구 등록!
-  const handleGenerateAndSaveToArchive = (e) => {
-    if (e) e.preventDefault();
+  const handleGenerateAndSaveToArchive = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (!artwork.title.trim()) {
       alert('작품 제목을 먼저 입력해 주세요.');
       return;
@@ -214,7 +216,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
     }
 
     const authorName = artwork.artist || user?.name || '작가';
+    const savedId = 'art-' + Date.now();
     const itemToSave = {
+      id: savedId,
       title: artwork.title.trim(),
       artist: authorName,
       year: artwork.year || new Date().getFullYear().toString(),
@@ -229,6 +233,15 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
       createdAt: new Date().toISOString().split('T')[0]
     };
 
+    // 1. IndexedDB 무손실 금고에 대용량 원본 파일(31.5MB 등) 안전 보관
+    if (rawUploadFile) {
+      try {
+        await saveOriginalToVault(savedId, rawUploadFile, rawUploadFile.name);
+      } catch (e) {
+        console.warn('[StatementStudio] 금고 저장 알림:', e);
+      }
+    }
+
     const updatedList = saveSingleArtwork(itemToSave, user);
     triggerConfetti();
     setSavedNotice(true);
@@ -236,7 +249,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
     setTimeout(() => {
       setIsSaving(false);
       if (onNavigateToArchive) {
-        const savedItem = updatedList.find(a => a.title === itemToSave.title) || updatedList[0];
+        const savedItem = updatedList.find(a => a.id === savedId) || updatedList[0];
         onNavigateToArchive(savedItem ? savedItem.id : null);
       } else if (onBack) {
         onBack();
@@ -245,7 +258,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
   };
 
   // 3) AI 글 없이 기본 정보만 수장고에 등록
-  const handleSaveToArchive = () => {
+  const handleSaveToArchive = async () => {
     if (!artwork.title.trim()) {
       alert('작품 제목을 먼저 입력해 주세요.');
       return;
@@ -253,8 +266,10 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
 
     setIsSaving(true);
     const authorName = artwork.artist || user?.name || '작가';
+    const savedId = 'art-' + Date.now();
 
     const itemToSave = {
+      id: savedId,
       title: artwork.title.trim(),
       artist: authorName,
       year: artwork.year || new Date().getFullYear().toString(),
@@ -269,6 +284,15 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
       createdAt: new Date().toISOString().split('T')[0]
     };
 
+    // 1. IndexedDB 무손실 금고에 대용량 원본 파일(31.5MB 등) 안전 보관
+    if (rawUploadFile) {
+      try {
+        await saveOriginalToVault(savedId, rawUploadFile, rawUploadFile.name);
+      } catch (e) {
+        console.warn('[StatementStudio] 금고 저장 알림:', e);
+      }
+    }
+
     const updatedList = saveSingleArtwork(itemToSave, user);
     triggerConfetti();
     setSavedNotice(true);
@@ -276,7 +300,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
     setTimeout(() => {
       setIsSaving(false);
       if (onNavigateToArchive) {
-        const savedItem = updatedList.find(a => a.title === itemToSave.title) || updatedList[0];
+        const savedItem = updatedList.find(a => a.id === savedId) || updatedList[0];
         onNavigateToArchive(savedItem ? savedItem.id : null);
       } else if (onBack) {
         onBack();
@@ -284,17 +308,21 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
     }, 850);
   };
 
-  // 이미지 파일 선택 시 자동 압축
+  // 이미지 파일 선택 시 자동 압축 및 대용량 원본(31.5MB 등) 안전 보관
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
       setIsCompressing(true);
-      const compressed = await compressImage(file, 900, 0.75);
+      // 무손실 원본 파일 객체 보관 (31.5MB 대용량 등)
+      setRawUploadFile(file);
+
+      // 화면 뷰어용 깨끗한 압축 (화면 표시용)
+      const compressed = await compressImage(file, 1200, 0.78);
       setArtworkImage(compressed);
     } catch (err) {
-      alert('이미지 압축 중 오류가 발생했습니다: ' + err.message);
+      alert('이미지 처리 중 오류가 발생했습니다: ' + err.message);
     } finally {
       setIsCompressing(false);
     }

@@ -160,13 +160,14 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
         if (vaultBlob.originalName && vaultBlob.originalName.includes('.')) {
           const parts = vaultBlob.originalName.split('.');
           extension = parts[parts.length - 1].toLowerCase();
-        } else if (vaultBlob.type.includes('png')) {
+        } else if (vaultBlob.type && vaultBlob.type.includes('png')) {
           extension = 'png';
-        } else if (vaultBlob.type.includes('webp')) {
+        } else if (vaultBlob.type && vaultBlob.type.includes('webp')) {
           extension = 'webp';
         }
 
         const fileName = `${artistName}_《${cleanTitle}》_원본.${extension}`;
+        console.log(`[ArchiveStudio] 무손실 원본 다운로드: ${fileName} (${(vaultBlob.size / (1024 * 1024)).toFixed(2)} MB)`);
         const blobUrl = window.URL.createObjectURL(vaultBlob);
         const link = document.createElement('a');
         link.href = blobUrl;
