@@ -565,9 +565,11 @@ export default function CaptionStudio({ onBack, user = null }) {
 
         {/* 우측: 독립된 테두리 박스가 있는 실물 크기 A4 프리뷰 (다중 페이지 지원) */}
         <div className="panel-card printable-caption-container" style={{ padding: '1rem' }}>
-          <div className="panel-card-title no-print" style={{ marginBottom: '0.75rem' }}>
-            <span>A4 인쇄 미리보기 (총 {captions.length}점 등록 / A4 {pages.length}장)</span>
-            <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>
+          <div className="panel-card-title no-print" style={{ marginBottom: '0.85rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+            <span style={{ fontSize: '1rem', fontWeight: 700, color: '#0F172A' }}>
+              A4 인쇄 미리보기 (총 {captions.length}점 등록 / A4 {pages.length}장)
+            </span>
+            <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 400 }}>
               ✂️ 각 작품 테두리 선을 따라 오려 사용하세요 (가로 고정, 세로 자동)
             </span>
           </div>

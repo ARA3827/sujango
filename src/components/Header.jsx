@@ -35,14 +35,13 @@ export default function Header({
           tabIndex={0}
           style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Palette size={22} strokeWidth={2.2} color="#0F172A" />
-            <span className="brand-title" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', fontWeight: 700, color: '#0F172A' }}>
-              Sujango
-            </span>
-          </div>
-          <span className="brand-badge" style={{ fontSize: '0.72rem', background: '#F1F5F9', color: '#475569', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 600 }}>
-            수장고
+          <img 
+            src="/logo-brush.jpg" 
+            alt="수장고" 
+            style={{ height: '32px', width: 'auto', objectFit: 'contain', mixBlendMode: 'multiply' }} 
+          />
+          <span className="brand-title" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.92rem', fontWeight: 600, color: '#475569', letterSpacing: '0.04em' }}>
+            Sujango
           </span>
         </div>
 

@@ -470,7 +470,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             </div>
             <div className="form-group" style={{ marginBottom: 0, flex: 1 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                <label className="form-label" style={{ margin: 0 }}>크기 / 규격</label>
+                <label className="form-label" style={{ margin: 0, whiteSpace: 'nowrap', flexShrink: 0 }}>크기 / 규격</label>
                 {/* cm / inch / 직접입력 단위 토글 버튼 */}
                 <div style={{ display: 'flex', gap: '2px', background: '#F1F5F9', padding: '2px', borderRadius: '5px' }}>
                   <button

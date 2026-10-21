@@ -518,12 +518,16 @@ export default function App() {
           {/* 상단 1행: 브랜드 & 약관 바로가기 */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #E2E8F0', paddingBottom: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <strong style={{ fontSize: '0.95rem', color: '#0F172A', fontFamily: 'var(--font-serif)' }}>Sujango</strong>
-              <span style={{ fontSize: '0.8rem', color: '#64748B' }}>수장고</span>
+              <img 
+                src="/logo-brush.jpg" 
+                alt="수장고" 
+                style={{ height: '22px', width: 'auto', objectFit: 'contain', mixBlendMode: 'multiply' }} 
+              />
+              <strong style={{ fontSize: '0.88rem', color: '#0F172A', fontFamily: 'var(--font-sans)', fontWeight: 600 }}>Sujango</strong>
               <span style={{ color: '#CBD5E1' }}>•</span>
               <span style={{ fontSize: '0.8rem', color: '#0284C7', fontWeight: 600 }}>sujango.com</span>
               <span style={{ color: '#CBD5E1' }}>|</span>
-              <span style={{ fontSize: '0.8rem', color: '#64748B' }}>창작자를 위한 프라이빗 디지털 수장고</span>
+              <span style={{ fontSize: '0.8rem', color: '#64748B' }}>1인 창작자를 위한 프라이빗 수장고</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.78rem' }}>

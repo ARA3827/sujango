@@ -60,7 +60,7 @@ export default function Dashboard({
   const tools = [
     {
       id: 'inspo',
-      title: '✨ 영감 노트',
+      title: '영감 노트',
       tag: '창작 영감 & 문장',
       icon: <Sparkles size={24} />,
       iconBg: '#ECFDF5',
@@ -72,7 +72,7 @@ export default function Dashboard({
     },
     {
       id: 'statement',
-      title: '✍️ 작가노트 & SNS',
+      title: '작가노트 & SNS',
       tag: 'AI 글 생성',
       icon: <PenTool size={24} />,
       iconBg: '#FDF4FF',
@@ -83,7 +83,7 @@ export default function Dashboard({
     },
     {
       id: 'caption',
-      title: '🏛️ 전시 캡션 출력기',
+      title: '전시 캡션 출력기',
       tag: '전시 & 아트페어',
       icon: <Tag size={24} />,
       iconBg: '#F8FAFC',
@@ -95,7 +95,7 @@ export default function Dashboard({
     },
     {
       id: 'doc',
-      title: '📄 서류·출강 스튜디오',
+      title: '서류·출강 스튜디오',
       tag: '행정 서류',
       icon: <FileText size={24} />,
       iconBg: '#F0FDF4',
@@ -106,7 +106,7 @@ export default function Dashboard({
     },
     {
       id: 'tax',
-      title: '💰 창작 가계부',
+      title: '창작 가계부',
       tag: '수입 & 지출 증빙',
       icon: <Receipt size={24} />,
       iconBg: '#FFFBEB',
@@ -271,7 +271,7 @@ export default function Dashboard({
 
       {/* 3. [하단 지원군] 창작 행정 & 비즈니스 비서 툴킷 */}
       <div className="section-headline" style={{ marginTop: '2.5rem' }}>
-        <span>🛠️ 창작 행정 & 비즈니스 비서 도구</span>
+        <span>창작 행정 & 비즈니스 비서 도구</span>
         <span style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'none', fontWeight: 400 }}>
           카드를 눌러 바로 시작하세요
         </span>

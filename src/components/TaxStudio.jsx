@@ -369,7 +369,7 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
         </div>
 
         <div className="stat-item-box">
-          <div className="stat-label">💡 순 창작 이익 (수입 - 지출)</div>
+          <div className="stat-label">순 창작 이익 (수입 - 지출)</div>
           <div className="stat-value" style={{ color: netProfit >= 0 ? '#059669' : '#DC2626' }}>
             {netProfit.toLocaleString()}원
           </div>
@@ -408,7 +408,7 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
             gap: '8px'
           }}
         >
-          <Wallet size={16} /> 💰 수입 관리 (출강·판매·직거래)
+          <Wallet size={16} /> 수입 관리 (출강·판매·직거래)
         </button>
 
         <button 
@@ -427,7 +427,7 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
             gap: '8px'
           }}
         >
-          <Receipt size={16} /> 🧾 지출 관리 (화구·재료비·영수증)
+          <Receipt size={16} /> 지출 관리 (화구·재료비·영수증)
         </button>
       </div>
 

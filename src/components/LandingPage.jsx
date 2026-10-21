@@ -78,6 +78,16 @@ export default function LandingPage({
                   무료로 수장고 열기
                 </button>
               )}
+              <button 
+                type="button" 
+                onClick={() => {
+                  const el = document.querySelector('.landing-features-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }} 
+                className="hero-secondary-btn"
+              >
+                기능 둘러보기 ↓
+              </button>
             </div>
           </div>
         </div>
@@ -158,7 +168,7 @@ export default function LandingPage({
             <div className="feature-icon-box" style={{ background: '#EFF6FF', color: '#2563EB' }}>
               <Archive size={24} />
             </div>
-            <h4>📁 나의 작품 수장고</h4>
+            <h4>나의 작품 수장고</h4>
             <p>
               작품 사진과 작가노트, 캡션 정보를 작품별로 차곡차곡 모아두는 나만의 디지털 도록. 원본은 그대로, 공유용은 가볍게.
             </p>
@@ -170,7 +180,7 @@ export default function LandingPage({
             <div className="feature-icon-box" style={{ background: '#F8FAFC', color: '#0F172A' }}>
               <Tag size={24} />
             </div>
-            <h4>🏛️ 전시 캡션 출력기</h4>
+            <h4>전시 캡션 출력기</h4>
             <p>
               작품 옆 벽면에 붙이는 국영문 캡션을 자동으로 만들고, 재단선과 함께 A4 규격으로 한 번에 인쇄해요.
             </p>
@@ -182,7 +192,7 @@ export default function LandingPage({
             <div className="feature-icon-box" style={{ background: '#F0FDF4', color: '#15803D' }}>
               <FileText size={24} />
             </div>
-            <h4>📄 서류 · 출강 스튜디오</h4>
+            <h4>서류 · 출강 스튜디오</h4>
             <p>
               출강 강의계획서, 전시 약력(CV), 작업 견적서를 제출용 문서 형식으로 빠르게 완성해요.
             </p>
@@ -194,7 +204,7 @@ export default function LandingPage({
             <div className="feature-icon-box" style={{ background: '#FFFBEB', color: '#D97706' }}>
               <Receipt size={24} />
             </div>
-            <h4>💰 창작 가계부</h4>
+            <h4>창작 가계부</h4>
             <p>
               출강비, 작품 판매 수입과 재료비 지출을 한눈에 정리하고, 정산용 증빙서를 PDF로 저장해요.
             </p>
@@ -206,7 +216,7 @@ export default function LandingPage({
             <div className="feature-icon-box" style={{ background: '#FDF4FF', color: '#A855F7' }}>
               <PenTool size={24} />
             </div>
-            <h4>✍️ 작가노트 & SNS</h4>
+            <h4>작가노트 & SNS</h4>
             <p>
               작품 키워드 세 개로 작가노트 초안, 인스타그램 캡션, 블로그 글을 함께 잡아드려요. 마지막 문장은 작가님의 손으로.
             </p>
@@ -218,7 +228,7 @@ export default function LandingPage({
             <div className="feature-icon-box" style={{ background: '#ECFDF5', color: '#059669' }}>
               <Sparkles size={24} />
             </div>
-            <h4>✨ 영감 노트</h4>
+            <h4>영감 노트</h4>
             <p>
               책 속 한 줄, 영화 속 대사, 문득 떠오른 생각을 카드로 모아두는 창작의 씨앗 보관함.
             </p>
@@ -351,7 +361,7 @@ export default function LandingPage({
 
             <div className="plan-capacity-box">
               <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
-                📁 작품 수장고 최대 30점 보관
+                작품 수장고 최대 30점 보관
               </div>
               <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '3px' }}>
                 내 PC 브라우저 안전 저장 & 단일 JSON 백업
@@ -373,7 +383,7 @@ export default function LandingPage({
           {/* 2. Pro 플랜 (100GB - 추천 플랜) */}
           <div className="landing-pricing-card featured">
             <div className="pricing-popular-tag">
-              <Crown size={13} /> 작가 추천
+              <Crown size={13} /> 추천
             </div>
             <div className="pricing-card-header">
               <span className="plan-badge-pro">100GB 클라우드 금고</span>
@@ -398,7 +408,7 @@ export default function LandingPage({
 
             <div className="plan-capacity-box">
               <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
-                📸 20MB 고화질 사진 약 5,000장 무손실 보관
+                20MB 고화질 사진 약 5,000장 무손실 보관
               </div>
               <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '3px' }}>
                 PC • 스마트폰 어디서나 실시간 클라우드 자동 동기화
@@ -444,7 +454,7 @@ export default function LandingPage({
 
             <div className="plan-capacity-box studio">
               <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#581C87' }}>
-                🎬 4K 고화질 영상 약 20편 또는 사진 약 25,000장 보관
+                4K 고화질 영상 약 20편 또는 사진 약 25,000장 보관
               </div>
               <div style={{ fontSize: '0.74rem', color: '#7E22CE', marginTop: '3px' }}>
                 대용량 원본 안전 클라우드 보관 & 2-Way 워터마크 보안

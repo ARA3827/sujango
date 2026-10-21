@@ -128,7 +128,7 @@ export default function PricingModal({
         </div>
 
         {/* 3단 요금제 카드 비교 그리드 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginBottom: '1.75rem' }}>
+        <div className="landing-pricing-grid" style={{ marginBottom: '1.75rem' }}>
           
           {/* 1. Free 플랜 */}
           <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
@@ -147,7 +147,7 @@ export default function PricingModal({
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', display: 'flex', flexDirection: 'column', gap: '0.7rem', flex: 1 }}>
               <li style={{ fontSize: '0.83rem', color: '#0F172A', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
-                <span>작품 아카이브 최대 30점 보관</span>
+                <span>작품 수장고 최대 30점 보관</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#059669" />
@@ -181,7 +181,7 @@ export default function PricingModal({
           <div style={{ background: '#FFFFFF', border: '2px solid #0F172A', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)' }}>
             <div style={{ position: 'absolute', top: '-11px', right: '16px', background: '#0F172A', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 700, padding: '2px 10px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Crown size={11} color="#EAB308" />
-              <span>작가 추천</span>
+              <span>추천</span>
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
@@ -204,7 +204,7 @@ export default function PricingModal({
 
             <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '0.65rem 0.85rem', marginBottom: '1rem' }}>
               <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
-                📸 20MB 고화질 사진 약 5,000장 무손실 보관
+                20MB 고화질 사진 약 5,000장 무손실 보관
               </div>
               <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '3px' }}>
                 PC • 스마트폰 어디서나 실시간 클라우드 자동 동기화
@@ -268,7 +268,7 @@ export default function PricingModal({
 
             <div style={{ background: '#FAF5FF', border: '1px solid #E9D5FF', borderRadius: '8px', padding: '0.65rem 0.85rem', marginBottom: '1rem' }}>
               <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#581C87' }}>
-                🎬 4K 고화질 영상 약 20편 또는 사진 약 25,000장 보관
+                4K 고화질 영상 약 20편 또는 사진 약 25,000장 보관
               </div>
               <div style={{ fontSize: '0.74rem', color: '#7E22CE', marginTop: '3px' }}>
                 대용량 원본 안전 클라우드 보관 & 2-Way 워터마크 보안
