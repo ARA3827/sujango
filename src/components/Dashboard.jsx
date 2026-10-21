@@ -323,7 +323,7 @@ export default function Dashboard({
               background: tool.bg,
               border: `1px solid ${tool.border}`,
               borderRadius: '16px',
-              padding: '1.6rem 1.5rem',
+              padding: '1.5rem',
               boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
               cursor: 'pointer',
               display: 'flex',
@@ -331,7 +331,7 @@ export default function Dashboard({
               justifyContent: 'flex-start'
             }}
           >
-            <div className="tool-card-header" style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="tool-card-header" style={{ marginBottom: '1.15rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span 
                 className="tool-tag"
                 style={{

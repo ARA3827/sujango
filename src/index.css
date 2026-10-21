@@ -2335,17 +2335,17 @@ input, select, textarea {
   background: #FFFFFF;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 1.75rem;
+  padding: 1.5rem;
   cursor: pointer;
   transition: all var(--transition-normal);
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
 }
 
 .feature-showcase-card:hover {
-  transform: translateY(-3px);
-  border-color: #CBD5E1;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
 }
 
 .feature-showcase-card.callout {
@@ -2364,23 +2364,27 @@ input, select, textarea {
 }
 
 .feature-showcase-card h4 {
-  font-size: 1.1rem;
+  font-size: 1.22rem;
   font-weight: 700;
   color: #0F172A;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.55rem;
+  letter-spacing: -0.02em;
 }
 
 .feature-showcase-card p {
   font-size: 0.88rem;
-  color: #64748B;
+  color: #475569;
   line-height: 1.6;
-  flex: 1;
+  margin: 0;
 }
 
 .feature-tag {
+  display: inline-flex;
   align-self: flex-start;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
   background: #F1F5F9;
   color: #475569;
   padding: 3px 8px;
