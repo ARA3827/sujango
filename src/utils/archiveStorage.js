@@ -65,11 +65,6 @@ export function getArtworks(user = null) {
     return [];
   }
 
-  // 시연용 데모 계정(김아라)인 경우에만 기본 시연용 2점 제공
-  if (currentUser.id === 'user-ara' || currentUser.email === 'ara.kim@sujango.com') {
-    return DEFAULT_ARTWORKS;
-  }
-
   // 실제 로그인 작가님의 계정 전용 고유 금고 키
   const key = getUserScopedKey('artflow_artworks', currentUser);
   try {
@@ -82,6 +77,11 @@ export function getArtworks(user = null) {
     }
   } catch (e) {
     console.error('Failed to load user artworks:', e);
+  }
+
+  // 시연용 데모 계정(김아라)인 경우에 최초 기본 시연용 샘플 제공
+  if (currentUser.id === 'user-ara' || currentUser.email === 'ara.kim@sujango.com') {
+    return DEFAULT_ARTWORKS;
   }
 
   // 신규 가입 작가님: 타인의 작품(김아라)이 섞이지 않는 깨끗한 빈 수장고 반환!

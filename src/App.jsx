@@ -20,6 +20,7 @@ import ClientPreviewView from './components/ClientPreviewView';
 import SideMenuDrawer from './components/SideMenuDrawer';
 import InfoModal from './components/InfoModal';
 import ShortcutModal from './components/ShortcutModal';
+import ErrorBoundary from './components/ErrorBoundary';
 import { getStoredUser, saveUser, DEMO_USER } from './utils/authStorage';
 import { syncUserProfile } from './utils/supabaseClient';
 import { exportArchiveBackup } from './utils/archiveStorage';
@@ -484,7 +485,7 @@ export default function App() {
           />
         ) : (
           /* 로그인 회원 전용: 실제 2-Depth 올인원 워크스페이스 */
-          <>
+          <ErrorBoundary onReset={() => navigate('dashboard')}>
             {currentView === 'dashboard' && (
               <Dashboard 
                 onSelectView={(viewId, artworkId) => navigate(viewId, artworkId)}
@@ -536,11 +537,10 @@ export default function App() {
               />
             )}
 
-
             {currentView === 'inspo' && (
               <InspoVaultView onBack={handleBack} user={user} />
             )}
-          </>
+          </ErrorBoundary>
         )}
       </main>
 

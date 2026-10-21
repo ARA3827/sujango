@@ -115,8 +115,9 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
   const fileInputRef = useRef(null);
   const backupInputRef = useRef(null);
 
-  // 현재 선택된 작품
-  const currentArt = artworks.find(a => a.id === selectedId) || artworks[0];
+  // 현재 선택된 작품 (배열 불일치 방어)
+  const safeArtworks = Array.isArray(artworks) ? artworks : [];
+  const currentArt = safeArtworks.find(a => a.id === selectedId) || safeArtworks[0] || null;
 
   // 텍스트 인라인 수정 상태
   const [isEditingText, setIsEditingText] = useState(false);
@@ -125,7 +126,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
   // Supabase 클라우드 데이터 동기화
   useEffect(() => {
     syncArtworksFromSupabase(user).then(cloudList => {
-      if (cloudList && cloudList.length > 0) {
+      if (cloudList && Array.isArray(cloudList) && cloudList.length > 0) {
         setArtworks(cloudList);
       }
     });
@@ -142,10 +143,11 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
 
   // 중복 의심 작품 그룹 감지 (동일 제목 + 동일 제작연도, 무제 제외)
   const duplicateGroups = React.useMemo(() => {
-    if (!artworks || artworks.length < 2) return [];
+    if (!Array.isArray(safeArtworks) || safeArtworks.length < 2) return [];
     const groupsMap = new Map();
 
-    artworks.forEach(art => {
+    safeArtworks.forEach(art => {
+      if (!art) return;
       const rawTitle = (art.title || '').trim().toLowerCase();
       const rawYear = String(art.year || '').trim();
 
@@ -212,7 +214,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
     }
 
     // 기본 작품 저장
-    saveSingleArtwork(mergedArt, user);
+    await saveSingleArtwork(mergedArt, user);
 
     // 중복된 보조 작품 삭제 및 금고 정리
     deleteArtwork(secondaryArt.id, user);
@@ -502,9 +504,13 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       setPendingRawFile(null);
     }
 
-    // 2. 작품 메타데이터 및 뷰어 이미지 저장
-    const updated = saveSingleArtwork(itemToSave, user);
-    setArtworks(updated);
+    // 2. 작품 메타데이터 및 뷰어 이미지 저장 (비동기 완료 보장)
+    const updated = await saveSingleArtwork(itemToSave, user);
+    if (Array.isArray(updated)) {
+      setArtworks(updated);
+    } else {
+      setArtworks(getArtworks(user));
+    }
     setSelectedId(itemToSave.id);
     setIsModalOpen(false);
 
@@ -519,12 +525,16 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
   };
 
   // 본문 텍스트 인라인 저장
-  const handleSaveInlineText = () => {
+  const handleSaveInlineText = async () => {
     if (!currentArt) return;
     const field = activeTab === 'statement' ? 'statement' : activeTab === 'insta' ? 'instaCaption' : 'blogStory';
     const updatedItem = { ...currentArt, [field]: editedText };
-    const updatedList = saveSingleArtwork(updatedItem, user);
-    setArtworks(updatedList);
+    const updatedList = await saveSingleArtwork(updatedItem, user);
+    if (Array.isArray(updatedList)) {
+      setArtworks(updatedList);
+    } else {
+      setArtworks(getArtworks(user));
+    }
     setIsEditingText(false);
   };
 
@@ -690,10 +700,10 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       </div>
 
       {/* 3. 상단 작품 셀렉터 캐러셀 / 탭 스트립 */}
-      {artworks.length > 0 && (
+      {safeArtworks.length > 0 && (
         <div className="archive-filmstrip-wrapper">
           <div className="archive-filmstrip">
-            {artworks.map((art) => (
+            {safeArtworks.map((art) => (
               <div 
                 key={art.id}
                 className={`archive-filmstrip-item ${art.id === selectedId ? 'active' : ''}`}
