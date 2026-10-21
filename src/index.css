@@ -370,7 +370,7 @@ input, select, textarea {
   font-size: 0.88rem;
   color: var(--text-secondary);
   line-height: 1.55;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 .tool-card-footer {

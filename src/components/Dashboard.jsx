@@ -326,43 +326,37 @@ export default function Dashboard({
             role="button"
             tabIndex={0}
           >
-            <div>
-              <div className="tool-card-header">
-                <div 
-                  className="tool-card-icon"
-                  style={{
-                    background: tool.iconBg || 'var(--bg-subtle)',
-                    color: tool.iconColor || 'var(--accent-black)',
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '12px'
-                  }}
-                >
-                  {tool.icon}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                  <span className="tool-tag">{tool.tag}</span>
-                  {tool.badge && (
-                    <span style={{ 
-                      fontSize: '0.73rem', 
-                      fontWeight: 600, 
-                      padding: '2px 8px', 
-                      borderRadius: '999px',
-                      ...tool.badgeStyle
-                    }}>
-                      {tool.badge}
-                    </span>
-                  )}
-                </div>
+            <div className="tool-card-header">
+              <div 
+                className="tool-card-icon"
+                style={{
+                  background: tool.iconBg || 'var(--bg-subtle)',
+                  color: tool.iconColor || 'var(--accent-black)',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '12px'
+                }}
+              >
+                {tool.icon}
               </div>
-              <div className="tool-card-body">
-                <h3>{tool.title}</h3>
-                <p>{tool.desc}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                <span className="tool-tag">{tool.tag}</span>
+                {tool.badge && (
+                  <span style={{ 
+                    fontSize: '0.73rem', 
+                    fontWeight: 600, 
+                    padding: '2px 8px', 
+                    borderRadius: '999px',
+                    ...tool.badgeStyle
+                  }}>
+                    {tool.badge}
+                  </span>
+                )}
               </div>
             </div>
-            <div className="tool-card-footer">
-              <span>{tool.actionText}</span>
-              <ArrowRight size={16} />
+            <div className="tool-card-body">
+              <h3>{tool.title}</h3>
+              <p>{tool.desc}</p>
             </div>
           </div>
         ))}
