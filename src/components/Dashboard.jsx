@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   ArrowRight,
-  Image as ImageIcon
+  Image as ImageIcon,
+  ChevronRight
 } from 'lucide-react';
 import { getArtworks } from '../utils/archiveStorage';
 import { getStoredUser, getUserScopedKey } from '../utils/authStorage';
@@ -205,67 +206,117 @@ export default function Dashboard({
         </div>
 
         {artworks.length > 0 ? (
-          <div className="archive-table-wrapper">
-            <table className="archive-table">
-              <thead>
-                <tr>
-                  <th style={{ width: '56px', textAlign: 'center' }}>작품</th>
-                  <th>작품명</th>
-                  <th>제작연도 / 규격</th>
-                  <th>재료 및 기법</th>
-                  <th>보관된 기록</th>
-                  <th style={{ width: '90px', textAlign: 'right' }}>등록일</th>
-                </tr>
-              </thead>
-              <tbody>
-                {artworks.slice(0, 5).map((art) => (
-                  <tr 
-                    key={art.id} 
-                    onClick={() => onSelectView('archive', art.id)}
-                    style={{ cursor: 'pointer' }}
-                    title="클릭하여 상세 도록 및 작가노트 열람"
-                  >
-                    <td style={{ textAlign: 'center' }}>
-                      <div className="archive-mini-thumb">
-                        {art.imageUrl ? (
-                          <img src={art.imageUrl} alt={art.title} />
-                        ) : (
-                          <ImageIcon size={15} color="#94A3B8" />
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 600, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span>《{art.title}》</span>
-                      </div>
-                      <div style={{ fontSize: '0.78rem', color: '#64748B' }}>{art.artist || user?.name || '작가'}</div>
-                    </td>
-                    <td>
-                      <span style={{ fontSize: '0.84rem', color: '#334155', fontWeight: 500 }}>{art.year}년</span>
-                      <span style={{ fontSize: '0.78rem', color: '#64748B', marginLeft: '6px' }}>
-                        ({art.size?.split('(')[0]?.trim() || art.size})
-                      </span>
-                    </td>
-                    <td>
-                      <span style={{ fontSize: '0.82rem', color: '#475569' }}>
-                        {art.medium && art.medium.length > 20 ? art.medium.slice(0, 20) + '...' : art.medium || '-'}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                        {art.statement && <span className="archive-badge badge-green">작가노트</span>}
-                        {art.instaCaption && <span className="archive-badge badge-blue">인스타</span>}
-                        {art.blogStory && <span className="archive-badge badge-purple">블로그</span>}
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'right', fontSize: '0.78rem', color: '#94A3B8' }}>
-                      {art.createdAt || '최근'}
-                    </td>
+          <>
+            {/* 1. PC/태블릿: 6열 정밀 테이블 뷰 */}
+            <div className="archive-table-wrapper desktop-only">
+              <table className="archive-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '56px', textAlign: 'center' }}>작품</th>
+                    <th>작품명</th>
+                    <th>제작연도 / 규격</th>
+                    <th>재료 및 기법</th>
+                    <th>보관된 기록</th>
+                    <th style={{ width: '90px', textAlign: 'right' }}>등록일</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {artworks.slice(0, 5).map((art) => (
+                    <tr 
+                      key={art.id} 
+                      onClick={() => onSelectView('archive', art.id)}
+                      style={{ cursor: 'pointer' }}
+                      title="클릭하여 상세 도록 및 작가노트 열람"
+                    >
+                      <td style={{ textAlign: 'center' }}>
+                        <div className="archive-mini-thumb">
+                          {art.imageUrl ? (
+                            <img src={art.imageUrl} alt={art.title} />
+                          ) : (
+                            <ImageIcon size={15} color="#94A3B8" />
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div style={{ fontWeight: 600, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>《{art.title}》</span>
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#64748B' }}>{art.artist || user?.name || '작가'}</div>
+                      </td>
+                      <td>
+                        <span style={{ fontSize: '0.84rem', color: '#334155', fontWeight: 500 }}>{art.year}년</span>
+                        <span style={{ fontSize: '0.78rem', color: '#64748B', marginLeft: '6px' }}>
+                          ({art.size?.split('(')[0]?.trim() || art.size})
+                        </span>
+                      </td>
+                      <td>
+                        <span style={{ fontSize: '0.82rem', color: '#475569' }}>
+                          {art.medium && art.medium.length > 20 ? art.medium.slice(0, 20) + '...' : art.medium || '-'}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                          {art.statement && <span className="archive-badge badge-green">작가노트</span>}
+                          {art.instaCaption && <span className="archive-badge badge-blue">인스타</span>}
+                          {art.blogStory && <span className="archive-badge badge-purple">블로그</span>}
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'right', fontSize: '0.78rem', color: '#94A3B8' }}>
+                        {art.createdAt || '최근'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* 2. 모바일(스마트폰): 한 손에 쏙 들어오는 단정한 카드 리스트 뷰 */}
+            <div className="archive-mobile-list mobile-only">
+              {artworks.slice(0, 5).map((art) => (
+                <div 
+                  key={art.id} 
+                  className="archive-mobile-card"
+                  onClick={() => onSelectView('archive', art.id)}
+                  title="클릭하여 상세 도록 및 작가노트 열람"
+                >
+                  <div className="archive-mobile-thumb">
+                    {art.imageUrl ? (
+                      <img src={art.imageUrl} alt={art.title} />
+                    ) : (
+                      <ImageIcon size={22} color="#94A3B8" />
+                    )}
+                  </div>
+                  <div className="archive-mobile-info">
+                    <div className="archive-mobile-title">
+                      《{art.title}》
+                    </div>
+                    <div className="archive-mobile-meta">
+                      <span>{art.year}년</span>
+                      {art.size && (
+                        <>
+                          <span className="dot">·</span>
+                          <span>{art.size?.split('(')[0]?.trim() || art.size}</span>
+                        </>
+                      )}
+                      {art.medium && (
+                        <>
+                          <span className="dot">·</span>
+                          <span>{art.medium}</span>
+                        </>
+                      )}
+                    </div>
+                    <div className="archive-mobile-badges">
+                      {art.statement && <span className="archive-badge badge-green">작가노트</span>}
+                      {art.instaCaption && <span className="archive-badge badge-blue">인스타</span>}
+                      {art.blogStory && <span className="archive-badge badge-purple">블로그</span>}
+                      <span className="archive-mobile-date">{art.createdAt || '최근'}</span>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} className="archive-mobile-arrow" />
+                </div>
+              ))}
+            </div>
+          </>
         ) : (
           <div 
             className="archive-empty-box" 
