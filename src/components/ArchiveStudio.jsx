@@ -793,16 +793,17 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
 
               <button 
                 onClick={() => handleDownloadOriginal(currentArt)}
-                className="btn-outline"
+                className="btn-primary"
                 style={{ 
                   width: '100%', 
                   justifyContent: 'center', 
-                  fontSize: '0.85rem', 
+                  fontSize: '0.86rem', 
                   padding: '0.65rem',
-                  background: '#FFFFFF',
-                  borderColor: '#CBD5E1',
-                  color: currentArt.imageUrl ? '#0F172A' : '#94A3B8',
-                  fontWeight: 600
+                  background: currentArt.imageUrl ? '#0F172A' : '#94A3B8',
+                  borderColor: currentArt.imageUrl ? '#0F172A' : '#94A3B8',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                  boxShadow: currentArt.imageUrl ? '0 2px 8px rgba(15, 23, 42, 0.15)' : 'none'
                 }}
                 title="내 기기(PC/모바일)에 원본 고화질 이미지 다운로드"
                 disabled={!currentArt.imageUrl || isDownloading}
