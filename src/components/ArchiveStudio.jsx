@@ -33,8 +33,9 @@ import {
   importArchiveBackup,
   syncArtworksFromSupabase 
 } from '../utils/archiveStorage';
-import { generateWatermarkedPreview, generateThumbnail } from '../utils/imageCompressor';
+import { generateWatermarkedPreview, generateThumbnail, compressImage } from '../utils/imageCompressor';
 import { fetchWatermarkSettings } from '../utils/supabaseClient';
+import { saveOriginalToVault, getOriginalFromVault, deleteOriginalFromVault } from '../utils/rawImageVault';
 
 export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateToStatement, onOpenPricing, user, initialArtworkId }) {
   const [artworks, setArtworks] = useState(() => getArtworks(user));
@@ -98,6 +99,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
     blogStory: ''
   });
   const [isCompressing, setIsCompressing] = useState(false);
+  const [pendingRawFile, setPendingRawFile] = useState(null);
   const fileInputRef = useRef(null);
   const backupInputRef = useRef(null);
 
@@ -137,10 +139,10 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // 내 기기(PC/모바일)에 표준 고화질 JPG/PNG 이미지로 다운로드 (WebP 앱 선택 팝업 방지)
+  // 내 기기(PC/모바일)에 원본 이미지 다운로드 (IndexedDB 무손실 원본 1순위 -> Canvas 고화질 2순위)
   const handleDownloadOriginal = async (artwork) => {
-    if (!artwork || !artwork.imageUrl) {
-      alert('다운로드할 작품 이미지가 등록되어 있지 않습니다.');
+    if (!artwork) {
+      alert('다운로드할 작품을 선택해 주세요.');
       return;
     }
 
@@ -149,13 +151,37 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       const cleanTitle = (artwork.title || '작품').replace(/[\/\\:*?"<>|]/g, '_').trim();
       const artistName = (artwork.artist || user?.name || '작가').replace(/[\/\\:*?"<>|]/g, '_').trim();
 
-      // PNG 원본 여부 확인 (투명 배경 보존 목적)
+      // 1순위: IndexedDB 원본 금고에서 사용자가 업로드했던 무손실 원본 파일(8.23MB) 조회
+      const vaultBlob = await getOriginalFromVault(artwork.id);
+
+      if (vaultBlob && vaultBlob.size > 0) {
+        let extension = 'jpg';
+        if (vaultBlob.type.includes('png')) extension = 'png';
+        else if (vaultBlob.type.includes('webp')) extension = 'webp';
+
+        const fileName = `${artistName}_《${cleanTitle}》_원본.${extension}`;
+        const blobUrl = window.URL.createObjectURL(vaultBlob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+        return;
+      }
+
+      // 2순위: 원본 금고에 등록되기 전 구버전 작품인 경우 Canvas JPG 변환 다운로드 (Fallback)
+      if (!artwork.imageUrl) {
+        alert('등록된 작품 이미지가 없습니다.');
+        return;
+      }
+
       const isPng = artwork.imageUrl.startsWith('data:image/png') || artwork.imageUrl.toLowerCase().endsWith('.png');
       const targetMime = isPng ? 'image/png' : 'image/jpeg';
       const extension = isPng ? 'png' : 'jpg';
       const fileName = `${artistName}_《${cleanTitle}》_원본.${extension}`;
 
-      // Canvas를 통해 모든 WebP/특수 포맷을 전 세계 표준 고화질 JPG/PNG Blob으로 실시간 변환
       const img = new Image();
       img.crossOrigin = 'anonymous';
 
@@ -170,16 +196,14 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       canvas.height = img.naturalHeight || img.height;
       const ctx = canvas.getContext('2d');
 
-      // JPG 변환 시 투명 영역이 검게 변하지 않도록 캔버스 흰색 바탕 채우기
       if (!isPng) {
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
       ctx.drawImage(img, 0, 0);
 
-      // 고화질 바이너리 Blob 생성 (JPG 품질 0.96)
       const blob = await new Promise((resolve) => {
-        canvas.toBlob(resolve, targetMime, 0.96);
+        canvas.toBlob(resolve, targetMime, 0.98);
       });
 
       if (blob) {
@@ -195,14 +219,16 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
         throw new Error('Blob 변환 실패');
       }
     } catch (err) {
-      console.warn('캔버스 변환 다운로드 실패, 다이렉트 다운로드 시도:', err);
-      const link = document.createElement('a');
-      link.href = artwork.imageUrl;
-      const cleanTitle = (artwork.title || '작품').replace(/[\/\\:*?"<>|]/g, '_').trim();
-      link.download = `${cleanTitle}_원본.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      console.warn('다운로드 중 오류 발생, 대체 방식으로 실행:', err);
+      if (artwork.imageUrl) {
+        const link = document.createElement('a');
+        link.href = artwork.imageUrl;
+        const cleanTitle = (artwork.title || '작품').replace(/[\/\\:*?"<>|]/g, '_').trim();
+        link.download = `${cleanTitle}_원본.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } finally {
       setTimeout(() => setIsDownloading(false), 500);
     }
@@ -275,38 +301,44 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
     }
   };
 
-  // 이미지 파일 선택 시 즉시 압축 (1200px / 300KB)
+  // 이미지 파일 선택 시 처리
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
       setIsCompressing(true);
+      // 원본 파일 객체 임시 보관 (저장 시 IndexedDB 무손실 금고에 보관)
+      setPendingRawFile(file);
+
       // 1. 작가의 워터마크 보안 설정 조회
       const watermarkSettings = await fetchWatermarkSettings(user?.email || 'local_user') || {};
 
-      // 2. 1080px 웹용 워터마크 프리뷰 시안 1회 자동 합성
+      // 2. 수장고 뷰어용 깨끗한 고화질 이미지 (워터마크 없는 원본 그대로의 느낌)
+      const cleanViewerDataUrl = await compressImage(file, 1920, 0.88);
+
+      // 3. 외부 클라이언트 시안 공유 전용 1080px 워터마크 합성본
       const previewDataUrl = await generateWatermarkedPreview(file, watermarkSettings, 1080);
 
-      // 3. 400px 초경량 목록용 썸네일 생성
+      // 4. 400px 초경량 목록용 썸네일 생성
       const thumbDataUrl = await generateThumbnail(file, 400, 0.75);
 
       setModalForm(prev => ({ 
         ...prev, 
-        imageUrl: previewDataUrl, // 기본 및 시안 표시용
-        previewImageUrl: previewDataUrl,
+        imageUrl: cleanViewerDataUrl, // 수장고 내부에는 워터마크 없는 선명한 작품 표시
+        previewImageUrl: previewDataUrl, // 외부 시안 링크 발급 전용
         thumbnailUrl: thumbDataUrl,
         fileSizeBytes: file.size
       }));
     } catch (err) {
-      alert('이미지 및 워터마크 처리 중 오류가 발생했습니다: ' + err.message);
+      alert('이미지 처리 중 오류가 발생했습니다: ' + err.message);
     } finally {
       setIsCompressing(false);
     }
   };
 
   // 모달 폼 저장
-  const handleSaveModal = (e) => {
+  const handleSaveModal = async (e) => {
     e.preventDefault();
     if (!modalForm.title.trim()) {
       alert('작품 제목을 입력해 주세요.');
@@ -319,6 +351,13 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       id: editingArtwork ? editingArtwork.id : 'art-' + Date.now()
     };
 
+    // 1. IndexedDB 무손실 원본 금고에 대용량 원본 파일(8.23MB) 영구 저장
+    if (pendingRawFile) {
+      await saveOriginalToVault(itemToSave.id, pendingRawFile, pendingRawFile.name);
+      setPendingRawFile(null);
+    }
+
+    // 2. 작품 메타데이터 및 뷰어 이미지 저장
     const updated = saveSingleArtwork(itemToSave, user);
     setArtworks(updated);
     setSelectedId(itemToSave.id);
@@ -345,8 +384,10 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
   };
 
   // 작품 삭제
-  const handleDelete = (id, title) => {
+  const handleDelete = async (id, title) => {
     if (window.confirm(`《${title}》 작품과 관련된 모든 기록을 수장고에서 삭제하시겠습니까?`)) {
+      // IndexedDB 원본 금고에서도 삭제
+      await deleteOriginalFromVault(id);
       const updated = deleteArtwork(id, user);
       setArtworks(updated);
       if (selectedId === id && updated.length > 0) {
