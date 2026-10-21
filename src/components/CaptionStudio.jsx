@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Plus, X, Printer, FileDown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Plus, X, Printer, FileDown, FolderOpen, RefreshCw, AlertCircle, Search, Link as LinkIcon, Check, ExternalLink } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
 import confetti from 'canvas-confetti';
@@ -23,12 +23,21 @@ const MATERIAL_PRESETS = [
 ];
 
 import { getUserScopedKey } from '../utils/authStorage';
-import { getArtworks } from '../utils/archiveStorage';
+import { getArtworks, saveSingleArtwork } from '../utils/archiveStorage';
+import { generateArtworkId } from '../utils/artworkModel';
 
 export default function CaptionStudio({ onBack, user = null }) {
   const [styleMode, setStyleMode] = useState('classic'); // 'classic' | 'modern' | 'commercial'
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [editingId, setEditingId] = useState(null); // 수정 중인 캡션 ID
+
+  // 수장고 연동 관련 상태 (Step 6-2-B)
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [importSearchQuery, setImportSearchQuery] = useState('');
+  const [syncWithVaultOnCreate, setSyncWithVaultOnCreate] = useState(true); // 새 캡션 등록 시 수장고에도 보관 (기본 true)
+  const [syncWithVaultOnUpdate, setSyncWithVaultOnUpdate] = useState(false); // 캡션 수정 시 수장고 원본 동기화 (독립성 보장: 기본 false)
+  const [vaultDiffNotice, setVaultDiffNotice] = useState(null); // 수장고 변경 감지 알림 { artwork, diffFields }
+  const [toastMessage, setToastMessage] = useState(null);
 
   // 1페이지당 최대 6개 (2열 3행: 텍스트가 길어져도 세로 공간이 넉넉한 황금 비율)
   const ITEMS_PER_PAGE = 6;
@@ -36,83 +45,131 @@ export default function CaptionStudio({ onBack, user = null }) {
   // 다중 A4 시트 참조 맵
   const pageRefs = useRef({});
 
-  // 캡션 리스트 상태 (작가 계정별 격리)
+  // 토스트 안내 메시지 표시 헬퍼
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(prev => (prev === msg ? null : prev));
+    }, 2800);
+  };
+
+  // 캡션 리스트 상태 (작가 계정별 격리 + 기존 캡션 100% 일치 시에만 artworkId 자동 바인딩)
   const [captions, setCaptions] = useState(() => {
     const key = getUserScopedKey('artflow_captions', user);
+    let loadedCaptions = [];
     try {
       const saved = localStorage.getItem(key);
-      if (saved) return JSON.parse(saved);
+      if (saved) loadedCaptions = JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
 
-    // 데모 계정인 경우 샘플 3점 제공
-    if (user?.id === 'user-ara' || user?.email === 'ara.kim@sujango.com') {
-      return [
-        {
-          id: 1,
-          artist: '김아라',
-          artistKo: '김아라',
-          title: '새벽의 경계',
-          titleKo: '새벽의 경계',
-          year: '2026',
-          medium: '캔버스에 유채, 혼합재료',
-          mediumKo: '캔버스에 유채, 혼합재료',
-          size: '116.8 × 91.0 cm (50F)',
-          price: '3,500,000원',
-          isNfs: false
-        },
-        {
-          id: 2,
-          artist: '김아라',
-          artistKo: '김아라',
-          title: '푸른 잔상 No. 3',
-          titleKo: '푸른 잔상 No. 3',
-          year: '2025',
-          medium: '캔버스에 아크릴',
-          mediumKo: '캔버스에 아크릴',
-          size: '53.0 × 45.5 cm (10F)',
-          price: '1,200,000원',
-          isNfs: false
-        },
-        {
-          id: 3,
-          artist: '김아라',
-          artistKo: '김아라',
-          title: '침묵의 심연',
-          titleKo: '침묵의 심연',
-          year: '2025',
-          medium: '한지에 먹, 안료',
-          mediumKo: '한지에 먹, 안료',
-          size: '72.7 × 60.6 cm (20F)',
-          price: 'NFS (작가소장)',
-          isNfs: true
+    const userArts = getArtworks(user) || [];
+
+    // 저장된 캡션이 없을 때의 기본값 처리
+    if (!loadedCaptions || loadedCaptions.length === 0) {
+      if (user?.id === 'user-ara' || user?.email === 'ara.kim@sujango.com') {
+        loadedCaptions = [
+          {
+            id: 1,
+            artist: '김아라',
+            artistKo: '김아라',
+            title: '새벽의 경계',
+            titleKo: '새벽의 경계',
+            year: '2026',
+            medium: '캔버스에 유채, 혼합재료',
+            mediumKo: '캔버스에 유채, 혼합재료',
+            size: '116.8 × 91.0 cm (50F)',
+            price: '3,500,000원',
+            isNfs: false,
+            artworkId: 'art-1',
+            artworkUpdatedAt: '2026-10-10'
+          },
+          {
+            id: 2,
+            artist: '김아라',
+            artistKo: '김아라',
+            title: '푸른 잔상 No. 3',
+            titleKo: '푸른 잔상 No. 3',
+            year: '2025',
+            medium: '캔버스에 아크릴',
+            mediumKo: '캔버스에 아크릴',
+            size: '53.0 × 45.5 cm (10F)',
+            price: '1,200,000원',
+            isNfs: false,
+            artworkId: 'art-2',
+            artworkUpdatedAt: '2026-10-08'
+          },
+          {
+            id: 3,
+            artist: '김아라',
+            artistKo: '김아라',
+            title: '침묵의 심연',
+            titleKo: '침묵의 심연',
+            year: '2025',
+            medium: '한지에 먹, 안료',
+            mediumKo: '한지에 먹, 안료',
+            size: '72.7 × 60.6 cm (20F)',
+            price: 'NFS (작가소장)',
+            isNfs: true,
+            artworkId: null,
+            artworkUpdatedAt: null
+          }
+        ];
+      } else if (userArts.length > 0) {
+        loadedCaptions = userArts.map((art, idx) => ({
+          id: idx + 1,
+          artist: art.artist || user?.name || '작가',
+          artistKo: art.artist || user?.name || '작가',
+          title: art.title || '무제',
+          titleKo: art.title || '무제',
+          year: art.year || new Date().getFullYear().toString(),
+          medium: art.medium || '',
+          mediumKo: art.medium || '',
+          size: art.size || '',
+          price: art.price || '',
+          isNfs: Boolean(art.isNfs),
+          artworkId: art.id,
+          artworkUpdatedAt: art.updatedAt || art.createdAt || null
+        }));
+      }
+    }
+
+    // 기존 캡션들에 대해: artworkId가 없는 경우, 수장고 작품과 제목+연도가 100% 일치할 때만 안전 바인딩
+    let hasChanged = false;
+    const boundCaptions = loadedCaptions.map(c => {
+      if (c.artworkId) return c; // 이미 연결되어 있으면 보존
+
+      const cTitle = (c.title || c.titleKo || '').trim();
+      const cYear = String(c.year || '').trim();
+
+      if (cTitle && cYear) {
+        // 제목과 연도가 100% 일치하는 수장고 작품 탐색
+        const match = userArts.find(a => 
+          (a.title || '').trim() === cTitle && String(a.year || '').trim() === cYear
+        );
+        if (match) {
+          hasChanged = true;
+          return {
+            ...c,
+            artworkId: match.id,
+            artworkUpdatedAt: match.updatedAt || match.createdAt || null
+          };
         }
-      ];
+      }
+      return { ...c, artworkId: null, artworkUpdatedAt: null };
+    });
+
+    if (hasChanged) {
+      try {
+        localStorage.setItem(key, JSON.stringify(boundCaptions));
+      } catch (e) {}
     }
 
-    // 실제 로그인 작가: 본인의 수장고에 등록된 작품이 있으면 자동으로 캡션 목록 구성
-    const userArts = getArtworks(user);
-    if (userArts && userArts.length > 0) {
-      return userArts.map((art, idx) => ({
-        id: idx + 1,
-        artist: art.artist || user?.name || '작가',
-        artistKo: art.artist || user?.name || '작가',
-        title: art.title || '무제',
-        titleKo: art.title || '무제',
-        year: art.year || new Date().getFullYear().toString(),
-        medium: art.medium || '',
-        mediumKo: art.medium || '',
-        size: art.size || '',
-        price: art.price || '',
-        isNfs: Boolean(art.isNfs)
-      }));
-    }
-
-    return [];
+    return boundCaptions;
   });
 
-  // 새 캡션 입력/수정 폼 상태 (아카이브 입력폼과 1:1 일치, 작가명 단일화)
+  // 새 캡션 입력/수정 폼 상태 (수장고 작품 ID 및 수정일시 메타 바인딩)
   const [form, setForm] = useState({
     title: '',
     artist: user?.name || '김아라',
@@ -120,7 +177,9 @@ export default function CaptionStudio({ onBack, user = null }) {
     size: '',
     medium: '',
     price: '',
-    isNfs: false
+    isNfs: false,
+    artworkId: null,
+    artworkUpdatedAt: null
   });
 
   const saveCaptions = (newList) => {
@@ -133,8 +192,45 @@ export default function CaptionStudio({ onBack, user = null }) {
     }
   };
 
-  // 등록 및 수정 완료 핸들러
-  const handleSubmit = (e) => {
+  // 수장고에서 작품 선택 시 폼에 정보 채우기
+  const handleSelectArtworkFromVault = (art) => {
+    setForm({
+      title: art.title || '',
+      artist: art.artist || user?.name || '작가',
+      year: art.year || new Date().getFullYear().toString(),
+      size: art.size || '',
+      medium: art.medium || '',
+      price: art.isNfs ? '' : (art.price || ''),
+      isNfs: Boolean(art.isNfs),
+      artworkId: art.id,
+      artworkUpdatedAt: art.updatedAt || art.createdAt || new Date().toISOString()
+    });
+    setIsImportModalOpen(false);
+    setVaultDiffNotice(null);
+    showToast(`'${art.title || '작품'}'의 정보를 수장고에서 불러왔습니다.`);
+  };
+
+  // 수장고 변경 사항을 현재 캡션 폼에 반영
+  const handleApplyVaultChanges = () => {
+    if (!vaultDiffNotice?.artwork) return;
+    const v = vaultDiffNotice.artwork;
+    setForm(prev => ({
+      ...prev,
+      title: v.title || prev.title,
+      artist: v.artist || prev.artist,
+      year: v.year || prev.year,
+      size: v.size || prev.size,
+      medium: v.medium || prev.medium,
+      price: v.isNfs ? '' : (v.price || prev.price),
+      isNfs: Boolean(v.isNfs),
+      artworkUpdatedAt: v.updatedAt || new Date().toISOString()
+    }));
+    setVaultDiffNotice(null);
+    showToast('수장고의 최신 작품 정보를 캡션에 반영했습니다.');
+  };
+
+  // 등록 및 수정 완료 핸들러 (수장고 독립성 보장)
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const titleVal = form.title.trim();
     if (!titleVal) {
@@ -145,7 +241,36 @@ export default function CaptionStudio({ onBack, user = null }) {
     const calculatedPrice = form.isNfs ? 'NFS (비매품)' : form.price || '별도 문의';
 
     if (editingId) {
-      // 1. 기존 캡션 오타/내용 수정
+      // 1. 기존 캡션 수정
+      let currentArtworkId = form.artworkId;
+      let currentArtworkUpdatedAt = form.artworkUpdatedAt;
+
+      // 사용자가 "수장고 작품 정보도 함께 수정하기"를 명시적으로 체크한 경우에만 수장고 원본 동기화
+      if (syncWithVaultOnUpdate && currentArtworkId) {
+        try {
+          const vaultArts = getArtworks(user);
+          const targetArt = vaultArts.find(a => a.id === currentArtworkId);
+          if (targetArt) {
+            const updatedArt = {
+              ...targetArt,
+              title: titleVal,
+              artist: form.artist || user?.name || '작가',
+              year: form.year,
+              size: form.size,
+              medium: form.medium,
+              price: form.isNfs ? '' : form.price,
+              isNfs: form.isNfs,
+              updatedAt: new Date().toISOString()
+            };
+            await saveSingleArtwork(updatedArt, user);
+            currentArtworkUpdatedAt = updatedArt.updatedAt;
+            showToast('수장고 원본 작품 정보도 함께 갱신되었습니다.');
+          }
+        } catch (err) {
+          console.error('수장고 동기화 중 오류:', err);
+        }
+      }
+
       const updatedList = captions.map((c) => {
         if (c.id === editingId) {
           return {
@@ -159,15 +284,46 @@ export default function CaptionStudio({ onBack, user = null }) {
             medium: form.medium,
             mediumKo: form.medium,
             price: calculatedPrice,
-            isNfs: form.isNfs
+            isNfs: form.isNfs,
+            artworkId: currentArtworkId,
+            artworkUpdatedAt: currentArtworkUpdatedAt
           };
         }
         return c;
       });
+
       saveCaptions(updatedList);
       setEditingId(null);
+      setVaultDiffNotice(null);
     } else {
       // 2. 새 캡션 추가
+      let newArtworkId = form.artworkId;
+      let newArtworkUpdatedAt = form.artworkUpdatedAt;
+
+      // 수장고에서 불러오지 않은 새 작품이고 "수장고에도 함께 보관하기"가 체크되어 있으면 수장고에도 신규 등록
+      if (!newArtworkId && syncWithVaultOnCreate) {
+        try {
+          newArtworkId = generateArtworkId();
+          newArtworkUpdatedAt = new Date().toISOString();
+          const newVaultArt = {
+            id: newArtworkId,
+            title: titleVal,
+            artist: form.artist || user?.name || '작가',
+            year: form.year,
+            size: form.size,
+            medium: form.medium,
+            price: form.isNfs ? '' : form.price,
+            isNfs: form.isNfs,
+            createdAt: new Date().toISOString().split('T')[0],
+            updatedAt: newArtworkUpdatedAt
+          };
+          await saveSingleArtwork(newVaultArt, user);
+          showToast('수장고에도 새 작품으로 안전하게 보관되었습니다.');
+        } catch (err) {
+          console.error('수장고 신규 등록 중 오류:', err);
+        }
+      }
+
       const newItem = {
         id: Date.now(),
         title: titleVal,
@@ -179,8 +335,11 @@ export default function CaptionStudio({ onBack, user = null }) {
         medium: form.medium,
         mediumKo: form.medium,
         price: calculatedPrice,
-        isNfs: form.isNfs
+        isNfs: form.isNfs,
+        artworkId: newArtworkId || null,
+        artworkUpdatedAt: newArtworkUpdatedAt || null
       };
+
       saveCaptions([...captions, newItem]);
     }
 
@@ -192,15 +351,23 @@ export default function CaptionStudio({ onBack, user = null }) {
       size: '',
       medium: '',
       price: '',
-      isNfs: false
+      isNfs: false,
+      artworkId: null,
+      artworkUpdatedAt: null
     });
+    setSyncWithVaultOnUpdate(false);
+    setSyncWithVaultOnCreate(true);
+    setVaultDiffNotice(null);
 
     triggerConfetti();
   };
 
-  // 미리보기 카드 클릭 시 좌측 폼으로 데이터 불러오기 (수정 모드 진입)
+  // 미리보기 카드 클릭 시 좌측 폼으로 데이터 불러오기 (수정 모드 진입 및 수장고 변경 감지)
   const handleEditClick = (item) => {
     setEditingId(item.id);
+    setSyncWithVaultOnUpdate(false); // 기본은 false (독립 수정 보장)
+    setVaultDiffNotice(null);
+
     setForm({
       title: item.title || item.titleKo || '',
       artist: item.artist || item.artistKo || user?.name || '작가',
@@ -208,13 +375,38 @@ export default function CaptionStudio({ onBack, user = null }) {
       size: item.size || '',
       medium: item.medium || item.mediumKo || '',
       price: item.isNfs ? '' : (item.price === 'NFS (비매품)' ? '' : item.price || ''),
-      isNfs: Boolean(item.isNfs || item.price?.includes('NFS'))
+      isNfs: Boolean(item.isNfs || item.price?.includes('NFS')),
+      artworkId: item.artworkId || null,
+      artworkUpdatedAt: item.artworkUpdatedAt || null
     });
+
+    // 연결된 수장고 작품이 있는 경우, 최신 수장고 원본과 비교하여 변경 감지
+    if (item.artworkId) {
+      const vaultArts = getArtworks(user) || [];
+      const vaultArt = vaultArts.find(a => a.id === item.artworkId);
+      if (vaultArt) {
+        const diffFields = [];
+        if (vaultArt.title && vaultArt.title !== (item.title || item.titleKo)) diffFields.push('작품 제목');
+        if (vaultArt.year && String(vaultArt.year) !== String(item.year)) diffFields.push('제작 연도');
+        if (vaultArt.size && vaultArt.size !== item.size) diffFields.push('크기/호수');
+        if (vaultArt.medium && vaultArt.medium !== (item.medium || item.mediumKo)) diffFields.push('재료 및 기법');
+        if (vaultArt.price && !item.isNfs && vaultArt.price !== item.price) diffFields.push('가격');
+
+        if (diffFields.length > 0) {
+          setVaultDiffNotice({
+            artwork: vaultArt,
+            diffFields
+          });
+        }
+      }
+    }
   };
 
   // 수정 취소
   const handleCancelEdit = () => {
     setEditingId(null);
+    setSyncWithVaultOnUpdate(false);
+    setVaultDiffNotice(null);
     setForm({
       title: '',
       artist: form.artist || user?.name || '김아라',
@@ -222,7 +414,9 @@ export default function CaptionStudio({ onBack, user = null }) {
       size: '',
       medium: '',
       price: '',
-      isNfs: false
+      isNfs: false,
+      artworkId: null,
+      artworkUpdatedAt: null
     });
   };
 
@@ -390,6 +584,78 @@ export default function CaptionStudio({ onBack, user = null }) {
             </span>
           </div>
 
+          {/* 수장고에서 작품 불러오기 버튼 (단정하고 정갈한 원클릭 로더) */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsImportModalOpen(true);
+              setImportSearchQuery('');
+            }}
+            className="btn-import-vault"
+            title="수장고에 보관된 작품 목록을 확인하고 캡션으로 가져옵니다"
+          >
+            <FolderOpen size={16} />
+            수장고에서 작품 불러오기
+          </button>
+
+          {/* 수장고 원본 변경 감지 알림 배너 */}
+          {vaultDiffNotice && (
+            <div className="caption-vault-diff-banner">
+              <div className="caption-vault-diff-header">
+                <AlertCircle size={15} />
+                <span>수장고의 작품 정보가 변경되었습니다</span>
+              </div>
+              <div className="caption-vault-diff-msg">
+                수장고의 최신 원본 내용이 변경되었습니다. 캡션에도 새 내용을 반영할까요?
+              </div>
+              {vaultDiffNotice.diffFields?.length > 0 && (
+                <div className="caption-vault-diff-tags">
+                  {vaultDiffNotice.diffFields.map((f, idx) => (
+                    <span key={idx} className="caption-vault-diff-tag">{f} 변경됨</span>
+                  ))}
+                </div>
+              )}
+              <div className="caption-vault-diff-actions">
+                <button
+                  type="button"
+                  onClick={handleApplyVaultChanges}
+                  className="btn-diff-apply"
+                >
+                  수장고 내용 반영하기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVaultDiffNotice(null)}
+                  className="btn-diff-dismiss"
+                >
+                  현재 캡션 유지하기
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 연결된 수장고 작품 인디케이터 */}
+          {form.artworkId && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.45rem 0.75rem', background: '#F1F5F9', borderRadius: '6px', marginBottom: '0.9rem', fontSize: '0.78rem', color: '#475569' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <LinkIcon size={13} color="#2563EB" />
+                수장고 작품과 연결됨
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setForm(prev => ({ ...prev, artworkId: null, artworkUpdatedAt: null }));
+                  setVaultDiffNotice(null);
+                  showToast('수장고 연결을 해제했습니다. 이 캡션은 독립적으로 관리됩니다.');
+                }}
+                style={{ background: 'transparent', border: 'none', color: '#64748B', cursor: 'pointer', fontSize: '0.75rem', textDecoration: 'underline' }}
+                title="연결을 해제하고 캡션만 단독으로 관리합니다"
+              >
+                연결 해제
+              </button>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
             {/* 기본 정보: 제목 & 작가명 (국문/영문 분리 없이 단일 필드) */}
             <div className="form-row">
@@ -516,6 +782,39 @@ export default function CaptionStudio({ onBack, user = null }) {
               />
             </div>
 
+            {/* 수장고 동기화 독립성 보장 체크박스 (Step 6-2-B 핵심) */}
+            {editingId ? (
+              form.artworkId && (
+                <div className="caption-vault-sync-box">
+                  <label className="caption-vault-sync-label">
+                    <input
+                      type="checkbox"
+                      checked={syncWithVaultOnUpdate}
+                      onChange={(e) => setSyncWithVaultOnUpdate(e.target.checked)}
+                    />
+                    <span>수장고의 원본 작품 정보도 함께 수정하기</span>
+                  </label>
+                  <div className="caption-vault-sync-desc">
+                    체크를 해제하면 수장고 원본은 그대로 보존되고, 이 캡션의 내용만 안전하게 독립 수정됩니다.
+                  </div>
+                </div>
+              )
+            ) : (
+              <div className="caption-vault-sync-box">
+                <label className="caption-vault-sync-label">
+                  <input
+                    type="checkbox"
+                    checked={syncWithVaultOnCreate}
+                    onChange={(e) => setSyncWithVaultOnCreate(e.target.checked)}
+                  />
+                  <span>이 작품을 수장고에도 함께 보관하기</span>
+                </label>
+                <div className="caption-vault-sync-desc">
+                  수장고에 새 작품으로 자동 보관되어 포트폴리오와 도록에서도 바로 활용할 수 있습니다.
+                </div>
+              </div>
+            )}
+
             {editingId ? (
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button type="submit" className="btn-primary" style={{ flex: 1, background: '#0F172A' }}>
@@ -595,46 +894,52 @@ export default function CaptionStudio({ onBack, user = null }) {
                             <div className="caption-card-content">
                               {/* 상단: 작가 정보 및 작품 제목 */}
                               <div>
-                              <div className="caption-card-header">
-                                <span className="caption-artist-ko">{item.artist || item.artistKo}</span>
-                                {item.artistEn && !item.artist?.includes(item.artistEn) && (
-                                  <span className="caption-artist-en">{item.artistEn}</span>
+                                {item.artworkId && (
+                                  <div className="caption-vault-linked-badge no-print" title="수장고에 원본이 보관된 작품입니다">
+                                    <LinkIcon size={10} />
+                                    수장고 보관 작품
+                                  </div>
                                 )}
-                              </div>
-
-                              <div className="caption-title-box">
-                                <div className="caption-title-ko">
-                                  {styleMode === 'classic' ? `《${item.title || item.titleKo}》` : (item.title || item.titleKo)}
-                                  <span className="caption-year">{item.year}</span>
+                                <div className="caption-card-header">
+                                  <span className="caption-artist-ko">{item.artist || item.artistKo}</span>
+                                  {item.artistEn && !item.artist?.includes(item.artistEn) && (
+                                    <span className="caption-artist-en">{item.artistEn}</span>
+                                  )}
                                 </div>
-                                {item.titleEn && (
-                                  <div className="caption-title-en">{item.titleEn}</div>
-                                )}
+
+                                <div className="caption-title-box">
+                                  <div className="caption-title-ko">
+                                    {styleMode === 'classic' ? `《${item.title || item.titleKo}》` : (item.title || item.titleKo)}
+                                    <span className="caption-year">{item.year}</span>
+                                  </div>
+                                  {item.titleEn && (
+                                    <div className="caption-title-en">{item.titleEn}</div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* 하단: 재료 및 규격 */}
+                              <div className="caption-meta-box">
+                                <div className="caption-medium">
+                                  {item.medium || item.mediumKo}
+                                  {item.mediumEn && !item.medium?.includes(item.mediumEn) && (
+                                    <span className="caption-sub"> ({item.mediumEn})</span>
+                                  )}
+                                </div>
+                                <div className="caption-size">{item.size}</div>
                               </div>
                             </div>
 
-                            {/* 하단: 재료 및 규격 */}
-                            <div className="caption-meta-box">
-                              <div className="caption-medium">
-                                {item.medium || item.mediumKo}
-                                {item.mediumEn && !item.medium?.includes(item.mediumEn) && (
-                                  <span className="caption-sub"> ({item.mediumEn})</span>
-                                )}
+                            {/* 아트페어 가격 태그 (선택 시) */}
+                            {styleMode === 'commercial' && (
+                              <div className="caption-price-tag">
+                                <span>{item.price}</span>
+                                {!item.isNfs && <span className="caption-red-dot" title="판매 가능" />}
                               </div>
-                              <div className="caption-size">{item.size}</div>
-                            </div>
+                            )}
                           </div>
-
-                          {/* 아트페어 가격 태그 (선택 시) */}
-                          {styleMode === 'commercial' && (
-                            <div className="caption-price-tag">
-                              <span>{item.price}</span>
-                              {!item.isNfs && <span className="caption-red-dot" title="판매 가능" />}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -643,6 +948,117 @@ export default function CaptionStudio({ onBack, user = null }) {
           )}
         </div>
       </div>
+
+      {/* 수장고에서 작품 불러오기 모달 (Step 6-2-B) */}
+      {isImportModalOpen && (() => {
+        const allVaultArts = getArtworks(user) || [];
+        const filteredArts = allVaultArts.filter(art => {
+          if (!importSearchQuery.trim()) return true;
+          const q = importSearchQuery.toLowerCase();
+          const targetText = `${art.title || ''} ${art.year || ''} ${art.medium || ''} ${art.size || ''} ${art.artist || ''}`.toLowerCase();
+          return targetText.includes(q);
+        });
+
+        return (
+          <div className="modal-overlay" onClick={() => setIsImportModalOpen(false)}>
+            <div className="caption-import-modal" onClick={(e) => e.stopPropagation()}>
+              {/* 모달 헤더 */}
+              <div className="caption-import-header">
+                <div className="caption-import-title">
+                  <FolderOpen size={18} color="#0F172A" />
+                  <span>수장고 작품 불러오기</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsImportModalOpen(false)}
+                  className="caption-import-close-btn"
+                  title="닫기"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* 검색창 */}
+              <div className="caption-import-search-bar">
+                <Search size={15} className="caption-import-search-icon" />
+                <input
+                  type="text"
+                  className="caption-import-search-input"
+                  placeholder="작품 제목, 연도, 재료 등으로 검색..."
+                  value={importSearchQuery}
+                  onChange={(e) => setImportSearchQuery(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              {/* 작품 리스트 */}
+              <div className="caption-import-list">
+                {filteredArts.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748B', fontSize: '0.88rem' }}>
+                    {allVaultArts.length === 0 ? (
+                      <>
+                        수장고에 등록된 작품이 없습니다.<br />
+                        수장고 아카이브에 먼저 작품을 등록해 보세요.
+                      </>
+                    ) : (
+                      '검색 결과와 일치하는 작품이 없습니다.'
+                    )}
+                  </div>
+                ) : (
+                  filteredArts.map(art => (
+                    <div key={art.id} className="caption-import-item">
+                      <div className="caption-import-item-left">
+                        {art.imageUrl ? (
+                          <img
+                            src={art.imageUrl}
+                            alt={art.title || '작품'}
+                            className="caption-import-thumb"
+                          />
+                        ) : (
+                          <div className="caption-import-thumb">
+                            <FolderOpen size={20} />
+                          </div>
+                        )}
+                        <div className="caption-import-info">
+                          <div className="caption-import-name">
+                            {art.title || '무제'}
+                            {art.year && <span style={{ fontWeight: 400, color: '#64748B', marginLeft: '6px', fontSize: '0.82rem' }}>({art.year})</span>}
+                          </div>
+                          <div className="caption-import-sub">
+                            {art.size ? `${art.size} · ` : ''}{art.medium || '재료 미기재'}
+                          </div>
+                          {art.price && (
+                            <div style={{ fontSize: '0.78rem', color: '#0F172A', fontWeight: 600 }}>
+                              {art.isNfs ? 'NFS (비매품)' : art.price}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectArtworkFromVault(art)}
+                        className="btn-import-select"
+                        title="이 작품의 정보를 캡션 입력창에 채웁니다"
+                      >
+                        선택
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* 캡션 스튜디오 작업 토스트 안내 */}
+      {toastMessage && (
+        <div className="caption-studio-toast">
+          <Check size={16} color="#10B981" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }
+

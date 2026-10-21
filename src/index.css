@@ -1323,6 +1323,373 @@ input, select, textarea {
 }
 
 /* ===================================================================
+   전시 캡션 출력기: 수장고 연동 및 불러오기 모달 스타일 (Step 6-2-B)
+=================================================================== */
+
+/* 수장고에서 작품 불러오기 메인 버튼 */
+.btn-import-vault {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 1rem;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  color: #0F172A;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: 1rem;
+}
+
+.btn-import-vault:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* 수장고 변경 감지 알림 배너 */
+.caption-vault-diff-banner {
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.1rem;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.06);
+}
+
+.caption-vault-diff-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1E40AF;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.caption-vault-diff-msg {
+  font-size: 0.8rem;
+  color: #334155;
+  line-height: 1.45;
+  margin-bottom: 0.65rem;
+}
+
+.caption-vault-diff-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 0.65rem;
+}
+
+.caption-vault-diff-tag {
+  background: #DBEAFE;
+  color: #1E40AF;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.caption-vault-diff-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-diff-apply {
+  background: #1E293B;
+  color: #FFFFFF;
+  border: 1px solid #0F172A;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-diff-apply:hover {
+  background: #334155;
+}
+
+.btn-diff-dismiss {
+  background: transparent;
+  color: #64748B;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-diff-dismiss:hover {
+  background: #FFFFFF;
+  color: #0F172A;
+}
+
+/* 수장고 동기화 독립성 체크박스 */
+.caption-vault-sync-box {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  margin-top: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.caption-vault-sync-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: #1E293B;
+  font-weight: 600;
+}
+
+.caption-vault-sync-label input[type="checkbox"] {
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.caption-vault-sync-desc {
+  font-size: 0.74rem;
+  color: #64748B;
+  font-weight: 400;
+  margin-top: 4px;
+  margin-left: 22px;
+  line-height: 1.4;
+}
+
+/* 수장고 연동 상태 뱃지 (미리보기 카드 내부) */
+.caption-vault-linked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.68rem;
+  color: #475569;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+}
+
+/* 수장고 작품 불러오기 모달 본체 */
+.caption-import-modal {
+  background: #FFFFFF;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.caption-import-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.caption-import-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0F172A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.caption-import-close-btn {
+  background: transparent;
+  border: none;
+  color: #64748B;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.caption-import-close-btn:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+}
+
+.caption-import-search-bar {
+  padding: 0.85rem 1.4rem;
+  background: #F8FAFC;
+  border-bottom: 1px solid #E2E8F0;
+  position: relative;
+}
+
+.caption-import-search-input {
+  width: 100%;
+  padding: 0.55rem 0.85rem 0.55rem 2.2rem;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  font-size: 0.84rem;
+  background: #FFFFFF;
+  color: #0F172A;
+  box-sizing: border-box;
+}
+
+.caption-import-search-icon {
+  position: absolute;
+  left: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94A3B8;
+  pointer-events: none;
+}
+
+.caption-import-list {
+  padding: 1rem 1.4rem;
+  overflow-y: auto;
+  max-height: 55vh;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.caption-import-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  transition: all var(--transition-fast);
+  gap: 12px;
+}
+
+.caption-import-item:hover {
+  border-color: #94A3B8;
+  background: #F8FAFC;
+}
+
+.caption-import-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.caption-import-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94A3B8;
+}
+
+.caption-import-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.caption-import-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.caption-import-sub {
+  font-size: 0.78rem;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-import-select {
+  background: #0F172A;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-height: 38px;
+  transition: background var(--transition-fast);
+}
+
+.btn-import-select:hover {
+  background: #334155;
+}
+
+/* 캡션 스튜디오 전용 토스트 메시지 */
+.caption-studio-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 0.65rem 1.25rem;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeInToast 0.25s ease-out;
+}
+
+@keyframes fadeInToast {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (max-width: 640px) {
+  .caption-import-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .btn-import-select {
+    width: 100%;
+    min-height: 44px;
+  }
+  .caption-import-thumb {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+
+/* ===================================================================
    전역 모달 오버레이 스타일 (Modal Overlay & Backdrop)
 =================================================================== */
 .modal-overlay, .modal-backdrop {

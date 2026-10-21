@@ -43,6 +43,9 @@ export function generateUUID() {
   });
 }
 
+export const generateArtworkId = generateUUID;
+
+
 /**
  * 2. 표준 공통 Artwork 객체 정규화 및 생성
  * (Supabase artworks 테이블과 1:1 매핑 호환)
