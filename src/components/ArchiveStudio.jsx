@@ -137,7 +137,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // 내 기기(PC/모바일)에 원본 이미지 다운로드
+  // 내 기기(PC/모바일)에 표준 고화질 JPG/PNG 이미지로 다운로드 (WebP 앱 선택 팝업 방지)
   const handleDownloadOriginal = async (artwork) => {
     if (!artwork || !artwork.imageUrl) {
       alert('다운로드할 작품 이미지가 등록되어 있지 않습니다.');
@@ -149,30 +149,40 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       const cleanTitle = (artwork.title || '작품').replace(/[\/\\:*?"<>|]/g, '_').trim();
       const artistName = (artwork.artist || user?.name || '작가').replace(/[\/\\:*?"<>|]/g, '_').trim();
 
-      if (artwork.imageUrl.startsWith('data:')) {
-        let extension = 'jpg';
-        if (artwork.imageUrl.startsWith('data:image/png')) extension = 'png';
-        else if (artwork.imageUrl.startsWith('data:image/webp')) extension = 'webp';
+      // PNG 원본 여부 확인 (투명 배경 보존 목적)
+      const isPng = artwork.imageUrl.startsWith('data:image/png') || artwork.imageUrl.toLowerCase().endsWith('.png');
+      const targetMime = isPng ? 'image/png' : 'image/jpeg';
+      const extension = isPng ? 'png' : 'jpg';
+      const fileName = `${artistName}_《${cleanTitle}》_원본.${extension}`;
 
-        const fileName = `${artistName}_《${cleanTitle}》_원본.${extension}`;
-        const link = document.createElement('a');
-        link.href = artwork.imageUrl;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        // 원격 URL 또는 Blob URL 안전 다운로드
-        const res = await fetch(artwork.imageUrl, { mode: 'cors' });
-        const blob = await res.blob();
+      // Canvas를 통해 모든 WebP/특수 포맷을 전 세계 표준 고화질 JPG/PNG Blob으로 실시간 변환
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
 
-        let extension = 'jpg';
-        if (blob.type.includes('png')) extension = 'png';
-        else if (blob.type.includes('webp')) extension = 'webp';
-        else if (artwork.imageUrl.toLowerCase().endsWith('.png')) extension = 'png';
-        else if (artwork.imageUrl.toLowerCase().endsWith('.webp')) extension = 'webp';
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = artwork.imageUrl;
+      });
 
-        const fileName = `${artistName}_《${cleanTitle}》_원본.${extension}`;
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth || img.width;
+      canvas.height = img.naturalHeight || img.height;
+      const ctx = canvas.getContext('2d');
+
+      // JPG 변환 시 투명 영역이 검게 변하지 않도록 캔버스 흰색 바탕 채우기
+      if (!isPng) {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+      ctx.drawImage(img, 0, 0);
+
+      // 고화질 바이너리 Blob 생성 (JPG 품질 0.96)
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob(resolve, targetMime, 0.96);
+      });
+
+      if (blob) {
         const blobUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = blobUrl;
@@ -181,18 +191,20 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(blobUrl);
+      } else {
+        throw new Error('Blob 변환 실패');
       }
     } catch (err) {
-      console.warn('다운로드 중 오류 발생, 대체 방식으로 실행:', err);
+      console.warn('캔버스 변환 다운로드 실패, 다이렉트 다운로드 시도:', err);
       const link = document.createElement('a');
       link.href = artwork.imageUrl;
-      link.target = '_blank';
-      link.download = `${artwork.title || '작품'}_원본`;
+      const cleanTitle = (artwork.title || '작품').replace(/[\/\\:*?"<>|]/g, '_').trim();
+      link.download = `${cleanTitle}_원본.jpg`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } finally {
-      setTimeout(() => setIsDownloading(false), 600);
+      setTimeout(() => setIsDownloading(false), 500);
     }
   };
 
