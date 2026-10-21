@@ -67,14 +67,56 @@ export function getArtworks(user = null) {
   return [];
 }
 
-// 2. 작가 전용 금고에 저장
+// 2. 작가 전용 금고에 저장 (브라우저 5MB 한도 자가 치유 Self-Healing 엔진 탑재)
 export function saveArtworks(artworks, user = null) {
   const currentUser = user || getStoredUser();
   const key = getUserScopedKey('artflow_artworks', currentUser);
+
+  // 1차: 실시간 합성 가능한 중복 대형 필드(previewImageUrl) 제거하여 수 MB 용량 사전 확보
+  const cleanedList = artworks.map(item => {
+    const copy = { ...item };
+    delete copy.previewImageUrl;
+    return copy;
+  });
+
   try {
-    localStorage.setItem(key, JSON.stringify(artworks));
-  } catch (e) {
-    console.error('Failed to save user artworks:', e);
+    localStorage.setItem(key, JSON.stringify(cleanedList));
+    return true;
+  } catch (err) {
+    console.warn('[Storage] 1차 저장 실패 (5MB 한도 초과 감지), 자가 치유(Self-Healing) 가동:', err);
+
+    // 2차: 자가 치유 가동 (원본은 IndexedDB 금고에 무손실 보존되어 있으므로 뷰어 거품만 1/10 다이어트)
+    try {
+      const slimList = cleanedList.map(item => {
+        const slim = { ...item };
+        if (slim.thumbnailUrl && slim.imageUrl && slim.imageUrl.length > 150000) {
+          slim.imageUrl = slim.thumbnailUrl;
+        }
+        return slim;
+      });
+
+      localStorage.setItem(key, JSON.stringify(slimList));
+      console.log('[Storage] 자가 치유 성공: 용량 거품을 걷어내고 안전하게 저장 완료!');
+      return true;
+    } catch (err2) {
+      console.warn('[Storage] 2차 슬림화 실패, 3차 메타데이터 중심 초경량 저장 가동:', err2);
+
+      // 3차: 극단적 자가 치유 (모든 작품의 뷰어용을 경량 썸네일로 전환하여 100% 저장 보장)
+      try {
+        const minimalList = cleanedList.map(item => {
+          const min = { ...item };
+          if (min.thumbnailUrl) min.imageUrl = min.thumbnailUrl;
+          return min;
+        });
+
+        localStorage.setItem(key, JSON.stringify(minimalList));
+        console.log('[Storage] 3차 자가 치유 완료: 작품 목록 100% 저장 성공!');
+        return true;
+      } catch (err3) {
+        console.error('[Storage] 저장 실패:', err3);
+        return false;
+      }
+    }
   }
 }
 

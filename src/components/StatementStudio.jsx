@@ -439,6 +439,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
               <label className="form-label">작품 제목 <span style={{ color: '#EF4444' }}>*</span></label>
               <input 
                 type="text" 
+                name="statement-artwork-title"
+                autoComplete="off"
+                data-lpignore="true"
                 className="form-input" 
                 placeholder="예: 봄의 품격 (Spring Grace)"
                 value={artwork.title}
@@ -450,6 +453,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
               <label className="form-label">작가명</label>
               <input 
                 type="text" 
+                name="statement-artwork-artist"
+                autoComplete="off"
+                data-lpignore="true"
                 className="form-input" 
                 value={artwork.artist}
                 onChange={(e) => setArtwork({...artwork, artist: e.target.value})}
@@ -463,6 +469,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
               <label className="form-label">제작 연도</label>
               <input 
                 type="text" 
+                name="statement-artwork-year"
+                autoComplete="off"
+                data-lpignore="true"
                 className="form-input" 
                 value={artwork.year}
                 onChange={(e) => setArtwork({...artwork, year: e.target.value})}
@@ -531,6 +540,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <input 
                     type="text" 
+                    name="statement-size-w"
+                    autoComplete="off"
+                    data-lpignore="true"
                     inputMode="decimal"
                     className="form-input" 
                     placeholder="가로" 
@@ -541,6 +553,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                   <span style={{ color: '#94A3B8', fontWeight: 700, fontSize: '0.9rem' }}>×</span>
                   <input 
                     type="text" 
+                    name="statement-size-h"
+                    autoComplete="off"
+                    data-lpignore="true"
                     inputMode="decimal"
                     className="form-input" 
                     placeholder="세로" 
@@ -555,6 +570,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
               ) : (
                 <input 
                   type="text" 
+                  name="statement-size-direct"
+                  autoComplete="off"
+                  data-lpignore="true"
                   className="form-input" 
                   placeholder="예: 53.0 × 45.5 cm (10F) 또는 자유 입력"
                   value={artwork.size}
