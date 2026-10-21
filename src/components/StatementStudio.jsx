@@ -614,10 +614,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
           )}
 
           {/* 작품 사진 첨부 */}
-
           <div className="form-group" style={{ marginBottom: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-              <label className="form-label" style={{ margin: 0 }}>작품 사진 (선택 - 자동 다이어트 압축)</label>
+              <label className="form-label" style={{ margin: 0 }}>작품 사진 (선택)</label>
               {artworkImage && (
                 <button 
                   type="button" 
@@ -654,7 +653,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                   <>
                     <Upload size={18} color="#94A3B8" />
                     <span style={{ fontSize: '0.68rem', color: '#64748B', marginTop: '2px' }}>
-                      {isCompressing ? '압축 중' : '사진 첨부'}
+                      {isCompressing ? '등록 중' : '사진 첨부'}
                     </span>
                   </>
                 )}
@@ -666,11 +665,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                 style={{ display: 'none' }} 
                 onChange={handleImageUpload} 
               />
-              <div style={{ fontSize: '0.8rem', color: '#64748B', lineHeight: 1.5 }}>
-                스마트폰 원본 사진을 그대로 올려도, 브라우저에서 <strong>가벼운 웹 최적화 이미지(300KB)</strong>로 자동 압축하여 기기에 안전하게 보관합니다.
-              </div>
             </div>
           </div>
+
 
           {/* 제목 & 작가명 */}
           <div className="form-row" style={{ gap: '12px' }}>
