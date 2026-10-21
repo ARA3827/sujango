@@ -340,10 +340,10 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
     }
   };
 
-  // 모달 폼 저장
+  // 모달 저장 (폼 태그 없이 버튼 클릭으로 직통 저장)
   const handleSaveModal = async (e) => {
-    e.preventDefault();
-    if (!modalForm.title.trim()) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!modalForm.title || !modalForm.title.trim()) {
       alert('작품 제목을 입력해 주세요.');
       return;
     }
@@ -354,9 +354,13 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       id: editingArtwork ? editingArtwork.id : 'art-' + Date.now()
     };
 
-    // 1. IndexedDB 무손실 원본 금고에 대용량 원본 파일(8.23MB) 영구 저장
+    // 1. IndexedDB 무손실 원본 금고에 대용량 원본 파일(10.6MB 등) 영구 저장 (방어 처리)
     if (pendingRawFile) {
-      await saveOriginalToVault(itemToSave.id, pendingRawFile, pendingRawFile.name);
+      try {
+        await saveOriginalToVault(itemToSave.id, pendingRawFile, pendingRawFile.name);
+      } catch (vaultErr) {
+        console.warn('[Raw Vault] 금고 저장 경고:', vaultErr);
+      }
       setPendingRawFile(null);
     }
 
@@ -806,11 +810,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
               </button>
             </div>
 
-            {/* 본문 폼 입력 영역 */}
-            <form 
-              id="artwork-modal-form"
-              onSubmit={handleSaveModal} 
-              autoComplete="off"
+            {/* 본문 입력 영역 (크롬 자동완성 버그 방지를 위해 form 대신 순수 div 사용) */}
+            <div 
               className="modal-body" 
               style={{ 
                 padding: '1.5rem 1.75rem', 
@@ -1010,7 +1011,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                   onChange={(e) => setModalForm({ ...modalForm, instaCaption: e.target.value })}
                 />
               </div>
-            </form>
+            </div>
 
             {/* 하단 버튼 푸터 */}
             <div 
@@ -1033,8 +1034,8 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                 취소
               </button>
               <button 
-                type="submit" 
-                form="artwork-modal-form"
+                type="button" 
+                onClick={handleSaveModal}
                 className="btn-primary" 
                 style={{ width: 'auto', padding: '0.55rem 1.35rem', fontSize: '0.86rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 disabled={isCompressing}

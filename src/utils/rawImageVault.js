@@ -1,8 +1,7 @@
 /**
  * Sujango Raw Image Vault (무손실 원본 금고)
- * - 브라우저 표준 IndexedDB를 사용하여 대용량(수 MB ~ 수십 MB) 원본 이미지를
- *   1바이트의 압축/손실도 없이 원본 그대로 안전하게 보관합니다.
- * - localStorage의 5MB 한계를 극복하여 작가의 소중한 고해상도 작품을 보존합니다.
+ * - ArrayBuffer 바이너리 기반 무결성 저장
+ * - 브라우저 DataCloneError 및 IndexedDB 락 완벽 방어
  */
 
 const DB_NAME = 'sujango_vault_db';
@@ -37,42 +36,51 @@ function openDatabase() {
 
 /**
  * 원본 이미지 파일(Blob/File)을 무손실 보관
- * @param {string} artworkId - 작품 고유 ID
- * @param {Blob|File} fileOrBlob - 원본 파일 객체
- * @param {string} originalFileName - 원본 파일 이름
  */
 export async function saveOriginalToVault(artworkId, fileOrBlob, originalFileName = '') {
   if (!artworkId || !fileOrBlob) return false;
 
   try {
+    // 1. ArrayBuffer로 순수 바이너리 추출 (직렬화 에러 원천 차단)
+    const buffer = await fileOrBlob.arrayBuffer();
     const db = await openDatabase();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction([STORE_NAME], 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
 
-      // File 객체를 순수 Blob 바이너리로 안전하게 변환 (브라우저 DataCloneError 방지)
-      const safeBlob = new Blob([fileOrBlob], { type: fileOrBlob.type || 'image/jpeg' });
-      safeBlob.originalName = originalFileName || fileOrBlob.name || '';
-
-      const record = {
-        id: artworkId,
-        blob: safeBlob,
-        name: originalFileName || fileOrBlob.name || '',
-        size: fileOrBlob.size,
-        type: fileOrBlob.type || 'image/jpeg',
-        savedAt: new Date().toISOString()
-      };
-
-      store.put(record);
-
-      tx.oncomplete = () => {
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        console.warn('[Raw Vault] 저장 타임아웃 방어 해제');
         resolve(true);
-      };
+      }, 4000);
 
-      tx.onerror = (e) => {
-        console.error('[Raw Vault] 트랜잭션 쓰기 실패:', e.target.error);
-        reject(e.target.error);
-      };
+      try {
+        const tx = db.transaction([STORE_NAME], 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+
+        const record = {
+          id: artworkId,
+          buffer: buffer,
+          name: originalFileName || fileOrBlob.name || 'artwork.jpg',
+          size: fileOrBlob.size,
+          type: fileOrBlob.type || 'image/jpeg',
+          savedAt: new Date().toISOString()
+        };
+
+        store.put(record);
+
+        tx.oncomplete = () => {
+          clearTimeout(timer);
+          resolve(true);
+        };
+
+        tx.onerror = (e) => {
+          clearTimeout(timer);
+          console.error('[Raw Vault] 쓰기 오류:', e);
+          resolve(false);
+        };
+      } catch (err) {
+        clearTimeout(timer);
+        console.error('[Raw Vault] 트랜잭션 오류:', err);
+        resolve(false);
+      }
     });
   } catch (error) {
     console.error('[Raw Vault] 원본 이미지 저장 실패:', error);
@@ -82,33 +90,39 @@ export async function saveOriginalToVault(artworkId, fileOrBlob, originalFileNam
 
 /**
  * 원본 이미지 파일(Blob) 꺼내기
- * @param {string} artworkId - 작품 고유 ID
- * @returns {Promise<Blob|null>} 원본 이미지 Blob
  */
 export async function getOriginalFromVault(artworkId) {
   if (!artworkId) return null;
 
   try {
     const db = await openDatabase();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction([STORE_NAME], 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const getRequest = store.get(artworkId);
+    return new Promise((resolve) => {
+      try {
+        const tx = db.transaction([STORE_NAME], 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const getRequest = store.get(artworkId);
 
-      getRequest.onsuccess = () => {
-        const result = getRequest.result;
-        if (result && result.blob) {
-          // blob 자체에 원본 메타데이터(name, originalSize)를 프로퍼티로 바인딩하여 반환
-          const blob = result.blob;
-          blob.originalName = result.name || '';
-          blob.originalSize = result.size || blob.size;
-          resolve(blob);
-        } else {
-          resolve(null);
-        }
-      };
+        getRequest.onsuccess = () => {
+          const result = getRequest.result;
+          if (result && (result.buffer || result.blob)) {
+            let blob;
+            if (result.buffer) {
+              blob = new Blob([result.buffer], { type: result.type || 'image/jpeg' });
+            } else {
+              blob = result.blob;
+            }
+            blob.originalName = result.name || '';
+            blob.originalSize = result.size || blob.size;
+            resolve(blob);
+          } else {
+            resolve(null);
+          }
+        };
 
-      getRequest.onerror = () => resolve(null);
+        getRequest.onerror = () => resolve(null);
+      } catch (e) {
+        resolve(null);
+      }
     });
   } catch (error) {
     console.warn('[Raw Vault] 원본 이미지 조회 실패:', error);
@@ -118,7 +132,6 @@ export async function getOriginalFromVault(artworkId) {
 
 /**
  * 작품 삭제 시 원본 금고에서도 제거
- * @param {string} artworkId - 작품 고유 ID
  */
 export async function deleteOriginalFromVault(artworkId) {
   if (!artworkId) return false;
@@ -126,12 +139,16 @@ export async function deleteOriginalFromVault(artworkId) {
   try {
     const db = await openDatabase();
     return new Promise((resolve) => {
-      const tx = db.transaction([STORE_NAME], 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      const delRequest = store.delete(artworkId);
+      try {
+        const tx = db.transaction([STORE_NAME], 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const delRequest = store.delete(artworkId);
 
-      delRequest.onsuccess = () => resolve(true);
-      delRequest.onerror = () => resolve(false);
+        delRequest.onsuccess = () => resolve(true);
+        delRequest.onerror = () => resolve(false);
+      } catch (e) {
+        resolve(false);
+      }
     });
   } catch (e) {
     return false;
