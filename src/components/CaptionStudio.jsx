@@ -51,39 +51,39 @@ export default function CaptionStudio({ onBack, user = null }) {
       return [
         {
           id: 1,
+          artist: '김아라',
           artistKo: '김아라',
-          artistEn: 'Ara Kim',
+          title: '새벽의 경계',
           titleKo: '새벽의 경계',
-          titleEn: 'The Boundary of Dawn',
           year: '2026',
+          medium: '캔버스에 유채, 혼합재료',
           mediumKo: '캔버스에 유채, 혼합재료',
-          mediumEn: 'Oil and mixed media on linen',
           size: '116.8 × 91.0 cm (50F)',
           price: '3,500,000원',
           isNfs: false
         },
         {
           id: 2,
+          artist: '김아라',
           artistKo: '김아라',
-          artistEn: 'Ara Kim',
+          title: '푸른 잔상 No. 3',
           titleKo: '푸른 잔상 No. 3',
-          titleEn: 'Blue Afterimage No. 3',
           year: '2025',
+          medium: '캔버스에 아크릴',
           mediumKo: '캔버스에 아크릴',
-          mediumEn: 'Acrylic on canvas',
           size: '53.0 × 45.5 cm (10F)',
           price: '1,200,000원',
           isNfs: false
         },
         {
           id: 3,
+          artist: '김아라',
           artistKo: '김아라',
-          artistEn: 'Ara Kim',
+          title: '침묵의 심연',
           titleKo: '침묵의 심연',
-          titleEn: 'Abyss of Silence',
           year: '2025',
+          medium: '한지에 먹, 안료',
           mediumKo: '한지에 먹, 안료',
-          mediumEn: 'Ink and pigment on Korean paper',
           size: '72.7 × 60.6 cm (20F)',
           price: 'NFS (작가소장)',
           isNfs: true
@@ -96,13 +96,13 @@ export default function CaptionStudio({ onBack, user = null }) {
     if (userArts && userArts.length > 0) {
       return userArts.map((art, idx) => ({
         id: idx + 1,
+        artist: art.artist || user?.name || '작가',
         artistKo: art.artist || user?.name || '작가',
-        artistEn: user?.name || 'Artist',
+        title: art.title || '무제',
         titleKo: art.title || '무제',
-        titleEn: '',
         year: art.year || new Date().getFullYear().toString(),
+        medium: art.medium || '',
         mediumKo: art.medium || '',
-        mediumEn: '',
         size: art.size || '',
         price: art.price || '',
         isNfs: Boolean(art.isNfs)
@@ -112,16 +112,13 @@ export default function CaptionStudio({ onBack, user = null }) {
     return [];
   });
 
-  // 새 캡션 입력/수정 폼 상태
+  // 새 캡션 입력/수정 폼 상태 (아카이브 입력폼과 1:1 일치, 작가명 단일화)
   const [form, setForm] = useState({
-    artistKo: user?.name || '작가',
-    artistEn: user?.name || 'Artist',
-    titleKo: '',
-    titleEn: '',
+    title: '',
+    artist: user?.name || '김아라',
     year: new Date().getFullYear().toString(),
-    mediumKo: '',
-    mediumEn: '',
     size: '',
+    medium: '',
     price: '',
     isNfs: false
   });
@@ -139,7 +136,8 @@ export default function CaptionStudio({ onBack, user = null }) {
   // 등록 및 수정 완료 핸들러
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.titleKo.trim()) {
+    const titleVal = form.title.trim();
+    if (!titleVal) {
       alert('작품 제목을 입력해주세요.');
       return;
     }
@@ -152,8 +150,16 @@ export default function CaptionStudio({ onBack, user = null }) {
         if (c.id === editingId) {
           return {
             ...c,
-            ...form,
-            price: calculatedPrice
+            title: titleVal,
+            titleKo: titleVal,
+            artist: form.artist || user?.name || '작가',
+            artistKo: form.artist || user?.name || '작가',
+            year: form.year,
+            size: form.size,
+            medium: form.medium,
+            mediumKo: form.medium,
+            price: calculatedPrice,
+            isNfs: form.isNfs
           };
         }
         return c;
@@ -164,22 +170,27 @@ export default function CaptionStudio({ onBack, user = null }) {
       // 2. 새 캡션 추가
       const newItem = {
         id: Date.now(),
-        ...form,
-        price: calculatedPrice
+        title: titleVal,
+        titleKo: titleVal,
+        artist: form.artist || user?.name || '작가',
+        artistKo: form.artist || user?.name || '작가',
+        year: form.year,
+        size: form.size,
+        medium: form.medium,
+        mediumKo: form.medium,
+        price: calculatedPrice,
+        isNfs: form.isNfs
       };
       saveCaptions([...captions, newItem]);
     }
 
     // 폼 초기화 (작가명은 유지)
     setForm({
-      artistKo: form.artistKo || '김아라',
-      artistEn: form.artistEn || 'Ara Kim',
-      titleKo: '',
-      titleEn: '',
+      title: '',
+      artist: form.artist || user?.name || '김아라',
       year: new Date().getFullYear().toString(),
-      mediumKo: '',
-      mediumEn: '',
       size: '',
+      medium: '',
       price: '',
       isNfs: false
     });
@@ -191,16 +202,13 @@ export default function CaptionStudio({ onBack, user = null }) {
   const handleEditClick = (item) => {
     setEditingId(item.id);
     setForm({
-      artistKo: item.artistKo,
-      artistEn: item.artistEn || '',
-      titleKo: item.titleKo,
-      titleEn: item.titleEn || '',
+      title: item.title || item.titleKo || '',
+      artist: item.artist || item.artistKo || user?.name || '작가',
       year: item.year || new Date().getFullYear().toString(),
-      mediumKo: item.mediumKo || '',
-      mediumEn: item.mediumEn || '',
       size: item.size || '',
-      price: item.isNfs ? '' : (item.price === 'NFS (비매품)' ? '' : item.price),
-      isNfs: item.isNfs || item.price?.includes('NFS')
+      medium: item.medium || item.mediumKo || '',
+      price: item.isNfs ? '' : (item.price === 'NFS (비매품)' ? '' : item.price || ''),
+      isNfs: Boolean(item.isNfs || item.price?.includes('NFS'))
     });
   };
 
@@ -208,14 +216,11 @@ export default function CaptionStudio({ onBack, user = null }) {
   const handleCancelEdit = () => {
     setEditingId(null);
     setForm({
-      artistKo: form.artistKo || '김아라',
-      artistEn: form.artistEn || 'Ara Kim',
-      titleKo: '',
-      titleEn: '',
+      title: '',
+      artist: form.artist || user?.name || '김아라',
       year: new Date().getFullYear().toString(),
-      mediumKo: '',
-      mediumEn: '',
       size: '',
+      medium: '',
       price: '',
       isNfs: false
     });
@@ -386,59 +391,39 @@ export default function CaptionStudio({ onBack, user = null }) {
           </div>
 
           <form onSubmit={handleSubmit}>
+            {/* 기본 정보: 제목 & 작가명 (국문/영문 분리 없이 단일 필드) */}
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">작가명 (국문)</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  value={form.artistKo}
-                  onChange={(e) => setForm({...form, artistKo: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">작가명 (영문)</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="예: Ara Kim"
-                  value={form.artistEn}
-                  onChange={(e) => setForm({...form, artistEn: e.target.value})}
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">작품 제목 (국문)</label>
+                <label className="form-label">작품 제목 (필수)</label>
                 <input 
                   type="text" 
                   className="form-input" 
                   placeholder="예: 새벽의 경계"
-                  value={form.titleKo}
-                  onChange={(e) => setForm({...form, titleKo: e.target.value})}
+                  value={form.title}
+                  onChange={(e) => setForm({...form, title: e.target.value})}
                   required
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">작품 제목 (영문)</label>
+                <label className="form-label">작가명</label>
                 <input 
                   type="text" 
                   className="form-input" 
-                  placeholder="예: The Boundary of Dawn"
-                  value={form.titleEn}
-                  onChange={(e) => setForm({...form, titleEn: e.target.value})}
+                  placeholder="예: 김아라 또는 Ara Kim"
+                  value={form.artist}
+                  onChange={(e) => setForm({...form, artist: e.target.value})}
                 />
               </div>
             </div>
 
+            {/* 연도 & 규격 */}
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">제작 연도</label>
                 <input 
                   type="text" 
                   className="form-input" 
+                  placeholder="예: 2026"
                   value={form.year}
                   onChange={(e) => setForm({...form, year: e.target.value})}
                 />
@@ -451,15 +436,14 @@ export default function CaptionStudio({ onBack, user = null }) {
                   placeholder="예: 116.8 × 91.0 cm (50호)"
                   value={form.size}
                   onChange={(e) => setForm({...form, size: e.target.value})}
-                  required
                 />
               </div>
             </div>
 
-            {/* 재료 및 기법 - 표준 영문 자동 완성 프리셋 */}
+            {/* 재료 및 기법 - 표준 재료 선택 & 직접 입력 */}
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginBottom: '0.4rem' }}>
-                <label className="form-label" style={{ margin: 0, whiteSpace: 'nowrap', flexShrink: 0 }}>재료 및 기법 (국문)</label>
+                <label className="form-label" style={{ margin: 0, whiteSpace: 'nowrap', flexShrink: 0 }}>재료 및 기법</label>
                 <select 
                   className="form-select" 
                   style={{ 
@@ -474,10 +458,7 @@ export default function CaptionStudio({ onBack, user = null }) {
                   }}
                   onChange={(e) => {
                     if (!e.target.value) return;
-                    const preset = MATERIAL_PRESETS.find(p => p.ko === e.target.value);
-                    if (preset) {
-                      setForm(prev => ({ ...prev, mediumKo: preset.ko, mediumEn: preset.en }));
-                    }
+                    setForm(prev => ({ ...prev, medium: e.target.value }));
                   }}
                   value=""
                 >
@@ -495,8 +476,8 @@ export default function CaptionStudio({ onBack, user = null }) {
                     key={idx}
                     type="button"
                     className="tag-chip"
-                    onClick={() => setForm(prev => ({ ...prev, mediumKo: p.ko, mediumEn: p.en }))}
-                    title={`${p.ko} (${p.en}) 국/영문 세트 자동 입력`}
+                    onClick={() => setForm(prev => ({ ...prev, medium: p.ko }))}
+                    title={`${p.ko} 자동 입력`}
                   >
                     + {p.ko.replace('캔버스에 ', '')}
                   </button>
@@ -507,23 +488,12 @@ export default function CaptionStudio({ onBack, user = null }) {
                 type="text" 
                 className="form-input" 
                 placeholder="예: 캔버스에 유채, 혼합재료"
-                value={form.mediumKo}
-                onChange={(e) => setForm({...form, mediumKo: e.target.value})}
-                required
+                value={form.medium}
+                onChange={(e) => setForm({...form, medium: e.target.value})}
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">재료 및 기법 (영문 병기 - 자동완성 또는 직접 입력)</label>
-              <input 
-                type="text" 
-                className="form-input" 
-                placeholder="예: Oil and mixed media on linen"
-                value={form.mediumEn}
-                onChange={(e) => setForm({...form, mediumEn: e.target.value})}
-              />
-            </div>
-
+            {/* 작품 가격 / 비매품 */}
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                 <label className="form-label" style={{ margin: 0 }}>작품 가격 / 비매품</label>
@@ -533,7 +503,7 @@ export default function CaptionStudio({ onBack, user = null }) {
                     checked={form.isNfs}
                     onChange={(e) => setForm({...form, isNfs: e.target.checked})}
                   />
-                  <span>NFS (비매품 / 소장품)</span>
+                  <span>NFS (소장품 / 비매품)</span>
                 </label>
               </div>
               <input 
@@ -626,13 +596,15 @@ export default function CaptionStudio({ onBack, user = null }) {
                               {/* 상단: 작가 정보 및 작품 제목 */}
                               <div>
                               <div className="caption-card-header">
-                                <span className="caption-artist-ko">{item.artistKo}</span>
-                                {item.artistEn && <span className="caption-artist-en">{item.artistEn}</span>}
+                                <span className="caption-artist-ko">{item.artist || item.artistKo}</span>
+                                {item.artistEn && !item.artist?.includes(item.artistEn) && (
+                                  <span className="caption-artist-en">{item.artistEn}</span>
+                                )}
                               </div>
 
                               <div className="caption-title-box">
                                 <div className="caption-title-ko">
-                                  {styleMode === 'classic' ? `《${item.titleKo}》` : item.titleKo}
+                                  {styleMode === 'classic' ? `《${item.title || item.titleKo}》` : (item.title || item.titleKo)}
                                   <span className="caption-year">{item.year}</span>
                                 </div>
                                 {item.titleEn && (
@@ -644,8 +616,10 @@ export default function CaptionStudio({ onBack, user = null }) {
                             {/* 하단: 재료 및 규격 */}
                             <div className="caption-meta-box">
                               <div className="caption-medium">
-                                {item.mediumKo}
-                                {item.mediumEn && <span className="caption-sub"> ({item.mediumEn})</span>}
+                                {item.medium || item.mediumKo}
+                                {item.mediumEn && !item.medium?.includes(item.mediumEn) && (
+                                  <span className="caption-sub"> ({item.mediumEn})</span>
+                                )}
                               </div>
                               <div className="caption-size">{item.size}</div>
                             </div>
