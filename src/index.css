@@ -2233,6 +2233,107 @@ input, select, textarea {
   border: 1px solid #F3E8FF;
 }
 
+/* 작품 소장/판매 상태 배지 */
+.badge-status-available {
+  background: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-status-sold {
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-status-nfs {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-status-exhibited {
+  background: #FEFCE8;
+  color: #A16207;
+  border: 1px solid #FEF08A;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 상태 선택 세그먼트 버튼 그룹 (모달 내) */
+.status-selector-group {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .status-selector-group {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.status-selector-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.status-selector-btn:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+  color: #334155;
+}
+
+.status-selector-btn.active.status-available {
+  background: #ECFDF5;
+  border-color: #10B981;
+  color: #059669;
+  font-weight: 700;
+}
+
+.status-selector-btn.active.status-sold {
+  background: #FEF2F2;
+  border-color: #EF4444;
+  color: #DC2626;
+  font-weight: 700;
+}
+
+.status-selector-btn.active.status-nfs {
+  background: #EFF6FF;
+  border-color: #3B82F6;
+  color: #1D4ED8;
+  font-weight: 700;
+}
+
+.status-selector-btn.active.status-exhibited {
+  background: #FEFCE8;
+  border-color: #F59E0B;
+  color: #B45309;
+  font-weight: 700;
+}
+
 .archive-empty-box {
   padding: 3rem 1rem;
   text-align: center;

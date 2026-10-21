@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { saveSingleArtwork, getArtworks } from '../utils/archiveStorage';
-import { generateArtworkId } from '../utils/artworkModel';
+import { generateArtworkId, getArtworkStatusMeta } from '../utils/artworkModel';
 import { compressImage } from '../utils/imageCompressor';
 import { getUserScopedKey } from '../utils/authStorage';
 import { saveOriginalToVault } from '../utils/rawImageVault';
@@ -1460,12 +1460,21 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                           </div>
                         )}
                         <div className="caption-import-info">
-                          <div className="caption-import-name" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <div className="caption-import-name" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                             <span>{art.title || '무제'}</span>
                             {art.year && <span style={{ fontWeight: 400, color: '#64748B', fontSize: '0.82rem' }}>({art.year})</span>}
+                            {(() => {
+                              const meta = getArtworkStatusMeta(art.status || (art.isSold ? 'sold' : (art.isNfs ? 'nfs' : 'available')));
+                              return (
+                                <span className={`archive-badge ${meta.badgeClass}`} style={{ fontSize: '0.68rem', padding: '1px 5px' }}>
+                                  <span>{meta.dot}</span>
+                                  <span>{meta.shortLabel}</span>
+                                </span>
+                              );
+                            })()}
                             {art.statement && (
-                              <span style={{ fontSize: '0.68rem', background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', padding: '1px 5px', borderRadius: '4px', fontWeight: 600 }}>
-                                작가노트 보관됨
+                              <span style={{ fontSize: '0.68rem', background: '#F1F5F9', color: '#475569', padding: '1px 5px', borderRadius: '4px', fontWeight: 500 }}>
+                                📝 작가노트
                               </span>
                             )}
                           </div>

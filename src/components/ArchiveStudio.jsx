@@ -38,6 +38,7 @@ import {
 import { generateWatermarkedPreview, generateThumbnail, compressImage } from '../utils/imageCompressor';
 import { fetchWatermarkSettings } from '../utils/supabaseClient';
 import { saveOriginalToVault, getOriginalFromVault, deleteOriginalFromVault } from '../utils/rawImageVault';
+import { getArtworkStatusMeta, ARTWORK_STATUS, ARTWORK_STATUS_LABELS } from '../utils/artworkModel';
 
 // 기능 토글 설정값 (비활성화 상태 보존)
 const SHARE_LINK_ENABLED = false;
@@ -101,6 +102,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
     year: new Date().getFullYear().toString(),
     size: '',
     medium: '',
+    status: 'available',
     price: '',
     isNfs: false,
     imageUrl: '',
@@ -382,6 +384,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       year: new Date().getFullYear().toString(),
       size: '53.0 × 45.5 cm (10F)',
       medium: '캔버스에 유채 (Oil on canvas)',
+      status: 'available',
       price: '',
       isNfs: false,
       imageUrl: '',
@@ -395,14 +398,16 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
   // 모달 열기 (수정)
   const handleOpenEditModal = (art) => {
     setEditingArtwork(art);
+    const artStatus = art.status || (art.isSold ? 'sold' : (art.isNfs ? 'nfs' : 'available'));
     setModalForm({
       title: art.title || '',
       artist: art.artist || user?.name || '작가',
       year: art.year || '',
       size: art.size || '',
       medium: art.medium || '',
+      status: artStatus,
       price: art.price || '',
-      isNfs: art.isNfs || false,
+      isNfs: artStatus === 'nfs',
       imageUrl: art.imageUrl || '',
       statement: art.statement || '',
       instaCaption: art.instaCaption || '',
@@ -475,9 +480,15 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       return;
     }
 
+    const finalStatus = modalForm.status || (modalForm.isNfs ? 'nfs' : 'available');
     const itemToSave = {
       ...(editingArtwork ? editingArtwork : {}),
       ...modalForm,
+      status: finalStatus,
+      isNfs: finalStatus === 'nfs',
+      isSold: finalStatus === 'sold',
+      isExhibited: finalStatus === 'exhibited',
+      price: finalStatus === 'nfs' ? 'NFS (비매품)' : modalForm.price,
       id: editingArtwork ? editingArtwork.id : 'art-' + Date.now()
     };
 
@@ -698,8 +709,13 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                   )}
                 </div>
                 <div className="filmstrip-info">
-                  <div className="filmstrip-title">{art.title}</div>
-                  <div className="filmstrip-sub">{art.year} • {art.size.split('(')[0].trim()}</div>
+                  <div className="filmstrip-title" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{art.title}</span>
+                    <span style={{ fontSize: '0.68rem', flexShrink: 0 }}>
+                      {getArtworkStatusMeta(art.status || (art.isSold ? 'sold' : (art.isNfs ? 'nfs' : 'available'))).dot}
+                    </span>
+                  </div>
+                  <div className="filmstrip-sub">{art.year} • {art.size?.split('(')[0]?.trim() || art.size}</div>
                 </div>
               </div>
             ))}
@@ -761,7 +777,18 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
 
             {/* 미술관 표준 캡션 명패 카드 */}
             <div className="archive-caption-plaque">
-              <div className="plaque-artist">{currentArt.artist || '김아라'}</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <div className="plaque-artist">{currentArt.artist || '김아라'}</div>
+                {(() => {
+                  const meta = getArtworkStatusMeta(currentArt.status || (currentArt.isSold ? 'sold' : (currentArt.isNfs ? 'nfs' : 'available')));
+                  return (
+                    <span className={`archive-badge ${meta.badgeClass}`} style={{ fontSize: '0.74rem', padding: '2px 7px' }}>
+                      <span>{meta.dot}</span>
+                      <span>{meta.label}</span>
+                    </span>
+                  );
+                })()}
+              </div>
               <div className="plaque-title">
                 《{currentArt.title}》
                 <span className="plaque-year">, {currentArt.year}</span>
@@ -770,7 +797,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
               <div className="plaque-size">{currentArt.size}</div>
               {currentArt.price && (
                 <div className="plaque-price">
-                  {currentArt.isNfs ? 'NFS (비매품 / 소장품)' : currentArt.price}
+                  {currentArt.isNfs || currentArt.status === 'nfs' ? 'NFS (비매품 / 소장품)' : currentArt.price}
                 </div>
               )}
             </div>
@@ -1141,30 +1168,62 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                 />
               </div>
 
-              <div className="form-row" style={{ gap: '12px', alignItems: 'flex-end' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">작품 가격 / 비매품</label>
-                  <input 
-                    type="text" 
-                    name="artwork-price"
-                    autoComplete="off"
-                    className="form-input" 
-                    placeholder={modalForm.isNfs ? 'NFS (비매품)' : '예: 2,500,000원'}
-                    value={modalForm.isNfs ? '' : modalForm.price}
-                    onChange={(e) => setModalForm({ ...modalForm, price: e.target.value })}
-                    disabled={modalForm.isNfs}
-                  />
+              {/* 작품 상태 선택 세그먼트 */}
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>작품 상태 (소장 및 판매 현황)</span>
+                  <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 400 }}>원클릭으로 상태를 전환합니다</span>
+                </label>
+                <div className="status-selector-group">
+                  <button
+                    type="button"
+                    className={`status-selector-btn ${modalForm.status === 'available' ? 'active status-available' : ''}`}
+                    onClick={() => setModalForm({ ...modalForm, status: 'available', isNfs: false })}
+                  >
+                    <span>🟢</span>
+                    <span>보관 중</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`status-selector-btn ${modalForm.status === 'sold' ? 'active status-sold' : ''}`}
+                    onClick={() => setModalForm({ ...modalForm, status: 'sold', isNfs: false })}
+                  >
+                    <span>🔴</span>
+                    <span>판매 완료</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`status-selector-btn ${modalForm.status === 'nfs' ? 'active status-nfs' : ''}`}
+                    onClick={() => setModalForm({ ...modalForm, status: 'nfs', isNfs: true, price: 'NFS (비매품)' })}
+                  >
+                    <span>🔵</span>
+                    <span>소장품 (NFS)</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`status-selector-btn ${modalForm.status === 'exhibited' ? 'active status-exhibited' : ''}`}
+                    onClick={() => setModalForm({ ...modalForm, status: 'exhibited', isNfs: false })}
+                  >
+                    <span>🟡</span>
+                    <span>전시·위탁 중</span>
+                  </button>
                 </div>
-                <div className="form-group" style={{ marginBottom: 0, paddingBottom: '0.65rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', color: '#475569', cursor: 'pointer' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={modalForm.isNfs}
-                      onChange={(e) => setModalForm({ ...modalForm, isNfs: e.target.checked })}
-                    />
-                    <span>NFS (소장품 / 비매품)</span>
-                  </label>
-                </div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label">
+                  작품 가격 {modalForm.status === 'sold' ? '(판매가 또는 참고 가격)' : modalForm.status === 'nfs' ? '(비매품)' : '(판매 희망가)'}
+                </label>
+                <input 
+                  type="text" 
+                  name="artwork-price"
+                  autoComplete="off"
+                  className="form-input" 
+                  placeholder={modalForm.status === 'nfs' ? 'NFS (소장품 / 비매품)' : '예: 2,500,000원 또는 가격 협의'}
+                  value={modalForm.status === 'nfs' ? '' : modalForm.price}
+                  onChange={(e) => setModalForm({ ...modalForm, price: e.target.value })}
+                  disabled={modalForm.status === 'nfs'}
+                />
               </div>
 
               <div className="form-group" style={{ marginBottom: 0 }}>

@@ -3,7 +3,7 @@ import { getStoredUser, getUserScopedKey } from './authStorage';
 import { hasOriginalInVault } from './rawImageVault';
 import { isMigrationLocked, normalizeArtwork } from './artworkModel';
 
-// 초기 기본 시연용 미술관 샘플 작품 데이터 2점 (데모 계정 전용)
+// 초기 기본 시연용 미술관 샘플 작품 데이터 (데모 계정 전용)
 const DEFAULT_ARTWORKS = [
   {
     id: 'art-1',
@@ -12,6 +12,7 @@ const DEFAULT_ARTWORKS = [
     year: '2026',
     medium: '캔버스에 유채, 혼합재료 (Oil and mixed media on linen)',
     size: '116.8 × 91.0 cm (50F)',
+    status: 'available',
     isNfs: false,
     price: '3,500,000원',
     imageUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%231E293B"/><stop offset="50%" stop-color="%23334155"/><stop offset="100%" stop-color="%2364748B"/></linearGradient><linearGradient id="g2" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="%230F172A" stop-opacity="0.8"/><stop offset="100%" stop-color="%2394A3B8" stop-opacity="0.2"/></linearGradient></defs><rect width="800" height="600" fill="url(%23g1)"/><circle cx="400" cy="280" r="180" fill="%23E2E8F0" fill-opacity="0.15"/><path d="M100 450 Q 400 320 700 480 L 800 600 L 0 600 Z" fill="url(%23g2)"/><text x="400" y="550" font-family="serif" font-size="20" fill="%23E2E8F0" text-anchor="middle" letter-spacing="4">The Boundary of Dawn (2026)</text></svg>',
@@ -27,6 +28,8 @@ const DEFAULT_ARTWORKS = [
     year: '2025',
     medium: '캔버스에 아크릴 (Acrylic on canvas)',
     size: '53.0 × 45.5 cm (10F)',
+    status: 'sold',
+    isSold: true,
     isNfs: false,
     price: '1,200,000원',
     imageUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="%230284C7"/><stop offset="100%" stop-color="%230369A1"/></linearGradient></defs><rect width="800" height="600" fill="url(%23bg)"/><rect x="150" y="100" width="500" height="400" rx="20" fill="%2338BDF8" fill-opacity="0.25"/><circle cx="350" cy="300" r="120" fill="%23F0F9FF" fill-opacity="0.3"/><circle cx="480" cy="260" r="80" fill="%23BAE6FD" fill-opacity="0.4"/><text x="400" y="540" font-family="sans-serif" font-weight="600" font-size="18" fill="%23FFFFFF" text-anchor="middle" letter-spacing="3">Blue Afterimage No. 3</text></svg>',
@@ -34,6 +37,22 @@ const DEFAULT_ARTWORKS = [
     instaCaption: `깊고 맑은 파랑이 주는 위로.\n작업대 위에 올려두고 하루 종일 바라보아도 지치지 않는 푸른빛을 찾고 싶었습니다.\n\n《푸른 잔상 No. 3》, 2025\nAcrylic on canvas, 10F\n\n#김아라작가 #아크릴화 #회화작품 #컬렉터 #전시회 #파랑 #미술품소장`,
     blogStory: `[10호 소품 연작 이야기]\n\n대작을 작업하다 지칠 때면 늘 작은 10호 캔버스를 꺼냅니다.\n정형화된 구상에서 벗어나 오직 색채의 리듬감에만 몸을 맡기는 시간은 저에게 일종의 명상과도 같습니다. 푸른 안료를 겹겹이 붓질하며 마음의 번뇌를 씻어냈던 그날의 기억이 이 작은 캔버스 안에 고스란히 담겨 있습니다.`,
     createdAt: '2026-10-08'
+  },
+  {
+    id: 'art-3',
+    title: '무한의 궤적',
+    artist: '김아라',
+    year: '2024',
+    medium: '한지에 먹, 채색 (Ink and color on Korean mulberry paper)',
+    size: '72.7 × 60.6 cm (20F)',
+    status: 'nfs',
+    isNfs: true,
+    price: 'NFS (비매품 / 작가 소장)',
+    imageUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600"><defs><linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%231E1B4B"/><stop offset="50%" stop-color="%23312E81"/><stop offset="100%" stop-color="%234338CA"/></linearGradient></defs><rect width="800" height="600" fill="url(%23bg3)"/><path d="M150 400 C 250 150, 550 150, 650 400 S 350 550, 150 400 Z" fill="none" stroke="%23A5B4FC" stroke-width="4" stroke-dasharray="8 4"/><circle cx="400" cy="300" r="90" fill="%23C7D2FE" fill-opacity="0.2"/><text x="400" y="540" font-family="serif" font-size="18" fill="%23E0E7FF" text-anchor="middle" letter-spacing="3">Trajectory of Infinity (2024)</text></svg>',
+    statement: `《무한의 궤적》은 닥종이 특유의 결을 타고 번져나가는 먹의 자연스러운 흐름을 빌려 끝없는 순환과 영속성을 시각화한 작업이다. 작가의 첫 개인전 메인 출품작으로 영구 보존 소장본이다.`,
+    instaCaption: `한지의 숨결과 먹의 침묵.\n끝나지 않을 것 같던 선들이 모여 하나의 궤적을 이룹니다.\n\n《무한의 궤적》, 2024\n닥종이에 수묵채색, 20F\n\n#김아라작가 #한국화 #수묵화 #수장고 #작가소장품 #NFS`,
+    blogStory: `[개인전 메인 작품 회고: 무한의 궤적]\n\n제가 가장 아끼는 초기 연작 중 하나로, 수많은 관객분들께서 구매를 문의해 주셨지만 영구 소장으로 남겨두기로 결정했던 작품입니다.`,
+    createdAt: '2026-09-15'
   }
 ];
 
@@ -198,6 +217,8 @@ export async function saveSingleArtwork(artwork, user = null) {
   if (isSupabaseConfigured() && supabase && currentUser?.email) {
     const rawPrice = parseInt(String(savedItem.price || '').replace(/[^0-9]/g, '')) || 0;
 
+    const dbStatus = savedItem.status === 'sold' ? '판매완료' : (savedItem.status === 'nfs' ? '비매품' : (savedItem.status === 'exhibited' ? '전시중' : '보관중'));
+
     supabase
       .from('artworks')
       .upsert({
@@ -206,11 +227,12 @@ export async function saveSingleArtwork(artwork, user = null) {
         year: savedItem.year || '',
         medium: savedItem.medium || '',
         price: rawPrice,
-        status: savedItem.isNfs ? '비매품' : '보관중',
+        status: dbStatus,
         image_url: savedItem.imageUrl || '',
         notes: JSON.stringify({
           client_id: savedItem.id,
           size: savedItem.size,
+          status: savedItem.status,
           statement: savedItem.statement,
           instaCaption: savedItem.instaCaption,
           blogStory: savedItem.blogStory,
@@ -264,11 +286,20 @@ export async function syncArtworksFromSupabase(user = null) {
     }
 
     if (data && data.length > 0) {
+      const statusMap = {
+        '판매완료': 'sold',
+        '비매품': 'nfs',
+        '전시중': 'exhibited',
+        '보관중': 'available'
+      };
+
       const cloudArtworks = data.map(item => {
         let extra = {};
         try {
           if (item.notes) extra = JSON.parse(item.notes);
         } catch (_) {}
+
+        const computedStatus = extra.status || statusMap[item.status] || (item.status === '비매품' ? 'nfs' : 'available');
 
         return {
           id: extra.client_id || item.id,
@@ -277,7 +308,10 @@ export async function syncArtworksFromSupabase(user = null) {
           year: item.year || '',
           medium: item.medium || '',
           size: extra.size || '',
-          isNfs: item.status === '비매품',
+          status: computedStatus,
+          isNfs: computedStatus === 'nfs',
+          isSold: computedStatus === 'sold',
+          isExhibited: computedStatus === 'exhibited',
           price: item.price ? Number(item.price).toLocaleString() + '원' : '가격 협의',
           imageUrl: item.image_url || '',
           statement: extra.statement || '',

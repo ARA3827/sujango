@@ -24,7 +24,7 @@ const MATERIAL_PRESETS = [
 
 import { getUserScopedKey } from '../utils/authStorage';
 import { getArtworks, saveSingleArtwork } from '../utils/archiveStorage';
-import { generateArtworkId } from '../utils/artworkModel';
+import { generateArtworkId, getArtworkStatusMeta } from '../utils/artworkModel';
 
 export default function CaptionStudio({ onBack, user = null, initialArtworkId = null }) {
   const [styleMode, setStyleMode] = useState('classic'); // 'classic' | 'modern' | 'commercial'
@@ -1033,9 +1033,18 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
                           </div>
                         )}
                         <div className="caption-import-info">
-                          <div className="caption-import-name">
-                            {art.title || '무제'}
-                            {art.year && <span style={{ fontWeight: 400, color: '#64748B', marginLeft: '6px', fontSize: '0.82rem' }}>({art.year})</span>}
+                          <div className="caption-import-name" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                            <span>{art.title || '무제'}</span>
+                            {art.year && <span style={{ fontWeight: 400, color: '#64748B', fontSize: '0.82rem' }}>({art.year})</span>}
+                            {(() => {
+                              const meta = getArtworkStatusMeta(art.status || (art.isSold ? 'sold' : (art.isNfs ? 'nfs' : 'available')));
+                              return (
+                                <span className={`archive-badge ${meta.badgeClass}`} style={{ fontSize: '0.68rem', padding: '1px 5px' }}>
+                                  <span>{meta.dot}</span>
+                                  <span>{meta.shortLabel}</span>
+                                </span>
+                              );
+                            })()}
                           </div>
                           <div className="caption-import-sub">
                             {art.size ? `${art.size} · ` : ''}{art.medium || '재료 미기재'}

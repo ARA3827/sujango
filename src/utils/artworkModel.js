@@ -27,6 +27,51 @@ export function setMigrationLock(val) {
 }
 
 /**
+ * 작품 상태(소장/판매/전시 현황) 표준 정의
+ */
+export const ARTWORK_STATUS = {
+  AVAILABLE: 'available', // 보관 중 (판매 가능)
+  SOLD: 'sold',           // 판매 완료
+  NFS: 'nfs',             // 소장품 (NFS / 비매품)
+  EXHIBITED: 'exhibited'  // 전시·위탁 중
+};
+
+export const ARTWORK_STATUS_LABELS = {
+  available: { 
+    id: 'available', 
+    label: '보관 중 (판매 가능)', 
+    shortLabel: '보관 중', 
+    badgeClass: 'badge-status-available', 
+    dot: '🟢' 
+  },
+  sold: { 
+    id: 'sold', 
+    label: '판매 완료 (컬렉터 소장)', 
+    shortLabel: '판매 완료', 
+    badgeClass: 'badge-status-sold', 
+    dot: '🔴' 
+  },
+  nfs: { 
+    id: 'nfs', 
+    label: '소장품 (NFS / 비매품)', 
+    shortLabel: '소장품 NFS', 
+    badgeClass: 'badge-status-nfs', 
+    dot: '🔵' 
+  },
+  exhibited: { 
+    id: 'exhibited', 
+    label: '전시·위탁 중', 
+    shortLabel: '전시·위탁', 
+    badgeClass: 'badge-status-exhibited', 
+    dot: '🟡' 
+  }
+};
+
+export function getArtworkStatusMeta(status) {
+  return ARTWORK_STATUS_LABELS[status] || ARTWORK_STATUS_LABELS.available;
+}
+
+/**
  * 1. 표준 UUID v4 생성기 (모든 브라우저 100% 호환)
  */
 export function generateUUID() {
@@ -80,6 +125,26 @@ export function normalizeArtwork(raw = {}, user = null) {
   // ID는 기존 고유 ID(art-xxx)가 있으면 영구 유지하고, 신규 등록 시에만 UUID 발급
   const finalId = raw.id || generateUUID();
 
+  // [가격 및 상태 정규화]
+  const computedStatus = (() => {
+    if (raw.status && Object.values(ARTWORK_STATUS).includes(raw.status)) {
+      return raw.status;
+    }
+    if (raw.isSold) return ARTWORK_STATUS.SOLD;
+    if (raw.isNfs || (rawPriceStr && rawPriceStr.includes('NFS'))) return ARTWORK_STATUS.NFS;
+    if (raw.isExhibited) return ARTWORK_STATUS.EXHIBITED;
+    return ARTWORK_STATUS.AVAILABLE;
+  })();
+
+  const isNfsComputed = computedStatus === ARTWORK_STATUS.NFS;
+  const isSoldComputed = computedStatus === ARTWORK_STATUS.SOLD;
+  const isExhibitedComputed = computedStatus === ARTWORK_STATUS.EXHIBITED;
+
+  let displayPrice = rawPriceStr ? rawPriceStr.trim() : '가격 협의';
+  if (isNfsComputed) {
+    displayPrice = 'NFS (비매품)';
+  }
+
   return {
     // [식별자]
     id: finalId,
@@ -101,10 +166,13 @@ export function normalizeArtwork(raw = {}, user = null) {
     medium: (raw.medium || '').trim(),
     mediumEn: (raw.mediumEn || '').trim(),
 
-    // [가격 및 상태]
-    isNfs: Boolean(raw.isNfs),
-    price: raw.isNfs ? 'NFS (비매품)' : (rawPriceStr ? rawPriceStr.trim() : '가격 협의'),
-    priceAmount: priceAmount,
+      // [가격 및 소장 현황/상태]
+      status: computedStatus,
+      isNfs: isNfsComputed,
+      isSold: isSoldComputed,
+      isExhibited: isExhibitedComputed,
+      price: displayPrice,
+      priceAmount: priceAmount,
 
     // [비주얼 에셋]
     imageUrl: raw.imageUrl || '',
