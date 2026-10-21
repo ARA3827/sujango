@@ -171,15 +171,15 @@ export default function DocStudio({ onBack }) {
     genre: '서양화 (유화/아크릴)',
     instructorName: '김아라',
     goal: '색채 이론을 감각적으로 체득하고, 자신만의 캔버스 소품 1점을 완성하여 전시 경험을 갖는다.',
-    customCurriculum: '' // 선택사항: 비워두면 duration 기반 표준 커리큘럼 자동 적용
+    customCurriculum: '' // 선택사항: 비워두면 계획서에서 커리큘럼 표가 완전히 제외됨 (1회성 강의 등)
   });
-  const [lectureCurriculum, setLectureCurriculum] = useState(() => getCurriculumList('4주'));
   const [lectureResult, setLectureResult] = useState('');
 
-  // 현재 커리큘럼 (직접 입력이 있으면 파싱 결과, 비어있으면 차시별 표준 템플릿)
-  const currentCurriculum = lectureForm.customCurriculum && lectureForm.customCurriculum.trim()
+  // 현재 커리큘럼: 작가가 직접 입력하거나 템플릿을 불러왔을 때만 파싱하고, 비어있으면 빈 배열 (출력 제외)
+  const hasCurriculum = Boolean(lectureForm.customCurriculum && lectureForm.customCurriculum.trim());
+  const currentCurriculum = hasCurriculum
     ? parseCustomCurriculum(lectureForm.customCurriculum, lectureForm.duration)
-    : getCurriculumList(lectureForm.duration);
+    : [];
 
   // 표준 템플릿 텍스트 불러오기 핸들러
   const handleLoadDefaultCurriculum = () => {
@@ -214,10 +214,13 @@ export default function DocStudio({ onBack }) {
 
   // 강의계획서 생성 로직
   const generateLecturePlan = () => {
-    const list = currentCurriculum;
-    setLectureCurriculum(list);
+    let curriculumBlock = '';
+    if (hasCurriculum && currentCurriculum.length > 0) {
+      const curriculumText = currentCurriculum.map(item => `• [${item.week} - ${item.theme}]\n${item.details}`).join('\n\n');
+      curriculumBlock = `\n3. 주차별 세부 커리큘럼\n${curriculumText}\n`;
+    }
 
-    let curriculumText = list.map(item => `• [${item.week} - ${item.theme}]\n${item.details}`).join('\n\n');
+    const envSectionNum = hasCurriculum ? '4' : '3';
 
     const docText = `[출강 강의계획서]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -232,11 +235,8 @@ export default function DocStudio({ onBack }) {
 
 2. 교육 목표
 ${lectureForm.goal}
-
-3. 주차별 세부 커리큘럼
-${curriculumText}
-
-4. 강의실 환경 및 준비물
+${curriculumBlock}
+${envSectionNum}. 강의실 환경 및 준비물
 • 강사 준비: 시연용 도구, 교안 유인물, 특수 보조제
 • 기관/수강생 준비: 캔버스, 기본 붓 세트, 물통, 앞치마
 • 안전 수칙: 환기 시설 확보, 유화 테레핀/페트롤 사용 시 폐액 밀폐 처리 준수
@@ -600,12 +600,12 @@ ${cvForm.collections.trim()}
               <textarea 
                 className="form-textarea" 
                 style={{ minHeight: '115px', fontSize: '0.83rem', lineHeight: 1.55 }}
-                placeholder={`직접 입력하지 않아도 [${lectureForm.duration}]에 맞춰 표준 커리큘럼이 자동 생성됩니다.\n\n수정하시려면 위 [⚡ 표준 커리큘럼 불러오기]를 누르시거나,\n예: 1주차: 붓과 안료의 호흡 | 나만의 컬러 차트 10선 만들기`}
+                placeholder={`입력하지 않으시면 계획서에서 커리큘럼 항목이 완전히 제외됩니다.\n(1회성 특강 및 단기 출강 시 깔끔한 1페이지 문서로 출력)\n\n주차별 커리큘럼을 넣으시려면 상단 [⚡ 표준 커리큘럼 불러오기]를 누르시거나 직접 작성하세요.`}
                 value={lectureForm.customCurriculum}
                 onChange={(e) => setLectureForm({...lectureForm, customCurriculum: e.target.value})}
               />
               <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '4px', lineHeight: 1.4 }}>
-                💡 비워두시면 교육 차시(<strong>{lectureForm.duration}</strong>)에 맞춘 표준 커리큘럼이 자동으로 우측 표에 채워집니다.
+                💡 <strong>비워두시면 계획서에서 커리큘럼 표가 제외</strong>되어, 1회성 특강이나 간이 출강 서류로 단정하게 인쇄됩니다.
               </div>
             </div>
 
@@ -685,40 +685,44 @@ ${cvForm.collections.trim()}
                 {lectureForm.goal || '색채 이론을 감각적으로 체득하고, 자신만의 캔버스 소품 1점을 완성하여 전시 경험을 갖는다.'}
               </div>
 
-              {/* 3. 주차별 세부 커리큘럼 */}
-              <div className="doc-section-title">
-                <span className="doc-section-num">3</span>
-                <span>주차별 세부 커리큘럼</span>
-              </div>
-              <table className="doc-form-table">
-                <colgroup>
-                  <col style={{ width: '16%' }} />
-                  <col style={{ width: '28%' }} />
-                  <col style={{ width: '56%' }} />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th>주차 / 차시</th>
-                    <th>강의 주제</th>
-                    <th>세부 교육 및 실습 내용</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentCurriculum.map((item, idx) => (
-                    <tr key={idx}>
-                      <td className="center" style={{ fontWeight: 700, color: '#334155' }}>{item.week}</td>
-                      <td style={{ fontWeight: 600 }}>{item.theme}</td>
-                      <td style={{ whiteSpace: 'pre-line', fontSize: '0.83rem', lineHeight: 1.55 }}>
-                        {item.details}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {/* 3. 주차별 세부 커리큘럼 (입력 시에만 출력) */}
+              {hasCurriculum && currentCurriculum.length > 0 && (
+                <>
+                  <div className="doc-section-title">
+                    <span className="doc-section-num">3</span>
+                    <span>주차별 세부 커리큘럼</span>
+                  </div>
+                  <table className="doc-form-table">
+                    <colgroup>
+                      <col style={{ width: '16%' }} />
+                      <col style={{ width: '28%' }} />
+                      <col style={{ width: '56%' }} />
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th>주차 / 차시</th>
+                        <th>강의 주제</th>
+                        <th>세부 교육 및 실습 내용</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentCurriculum.map((item, idx) => (
+                        <tr key={idx}>
+                          <td className="center" style={{ fontWeight: 700, color: '#334155' }}>{item.week}</td>
+                          <td style={{ fontWeight: 600 }}>{item.theme}</td>
+                          <td style={{ whiteSpace: 'pre-line', fontSize: '0.83rem', lineHeight: 1.55 }}>
+                            {item.details}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              )}
 
-              {/* 4. 강의실 환경 및 준비물 */}
+              {/* 4. 강의실 환경 및 준비물 (커리큘럼 유무에 따라 번호 자동 조정) */}
               <div className="doc-section-title">
-                <span className="doc-section-num">4</span>
+                <span className="doc-section-num">{hasCurriculum ? 4 : 3}</span>
                 <span>강의 환경 및 준비물</span>
               </div>
               <table className="doc-form-table">
