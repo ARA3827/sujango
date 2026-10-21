@@ -823,7 +823,7 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
                   <span>이 작품을 수장고에도 함께 보관하기</span>
                 </label>
                 <div className="caption-vault-sync-desc">
-                  수장고에 새 작품으로 자동 보관되어 포트폴리오와 도록에서도 바로 활용할 수 있습니다.
+                  수장고에 새 작품으로 자동 보관되어 포트폴리오와 작품 보관함에서도 바로 활용할 수 있습니다.
                 </div>
               </div>
             )}

@@ -550,7 +550,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
           <h2 style={{ margin: 0 }}>작가노트 & SNS 스튜디오</h2>
         </div>
         <p>
-          작품 사진과 키워드 3개만 넣으세요. AI가 미술평론 작가노트, 전시 벽면 캡션, 인스타그램 피드 글을 동시에 생성하여 {user?.name || '작가'}님의 프라이빗 수장고에 완벽한 도록으로 등록해 드립니다.
+          작품 사진과 키워드 3개만 넣으세요. AI가 미술평론 작가노트, 전시 벽면 캡션, 인스타그램 피드 글을 동시에 생성하여 {user?.name || '작가'}님의 프라이빗 수장고에 완벽한 작품 상세로 등록해 드립니다.
         </p>
       </div>
 
@@ -938,7 +938,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                 <span>이 작품을 수장고에도 함께 보관하기</span>
               </label>
               <div className="caption-vault-sync-desc">
-                수장고에 새 작품으로 자동 보관되어 도록과 전시 캡션 출력기에서도 바로 활용할 수 있습니다.
+                수장고에 새 작품으로 자동 보관되어 작품 보관함과 전시 캡션 출력기에서도 바로 활용할 수 있습니다.
               </div>
             </div>
           )}
@@ -1142,7 +1142,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                   </button>
                   {savedNotice && (
                     <p style={{ textAlign: 'center', fontSize: '0.84rem', color: '#059669', fontWeight: 600, marginTop: '8px', margin: '8px 0 0 0' }}>
-                      ✓ 《{artwork.title || '작품'}》이(가) 수장고에 안전하게 등록되었습니다! 도록 화면으로 이동합니다...
+                      ✓ 《{artwork.title || '작품'}》이(가) 수장고에 안전하게 등록되었습니다! 작품 상세 화면으로 이동합니다...
                     </p>
                   )}
                 </div>

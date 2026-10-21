@@ -34,6 +34,8 @@ export default function LandingPage({
   const [feedbacks, setFeedbacks] = useState([]);
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'yearly' | 'monthly'
   const SHOW_REVIEWS = false; // 후기 섹션 제어 플래그 (지시서 1단계: 숨김 처리, 추후 true 전환 가능)
+  const CLOUD_ENABLED = false; // 클라우드 동기화 완료 후 true 전환
+  const STUDIO_ENABLED = false; // Studio 플랜 오픈 후 true 전환
 
   useEffect(() => {
     setFeedbacks(getFeedbacks());
@@ -133,7 +135,7 @@ export default function LandingPage({
               <span className="comparison-bullet-navy">
                 <CheckCircle2 size={13} color="#FFFFFF" />
               </span>
-              <span>원본은 무손실 그대로 보관하고, 웹 공유용 사본은 자동으로 가볍게 만들어요 (원본 보관은 Pro 플랜)</span>
+              <span>원본은 화질을 낮추지 않고 그대로 보관하고, 화면용 사본은 자동으로 가볍게 만들어요</span>
             </li>
             <li>
               <span className="comparison-bullet-navy">
@@ -175,7 +177,7 @@ export default function LandingPage({
               border: '#DBEAFE',
               tagColor: '#1D4ED8',
               tagBg: 'rgba(255, 255, 255, 0.85)',
-              desc: '작품 사진과 작가노트, 캡션 정보를 작품별로 차곡차곡 모아두는 나만의 디지털 도록. 원본은 그대로, 공유용은 가볍게.'
+              desc: '작품 사진과 작가노트, 캡션 정보를 작품별로 차곡차곡 모아두는 나만의 작품 보관함. 원본은 그대로, 공유용은 가볍게.'
             },
             {
               id: 'caption',
@@ -381,7 +383,7 @@ export default function LandingPage({
           </div>
         </div>
 
-        <div className="landing-pricing-grid" style={{ alignItems: 'stretch' }}>
+        <div className="landing-pricing-grid" style={{ alignItems: 'stretch', maxWidth: STUDIO_ENABLED ? '100%' : '720px', margin: STUDIO_ENABLED ? '0' : '0 auto' }}>
           {/* 1. 무료 플랜 */}
           <div className="landing-pricing-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
             {/* 1. 플랜명 */}
@@ -476,8 +478,13 @@ export default function LandingPage({
               <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0F172A' }}>
                 100GB 무손실 원본 보관
               </div>
-              <div style={{ fontSize: '0.76rem', color: '#64748B', marginTop: '3px' }}>
-                고화질 사진 약 5,000장 · PC와 스마트폰 자동 동기화
+              <div style={{ fontSize: '0.76rem', color: '#64748B', marginTop: '3px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+                <span>고화질 사진 약 5,000장 · PC와 스마트폰 자동 동기화</span>
+                {!CLOUD_ENABLED && (
+                  <span style={{ fontSize: '0.68rem', background: '#E2E8F0', color: '#475569', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                    준비 중
+                  </span>
+                )}
               </div>
             </div>
 
@@ -487,80 +494,87 @@ export default function LandingPage({
             {/* 6. 기능 목록 */}
             <ul className="plan-features" style={{ flex: 1, margin: '0 0 1.25rem 0' }}>
               <li><CheckCircle2 size={16} color="#0F172A" /> <strong style={{ color: '#0F172A' }}>무료의 모든 기능 +</strong></li>
-              <li><CheckCircle2 size={16} color="#0F172A" /> <span>큐레이터에게 보내는 프라이빗 도록 링크</span></li>
               <li><CheckCircle2 size={16} color="#0F172A" /> <span>작품 등록 무제한</span></li>
               <li><CheckCircle2 size={16} color="#0F172A" /> <span>웹 공유용 사본 자동 생성</span></li>
               <li><CheckCircle2 size={16} color="#0F172A" /> <span>AI 작가노트 초안 무제한</span></li>
-              <li><CheckCircle2 size={16} color="#0F172A" /> <span>3중 분산 저장으로 안전하게 보관</span></li>
-            </ul>
-
-            {/* 버튼 정렬용 여백 (무료 카드 안내문 높이와 동일) */}
-            <div style={{ minHeight: '36px', marginBottom: '0.75rem' }} />
-
-            <button onClick={onOpenPricing} className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', background: '#0F172A', color: '#FFFFFF', fontWeight: 600 }}>
-              <span>Pro 시작하기</span>
-            </button>
-          </div>
-
-          {/* 3. Studio 플랜 */}
-          <div className="landing-pricing-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
-            {/* 1. 플랜명 */}
-            <h3 className="plan-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#0F172A' }}>
-              Sujango Studio
-            </h3>
-            {/* 2. 대상 한 줄 */}
-            <p className="plan-desc" style={{ fontSize: '0.82rem', color: '#64748B', margin: '6px 0 0 0', minHeight: '1.3rem' }}>
-              영상 · 설치 · 대형 작업을 하는 작가와 작업실
-            </p>
-
-            {/* 3. 가격 */}
-            <div style={{ minHeight: '58px', marginTop: '1.1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                <span style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>
-                  {billingCycle === 'yearly' ? '23,200' : '29,000'}
-                </span>
-                <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#64748B' }}>원 / 월</span>
-              </div>
-              <div style={{ fontSize: '0.76rem', color: '#64748B', marginTop: '6px' }}>
-                {billingCycle === 'yearly' ? (
-                  <>
-                    <s>29,000원</s> · 연 278,400원 일괄 결제
-                  </>
-                ) : (
-                  '매월 결제'
+              <li><CheckCircle2 size={16} color="#0F172A" /> <span>3중 분산 저장으로 안전하게 보관</span>
+                {!CLOUD_ENABLED && (
+                  <span style={{ fontSize: '0.68rem', background: '#E2E8F0', color: '#475569', padding: '1px 6px', borderRadius: '4px', fontWeight: 600, marginLeft: '4px' }}>
+                    준비 중
+                  </span>
                 )}
-              </div>
-            </div>
-
-            {/* 4. 핵심 박스 */}
-            <div className="plan-capacity-box studio" style={{ minHeight: '66px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'center', marginTop: '0.9rem' }}>
-              <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#581C87' }}>
-                500GB 무손실 원본 보관
-              </div>
-              <div style={{ fontSize: '0.76rem', color: '#7E22CE', marginTop: '3px' }}>
-                4K 영상 약 20편 또는 사진 약 25,000장
-              </div>
-            </div>
-
-            {/* 5. 구분선 */}
-            <div style={{ borderTop: '1px solid #E2E8F0', margin: '1.1rem 0' }} />
-
-            {/* 6. 기능 목록 */}
-            <ul className="plan-features" style={{ flex: 1, margin: '0 0 1.25rem 0' }}>
-              <li><CheckCircle2 size={16} color="#7C3AED" /> <strong style={{ color: '#7C3AED' }}>Pro의 모든 기능 +</strong></li>
-              <li><CheckCircle2 size={16} color="#7C3AED" /> <span>작품에 서명 · 로고 워터마크 자동 삽입</span></li>
-              <li><CheckCircle2 size={16} color="#7C3AED" /> <span>7일 뒤 자동 만료되는 보안 공유 링크</span></li>
-              <li><CheckCircle2 size={16} color="#7C3AED" /> <span>공유 링크 비밀번호 설정</span></li>
-              <li><CheckCircle2 size={16} color="#7C3AED" /> <span>공유받은 사람의 의견 모아보기</span></li>
+              </li>
             </ul>
 
             {/* 버튼 정렬용 여백 (무료 카드 안내문 높이와 동일) */}
             <div style={{ minHeight: '36px', marginBottom: '0.75rem' }} />
 
-            <button onClick={onOpenPricing} className="btn-outline" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', fontWeight: 700, borderColor: '#7C3AED', color: '#7C3AED' }}>
-              <span>Studio 시작하기</span>
+            <button onClick={() => alert('베타 작가 모집을 곧 시작해요')} className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', background: '#0F172A', color: '#FFFFFF', fontWeight: 600 }}>
+              <span>베타 작가 신청하기</span>
             </button>
           </div>
+
+          {/* 3. Studio 플랜 (STUDIO_ENABLED 플래그 제어) */}
+          {STUDIO_ENABLED && (
+            <div className="landing-pricing-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' }}>
+              {/* 1. 플랜명 */}
+              <h3 className="plan-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#0F172A' }}>
+                Sujango Studio
+              </h3>
+              {/* 2. 대상 한 줄 */}
+              <p className="plan-desc" style={{ fontSize: '0.82rem', color: '#64748B', margin: '6px 0 0 0', minHeight: '1.3rem' }}>
+                영상 · 설치 · 대형 작업을 하는 작가와 작업실
+              </p>
+
+              {/* 3. 가격 */}
+              <div style={{ minHeight: '58px', marginTop: '1.1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                  <span style={{ fontSize: '1.85rem', fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>
+                    {billingCycle === 'yearly' ? '23,200' : '29,000'}
+                  </span>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#64748B' }}>원 / 월</span>
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#64748B', marginTop: '6px' }}>
+                  {billingCycle === 'yearly' ? (
+                    <>
+                      <s>29,000원</s> · 연 278,400원 일괄 결제
+                    </>
+                  ) : (
+                    '매월 결제'
+                  )}
+                </div>
+              </div>
+
+              {/* 4. 핵심 박스 */}
+              <div className="plan-capacity-box studio" style={{ minHeight: '66px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', justifyContent: 'center', marginTop: '0.9rem' }}>
+                <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#581C87' }}>
+                  500GB 무손실 원본 보관
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#7E22CE', marginTop: '3px' }}>
+                  4K 영상 약 20편 또는 사진 약 25,000장
+                </div>
+              </div>
+
+              {/* 5. 구분선 */}
+              <div style={{ borderTop: '1px solid #E2E8F0', margin: '1.1rem 0' }} />
+
+              {/* 6. 기능 목록 */}
+              <ul className="plan-features" style={{ flex: 1, margin: '0 0 1.25rem 0' }}>
+                <li><CheckCircle2 size={16} color="#7C3AED" /> <strong style={{ color: '#7C3AED' }}>Pro의 모든 기능 +</strong></li>
+                <li><CheckCircle2 size={16} color="#7C3AED" /> <span>작품에 서명 · 로고 워터마크 자동 삽입</span></li>
+                <li><CheckCircle2 size={16} color="#7C3AED" /> <span>7일 뒤 자동 만료되는 보안 공유 링크</span></li>
+                <li><CheckCircle2 size={16} color="#7C3AED" /> <span>공유 링크 비밀번호 설정</span></li>
+                <li><CheckCircle2 size={16} color="#7C3AED" /> <span>공유받은 사람의 의견 모아보기</span></li>
+              </ul>
+
+              {/* 버튼 정렬용 여백 (무료 카드 안내문 높이와 동일) */}
+              <div style={{ minHeight: '36px', marginBottom: '0.75rem' }} />
+
+              <button onClick={onOpenPricing} className="btn-outline" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', fontWeight: 700, borderColor: '#7C3AED', color: '#7C3AED' }}>
+                <span>Studio 시작하기</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* 3대 법적 신뢰 안심 보증 배너 */}

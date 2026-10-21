@@ -182,7 +182,7 @@ export default function Dashboard({
               </span>
             </div>
             <p className="desktop-only" style={{ fontSize: '0.83rem', color: '#64748B', margin: '4px 0 0 0' }}>
-              세월이 흘러도 변치 않는 {user?.name || '작가'}님만의 프라이빗 디지털 수장고. 작품을 클릭하면 상세 도록과 작가노트, 캡션을 바로 열람할 수 있습니다.
+              세월이 흘러도 변치 않는 {user?.name || '작가'}님만의 프라이빗 디지털 수장고. 작품을 누르면 작가노트와 캡션을 바로 볼 수 있어요
             </p>
           </div>
           {artworks.length > 0 && (
@@ -226,7 +226,7 @@ export default function Dashboard({
                       key={art.id} 
                       onClick={() => onSelectView('archive', art.id)}
                       style={{ cursor: 'pointer' }}
-                      title="클릭하여 상세 도록 및 작가노트 열람"
+                      title="클릭하여 작품 상세 및 작가노트 열람"
                     >
                       <td style={{ textAlign: 'center' }}>
                         <div className="archive-mini-thumb">
@@ -277,7 +277,7 @@ export default function Dashboard({
                   key={art.id} 
                   className="archive-mobile-card"
                   onClick={() => onSelectView('archive', art.id)}
-                  title="클릭하여 상세 도록 및 작가노트 열람"
+                  title="클릭하여 작품 상세 및 작가노트 열람"
                 >
                   <div className="archive-mobile-thumb">
                     {art.imageUrl ? (

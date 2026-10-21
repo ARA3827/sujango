@@ -454,7 +454,7 @@ export default function GuidePage({ onOpenLogin, onNavigateToAbout }) {
           </div>
 
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.9rem', fontWeight: 700, color: '#0F172A', margin: '0 0 1rem' }}>
-            지금 등록하고 나만의 첫 번째 디지털 도록을 완성해 보세요.
+            지금 등록하고 나만의 첫 번째 작품 보관함을 완성해 보세요.
           </h2>
 
           <p style={{ fontSize: '1rem', color: '#64748B', lineHeight: 1.7, maxWidth: '560px', margin: '0 auto 2.25rem' }}>

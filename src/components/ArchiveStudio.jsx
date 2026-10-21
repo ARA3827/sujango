@@ -39,6 +39,9 @@ import { generateWatermarkedPreview, generateThumbnail, compressImage } from '..
 import { fetchWatermarkSettings } from '../utils/supabaseClient';
 import { saveOriginalToVault, getOriginalFromVault, deleteOriginalFromVault } from '../utils/rawImageVault';
 
+// 기능 토글 설정값 (비활성화 상태 보존)
+const SHARE_LINK_ENABLED = false;
+
 export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateToStatement, onOpenPricing, user, initialArtworkId }) {
   const [artworks, setArtworks] = useState(() => getArtworks(user));
   const [selectedId, setSelectedId] = useState(() => {
@@ -618,7 +621,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                 같은 작품으로 보이는 항목이 {duplicateGroups.length}건 있습니다
               </div>
               <div style={{ fontSize: '0.78rem', color: '#B45309', marginTop: '2px' }}>
-                제목과 제작연도가 동일하게 등록된 작품들입니다. 도록을 깔끔하게 정리하시겠습니까?
+                제목과 제작연도가 동일하게 등록된 작품들입니다. 작품 보관함을 깔끔하게 정리하시겠습니까?
               </div>
             </div>
           </div>
@@ -774,17 +777,19 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
 
             {/* 액션 버튼 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <button 
-                onClick={() => {
-                  setShareTargetArtwork(currentArt);
-                  setIsShareModalOpen(true);
-                }}
-                className="btn-primary"
-                style={{ width: '100%', justifyContent: 'center', background: '#0F172A', fontSize: '0.86rem', padding: '0.65rem' }}
-                title="워터마크가 합성된 1080px 안전 시안과 7일 만료 보안 링크 발급"
-              >
-                <Share2 size={15} /> 클라이언트 보안 시안 공유 링크 발급
-              </button>
+              {SHARE_LINK_ENABLED && (
+                <button 
+                  onClick={() => {
+                    setShareTargetArtwork(currentArt);
+                    setIsShareModalOpen(true);
+                  }}
+                  className="btn-primary"
+                  style={{ width: '100%', justifyContent: 'center', background: '#0F172A', fontSize: '0.86rem', padding: '0.65rem' }}
+                  title="워터마크가 합성된 1080px 안전 시안과 7일 만료 보안 링크 발급"
+                >
+                  <Share2 size={15} /> 클라이언트 보안 시안 공유 링크 발급
+                </button>
+              )}
 
               <button 
                 onClick={() => handleDownloadOriginal(currentArt)}
@@ -1301,12 +1306,14 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       />
 
       {/* 5. 클라이언트용 보안 공유 링크 모달 */}
-      <ShareLinkModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        artwork={shareTargetArtwork}
-        user={user}
-      />
+      {SHARE_LINK_ENABLED && (
+        <ShareLinkModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          artwork={shareTargetArtwork}
+          user={user}
+        />
+      )}
 
       {/* 6. 중복 의심 작품 비교 및 수동 병합 모달 (Step 6-2-D) */}
       {isDuplicateModalOpen && duplicateGroups.length > 0 && (() => {
