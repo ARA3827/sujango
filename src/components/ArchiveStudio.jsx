@@ -126,12 +126,74 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
     }
   }, [selectedId, activeTab, currentArt]);
 
+  // 원본 이미지 다운로드 상태
+  const [isDownloading, setIsDownloading] = useState(false);
+
   // 복사 핸들러
   const handleCopy = (text) => {
     if (!text) return;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // 내 기기(PC/모바일)에 원본 이미지 다운로드
+  const handleDownloadOriginal = async (artwork) => {
+    if (!artwork || !artwork.imageUrl) {
+      alert('다운로드할 작품 이미지가 등록되어 있지 않습니다.');
+      return;
+    }
+
+    setIsDownloading(true);
+    try {
+      const cleanTitle = (artwork.title || '작품').replace(/[\/\\:*?"<>|]/g, '_').trim();
+      const artistName = (artwork.artist || user?.name || '작가').replace(/[\/\\:*?"<>|]/g, '_').trim();
+
+      if (artwork.imageUrl.startsWith('data:')) {
+        let extension = 'jpg';
+        if (artwork.imageUrl.startsWith('data:image/png')) extension = 'png';
+        else if (artwork.imageUrl.startsWith('data:image/webp')) extension = 'webp';
+
+        const fileName = `${artistName}_《${cleanTitle}》_원본.${extension}`;
+        const link = document.createElement('a');
+        link.href = artwork.imageUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // 원격 URL 또는 Blob URL 안전 다운로드
+        const res = await fetch(artwork.imageUrl, { mode: 'cors' });
+        const blob = await res.blob();
+
+        let extension = 'jpg';
+        if (blob.type.includes('png')) extension = 'png';
+        else if (blob.type.includes('webp')) extension = 'webp';
+        else if (artwork.imageUrl.toLowerCase().endsWith('.png')) extension = 'png';
+        else if (artwork.imageUrl.toLowerCase().endsWith('.webp')) extension = 'webp';
+
+        const fileName = `${artistName}_《${cleanTitle}》_원본.${extension}`;
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      }
+    } catch (err) {
+      console.warn('다운로드 중 오류 발생, 대체 방식으로 실행:', err);
+      const link = document.createElement('a');
+      link.href = artwork.imageUrl;
+      link.target = '_blank';
+      link.download = `${artwork.title || '작품'}_원본`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } finally {
+      setTimeout(() => setIsDownloading(false), 600);
+    }
   };
 
   // 모달 열기 (새 등록)
@@ -492,6 +554,25 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                 title="워터마크가 합성된 1080px 안전 시안과 7일 만료 보안 링크 발급"
               >
                 <Share2 size={15} /> 클라이언트 보안 시안 공유 링크 발급
+              </button>
+
+              <button 
+                onClick={() => handleDownloadOriginal(currentArt)}
+                className="btn-outline"
+                style={{ 
+                  width: '100%', 
+                  justifyContent: 'center', 
+                  fontSize: '0.85rem', 
+                  padding: '0.65rem',
+                  background: '#FFFFFF',
+                  borderColor: '#CBD5E1',
+                  color: currentArt.imageUrl ? '#0F172A' : '#94A3B8',
+                  fontWeight: 600
+                }}
+                title="내 기기(PC/모바일)에 원본 고화질 이미지 다운로드"
+                disabled={!currentArt.imageUrl || isDownloading}
+              >
+                <Download size={15} /> {isDownloading ? '기기에 저장하는 중...' : '내 기기에 원본 이미지 다운로드'}
               </button>
 
               {onNavigateToCaption && (
@@ -897,9 +978,24 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       {lightboxImage && (
         <div className="lightbox-backdrop" onClick={() => setLightboxImage(null)}>
           <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <button className="lightbox-close-btn" onClick={() => setLightboxImage(null)}>
-              <X size={24} />
-            </button>
+            <div style={{ position: 'absolute', top: '-40px', right: 0, display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <button 
+                className="lightbox-close-btn" 
+                style={{ position: 'static' }}
+                onClick={() => handleDownloadOriginal(currentArt)}
+                title="내 기기에 원본 이미지 다운로드"
+              >
+                <Download size={22} />
+              </button>
+              <button 
+                className="lightbox-close-btn" 
+                style={{ position: 'static' }}
+                onClick={() => setLightboxImage(null)}
+                title="닫기"
+              >
+                <X size={24} />
+              </button>
+            </div>
             <img src={lightboxImage} alt="작품 크게 보기" />
           </div>
         </div>
