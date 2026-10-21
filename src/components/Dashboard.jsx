@@ -138,7 +138,7 @@ export default function Dashboard({
       tagColor: '#15803D',
       tagBg: 'rgba(255, 255, 255, 0.85)',
       badge: null,
-      desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 공문서 규격으로 자동 완성합니다.'
+      desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 기관이 요구하는 공문서 규격으로 단정하게 완성합니다.'
     },
     {
       id: 'tax',
@@ -152,7 +152,7 @@ export default function Dashboard({
         ? `미수금 ${actualPendingAmount.toLocaleString()}원` 
         : null,
       badgeStyle: { background: '#FEF08A', color: '#B45309' },
-      desc: '출강·작품 수입과 재료비 지출을 한눈에 관리하고, A4 지출 정산 증빙서를 인쇄 및 PDF로 저장합니다.'
+      desc: '출강·작품 수입과 재료비 지출을 한눈에 관리하고, 카드 영수증이 첨부된 정산 증빙서를 A4 인쇄 및 PDF로 보관합니다.'
     }
   ];
 
@@ -325,7 +325,10 @@ export default function Dashboard({
               borderRadius: '16px',
               padding: '1.6rem 1.5rem',
               boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start'
             }}
           >
             <div className="tool-card-header" style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
