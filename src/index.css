@@ -1344,14 +1344,88 @@ input, select, textarea {
     box-sizing: border-box !important;
   }
 
+  /* 공식 문서 컨테이너 및 표 인쇄 최적화 */
+  .official-doc-container {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    width: 100% !important;
+  }
+
+  .official-doc-header {
+    margin-bottom: 14px !important;
+    padding-bottom: 8px !important;
+    border-bottom: 2pt solid #0F172A !important;
+  }
+
+  .official-doc-title {
+    font-size: 15pt !important;
+    letter-spacing: 3px !important;
+  }
+
+  .doc-section-title {
+    font-size: 9.5pt !important;
+    margin: 10px 0 4px 0 !important;
+  }
+
+  .doc-form-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border-top: 1.5pt solid #0F172A !important;
+    border-bottom: 1.5pt solid #0F172A !important;
+    margin-bottom: 8px !important;
+    font-size: 8.8pt !important;
+    line-height: 1.45 !important;
+  }
+
+  .doc-form-table th,
+  .doc-form-table td {
+    border: 0.6pt solid #475569 !important;
+    padding: 5px 7px !important;
+  }
+
+  .doc-form-table th {
+    background: #F1F5F9 !important;
+    font-weight: 700 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .doc-box-highlight {
+    background: #F8FAFC !important;
+    border: 0.6pt solid #94A3B8 !important;
+    padding: 6px 10px !important;
+    font-size: 8.5pt !important;
+    line-height: 1.45 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .invoice-total-banner {
+    background: #F1F5F9 !important;
+    border: 1pt solid #334155 !important;
+    padding: 7px 12px !important;
+    margin: 8px 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .doc-sign-area {
+    margin-top: 14px !important;
+    padding-top: 10px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
   /* 하단 바닥글: 중앙 정렬 & 단정하고 깔끔한 마무리 */
   .print-official-doc-footer {
     display: block !important;
     text-align: center !important;
-    margin-top: 22px !important;
-    padding-top: 10px !important;
+    margin-top: 16px !important;
+    padding-top: 8px !important;
     border-top: 0.75pt solid #CBD5E1 !important;
-    font-size: 8.5pt !important;
+    font-size: 8pt !important;
     color: #64748B !important;
     letter-spacing: -0.2px !important;
     page-break-inside: avoid !important;
@@ -2782,6 +2856,179 @@ input, select, textarea {
   border-color: #1E293B;
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.28);
+}
+
+/* ==========================================================================
+   서류·출강 스튜디오 표준 공문서/기안서/인보이스 서식 뷰 (화면 & 프리뷰)
+   ========================================================================== */
+.official-doc-container {
+  background: #FFFFFF;
+  color: #0F172A;
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", sans-serif;
+  padding: 2.2rem 2.4rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+  line-height: 1.6;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.official-doc-header {
+  text-align: center;
+  margin-bottom: 1.6rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 2px solid #0F172A;
+}
+
+.official-doc-badge {
+  display: inline-block;
+  font-size: 0.74rem;
+  color: #475569;
+  background: #F1F5F9;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.official-doc-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: #0F172A;
+  margin: 0;
+}
+
+.doc-section-title {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 1.25rem 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.doc-section-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  border-radius: 3px;
+  background: #0F172A;
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* 정식 공문서 격자 테이블 */
+.doc-form-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  margin-bottom: 0.85rem;
+  border-top: 1.8px solid #0F172A;
+  border-bottom: 1.8px solid #0F172A;
+  background: #FFFFFF;
+}
+
+.doc-form-table th,
+.doc-form-table td {
+  border: 1px solid #CBD5E1;
+  padding: 9px 12px;
+  vertical-align: middle;
+  word-break: keep-all;
+}
+
+.doc-form-table th {
+  background: #F8FAFC;
+  color: #334155;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.doc-form-table td {
+  color: #0F172A;
+}
+
+.doc-form-table td.center {
+  text-align: center;
+}
+
+.doc-form-table td.right {
+  text-align: right;
+}
+
+.doc-box-highlight {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  color: #1E293B;
+  line-height: 1.65;
+}
+
+/* 견적서 합계 금액 배너 */
+.invoice-total-banner {
+  background: #F8FAFC;
+  border: 1.5px solid #94A3B8;
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  margin: 1.1rem 0;
+  border-radius: 6px;
+}
+
+/* 하단 서명부 */
+.doc-sign-area {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  text-align: center;
+  page-break-inside: avoid;
+}
+
+.doc-sign-confirm-text {
+  font-size: 0.9rem;
+  color: #334155;
+  font-weight: 600;
+  margin-bottom: 0.85rem;
+}
+
+.doc-sign-date {
+  font-size: 0.86rem;
+  color: #64748B;
+  margin-bottom: 0.85rem;
+}
+
+.doc-sign-name {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #0F172A;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.doc-stamp-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  border: 1.5px dashed #DC2626;
+  border-radius: 50%;
+  color: #DC2626;
+  font-size: 0.68rem;
+  font-weight: 800;
+  transform: rotate(-10deg);
+  line-height: 1;
 }
 
 
