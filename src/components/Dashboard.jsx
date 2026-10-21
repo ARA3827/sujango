@@ -174,32 +174,34 @@ export default function Dashboard({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span className="archive-board-title">
-                📁 {user?.name ? `${user.name} 작가님의 수장고` : '나의 작품 디지털 수장고'}
+                {user?.name ? `${user.name} 작가님의 수장고` : '나의 작품 디지털 수장고'}
               </span>
-              <span className="archive-board-count">
+              <span className="archive-board-count" style={{ whiteSpace: 'nowrap' }}>
                 총 {artworks.length}점 보관 중
               </span>
             </div>
-            <p style={{ fontSize: '0.83rem', color: '#64748B', margin: '4px 0 0 0' }}>
+            <p className="desktop-only" style={{ fontSize: '0.83rem', color: '#64748B', margin: '4px 0 0 0' }}>
               세월이 흘러도 변치 않는 {user?.name || '작가'}님만의 프라이빗 디지털 수장고. 작품을 클릭하면 상세 도록과 작가노트, 캡션을 바로 열람할 수 있습니다.
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <button 
-              onClick={() => onSelectView('statement')} 
-              className="btn-outline"
-              style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', gap: '5px' }}
-              title="새 작품 등록 및 작가노트 작성을 시작합니다"
-            >
-              <Plus size={14} /> 새 작품 등록
-            </button>
-            <button 
-              onClick={() => onSelectView('archive')} 
-              className="archive-board-more-btn"
-            >
-              전체 수장고 열람 <ArrowRight size={14} />
-            </button>
-          </div>
+          {artworks.length > 0 && (
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button 
+                onClick={() => onSelectView('statement')} 
+                className="btn-outline"
+                style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', gap: '5px' }}
+                title="새 작품 등록 및 작가노트 작성을 시작합니다"
+              >
+                <Plus size={14} /> 새 작품 등록
+              </button>
+              <button 
+                onClick={() => onSelectView('archive')} 
+                className="archive-board-more-btn"
+              >
+                전체 수장고 열람 <ArrowRight size={14} />
+              </button>
+            </div>
+          )}
         </div>
 
         {artworks.length > 0 ? (
@@ -283,11 +285,10 @@ export default function Dashboard({
               <ImageIcon size={22} color="#64748B" />
             </div>
             <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#0F172A', margin: '0 0 6px 0' }}>
-              {user?.name ? `${user.name} 작가님만의 프라이빗 수장고가 열렸습니다` : '아직 보관된 작품이 없습니다'}
+              첫 작품을 수장고에 모셔보세요
             </h3>
             <p style={{ fontSize: '0.88rem', color: '#64748B', margin: '0 0 16px 0', lineHeight: 1.5 }}>
-              소중한 첫 작품 사진과 기본 정보를 등록해 보세요.<br />
-              미학적 작가노트, 전시 벽면 캡션, 인스타그램 피드 글까지 단정하게 정리해 드립니다.
+              작품 사진과 기본 정보만 등록하면 작가노트와 캡션까지 이어서 정리할 수 있어요.
             </p>
             <button 
               className="btn-primary" 
@@ -306,7 +307,7 @@ export default function Dashboard({
       {/* 3. [하단 지원군] 창작 행정 & 비즈니스 비서 툴킷 */}
       <div className="section-headline" style={{ marginTop: '2.5rem' }}>
         <span>창작 행정 & 비즈니스 비서 도구</span>
-        <span style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'none', fontWeight: 400 }}>
+        <span className="desktop-only" style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'none', fontWeight: 400 }}>
           카드를 눌러 바로 시작하세요
         </span>
       </div>

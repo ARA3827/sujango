@@ -53,6 +53,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 /* 스크롤바 정돈 */
@@ -717,6 +719,13 @@ input, select, textarea {
 }
 
 /* 테이블 공통 */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 0.5rem;
+}
+
 .clean-table {
   width: 100%;
   border-collapse: collapse;
@@ -842,52 +851,102 @@ input, select, textarea {
 }
 
 /* ===================================================================
+   반응형 표시 유틸리티
+=================================================================== */
+.desktop-only {
+  display: block;
+}
+.mobile-only {
+  display: none !important;
+}
+
+/* ===================================================================
    모바일 전용 반응형 최적화 (Mobile Responsive 640px 이하)
 =================================================================== */
 @media (max-width: 640px) {
-  /* 헤더 모바일 최적화 */
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-only {
+    display: block !important;
+  }
+
+  /* 1. 헤더 모바일 1줄 컴팩트 정돈 (높이 56~60px) */
+  .artflow-header {
+    height: 58px;
+  }
   .header-container {
-    padding: 0.75rem 1rem;
-    flex-wrap: wrap;
-    gap: 8px;
+    padding: 0.5rem 1rem !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    height: 58px !important;
+    min-height: 58px !important;
   }
   .brand-title {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
+  }
+  .header-desktop-nav {
+    display: none !important;
   }
   .header-date-badge {
-    display: none; /* 모바일에서 공간 확보 */
+    display: none !important;
+  }
+  .user-info-text {
+    display: none !important;
+  }
+  .user-profile-badge {
+    padding: 2px !important;
+    border: none !important;
+    background: transparent !important;
   }
 
-  /* 메인 여백 및 히어로 */
+  /* 2. 모바일 입력창 16px 보장 (iOS 자동 확대 방지) 및 44px 터치 영역 */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  button, .tab-btn, .category-chip, .btn-primary, .btn-outline {
+    min-height: 44px;
+  }
+
+  /* 3. 배지 줄바꿈 방지 */
+  .archive-badge, .stat-badge, .tool-tag, .plan-badge, .pricing-popular-tag, .archive-board-count {
+    white-space: nowrap !important;
+  }
+
+  /* 4. 메인 여백 및 히어로 최적화 */
   .artflow-main {
-    padding: 1rem 0.85rem 3rem;
+    padding: 0.85rem 1rem 3rem !important;
   }
-  .dashboard-hero {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+  .landing-hero {
+    padding: 2.2rem 1rem 1.8rem !important;
   }
-  .hero-quote {
-    font-size: 1.25rem;
-    line-height: 1.45;
-    word-break: keep-all;
+  .landing-hero-title {
+    font-size: 1.8rem !important;
+    line-height: 1.35 !important;
+    margin-bottom: 0.75rem !important;
   }
-  .hero-sub {
-    font-size: 0.82rem;
-    line-height: 1.55;
-    word-break: keep-all;
+  .landing-hero-sub {
+    font-size: 0.88rem !important;
+    line-height: 1.55 !important;
+    margin-bottom: 1.15rem !important;
+  }
+  .hero-primary-btn, .hero-secondary-btn {
+    width: 100% !important;
+    justify-content: center !important;
+    min-height: 46px !important;
   }
 
-  /* 대시보드 통계 및 카드 1열 스택 */
+  /* 5. 대시보드 통계 2×2 그리드 배치 */
   .dashboard-stats-strip {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
+    margin-bottom: 1.25rem !important;
   }
   .stat-item-box {
-    padding: 0.85rem;
+    padding: 0.75rem 0.65rem !important;
   }
   .stat-value {
-    font-size: 1.2rem;
+    font-size: 1.1rem !important;
   }
   .tool-grid {
     grid-template-columns: 1fr;
@@ -943,6 +1002,41 @@ input, select, textarea {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.65rem;
+  }
+
+  /* 모바일 장부 테이블 가로 스크롤 및 찌그러짐 방지 */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    display: block;
+    width: 100%;
+  }
+  .clean-table {
+    min-width: 500px !important;
+  }
+  .clean-table th, .clean-table td {
+    padding: 0.65rem 0.5rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* 모달 모바일 패딩 및 여백 최적화 */
+  .modal-backdrop {
+    padding: 0.5rem !important;
+  }
+  .modal-dialog {
+    max-height: 96vh !important;
+    padding: 1.25rem 1rem !important;
+    border-radius: 12px !important;
+  }
+  .modal-header, .modal-body, .modal-footer {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* 요금제 카드 모바일 1열 스택 보장 */
+  .landing-pricing-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.15rem !important;
   }
 
   /* 푸터 세로 정렬 */

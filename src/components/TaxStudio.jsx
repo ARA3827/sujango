@@ -391,7 +391,7 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
       </div>
 
       {/* 4. 수입 / 지출 탭 네비게이션 */}
-      <div className="tab-nav no-print" style={{ marginBottom: '1.5rem', display: 'flex', gap: '8px' }}>
+      <div className="tab-nav no-print" style={{ marginBottom: '1.5rem', display: 'flex', gap: '8px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', flexWrap: 'nowrap' }}>
         <button 
           className={`tab-btn ${activeTab === 'income' ? 'active' : ''}`}
           onClick={() => setActiveTab('income')}
@@ -405,7 +405,9 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
             border: '1px solid #E2E8F0',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
+            flexShrink: 0,
+            whiteSpace: 'nowrap'
           }}
         >
           <Wallet size={16} /> 수입 관리 (출강·판매·직거래)
@@ -424,7 +426,9 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
             border: '1px solid #E2E8F0',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
+            flexShrink: 0,
+            whiteSpace: 'nowrap'
           }}
         >
           <Receipt size={16} /> 지출 관리 (화구·재료비·영수증)
@@ -544,7 +548,7 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
               </span>
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
+            <div className="table-responsive">
               <table className="clean-table">
                 <thead>
                   <tr>
@@ -783,7 +787,7 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
               </span>
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
+            <div className="table-responsive">
               <table className="clean-table">
                 <thead>
                   <tr>

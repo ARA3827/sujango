@@ -45,8 +45,8 @@ export default function Header({
           </span>
         </div>
 
-        {/* 2. 중앙 메인 네비게이션: [수장고 소개] & [이용안내] */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {/* 2. 중앙 메인 네비게이션: [수장고 소개] & [이용안내] (모바일에서는 메뉴 드로어로 이동) */}
+        <nav className="header-desktop-nav" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <button
             type="button"
             onClick={onNavigateAbout}
@@ -87,11 +87,11 @@ export default function Header({
         {/* 3. 우측 사용자 컨트롤 & 상태 표시 */}
         <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           
-          {/* 2-Depth 세부 작업공간에서 대시보드 복귀 버튼 (로그인 회원 전용, 메인 랜딩/대시보드 제외) */}
+          {/* 2-Depth 세부 작업공간에서 대시보드 복귀 버튼 (모바일에서는 메뉴 드로어로 이동) */}
           {user && currentView !== 'dashboard' && currentView !== 'landing' && (
             <button 
               onClick={() => onGoDashboard ? onGoDashboard() : onGoHome()}
-              className="btn-outline"
+              className="btn-outline desktop-only"
               style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', background: '#FFFFFF', borderColor: '#CBD5E1', color: '#0F172A', fontWeight: 600 }}
             >
               ← {user.name && user.name !== '작가' ? `${user.name}님의 수장고` : '내 수장고'}

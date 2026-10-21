@@ -61,9 +61,12 @@ export default function LandingPage({
               작가님은 오롯이<br />창작에만 몰입하세요.
             </h1>
 
-            <p className="landing-hero-sub">
+            <p className="landing-hero-sub desktop-only">
               고해상도 원본 보관부터 작가노트, 전시 캡션, 출강 서류, 수입·지출 정리까지.<br />
               작품과 작가의 모든 기록을 한 곳에서 품격 있게 관리하세요.
+            </p>
+            <p className="landing-hero-sub mobile-only">
+              원본 보관부터 캡션, 출강 서류, 정산까지. 작가의 모든 기록을 한 곳에서.
             </p>
 
             <div className="landing-hero-cta" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
