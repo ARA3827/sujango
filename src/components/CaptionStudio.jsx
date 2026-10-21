@@ -462,7 +462,7 @@ export default function CaptionStudio({ onBack, user = null }) {
                   }}
                   value=""
                 >
-                  <option value="" disabled>⚡ 14대 표준 재료 선택...</option>
+                  <option value="" disabled>자주 쓰는 재료에서 고르기...</option>
                   {MATERIAL_PRESETS.map((p, idx) => (
                     <option key={idx} value={p.ko}>{p.ko} ({p.en})</option>
                   ))}

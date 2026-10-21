@@ -156,21 +156,21 @@ function parseCustomCurriculum(text, defaultDuration) {
   return getCurriculumList(defaultDuration);
 }
 
-export default function DocStudio({ onBack }) {
+export default function DocStudio({ onBack, user = null }) {
   const [activeTab, setActiveTab] = useState('lecture'); // 'lecture' | 'cv' | 'invoice'
   const [copied, setCopied] = useState(false);
 
-  // 1. 강의계획서 상태
+  // 1. 강의계획서 상태 (기본 선택형 및 시간 옵션 외 텍스트는 깨끗하게 초기화)
   const [lectureForm, setLectureForm] = useState({
-    courseName: '나만의 색을 찾는 현대 유화 & 아크릴 기초',
+    courseName: '',
     target: '성인취미',
     duration: '4주',
-    classTime: '매주 토요일 14:00 ~ 16:00',
+    classTime: '',
     sessionMinutes: '120',
-    materialsBudget: '25,000',
-    genre: '서양화 (유화/아크릴)',
-    instructorName: '김아라',
-    goal: '색채 이론을 감각적으로 체득하고, 자신만의 캔버스 소품 1점을 완성하여 전시 경험을 갖는다.',
+    materialsBudget: '',
+    genre: '',
+    instructorName: user?.name || '',
+    goal: '',
     customCurriculum: '' // 선택사항: 비워두면 계획서에서 커리큘럼 표가 완전히 제외됨 (1회성 강의 등)
   });
   const [lectureResult, setLectureResult] = useState('');
@@ -188,27 +188,27 @@ export default function DocStudio({ onBack }) {
     setLectureForm(prev => ({ ...prev, customCurriculum: text }));
   };
 
-  // 2. 이력서(CV) 상태
+  // 2. 이력서(CV) 상태 (회색 placeholder로 안내하고 실제 값은 초기화)
   const [cvForm, setCvForm] = useState({
-    nameKo: '김아라',
-    nameEn: 'Ara Kim',
-    education: '2024 한국예술종합학교 조형예술과 졸업\n2020 서울예술고등학교 미술과 졸업',
-    solo: '2025 《흔적과 여백》, 갤러리 아라, 서울\n2024 《침묵의 색》, 공간 봄, 서울',
-    group: '2025 《신진작가 발굴전》, 세종문화회관, 서울\n2024 《경계의 시선들》, 부산시립미술관, 부산',
-    awards: '2025 서울문화재단 청년예술지원 선정\n2024 대한민국 현대미술대전 우수상',
-    collections: '국립현대미술관 미술은행 (2025)'
+    nameKo: user?.name || '',
+    nameEn: '',
+    education: '',
+    solo: '',
+    group: '',
+    awards: '',
+    collections: ''
   });
   const [cvResult, setCvResult] = useState('');
 
-  // 3. 견적서/청구서 상태
+  // 3. 견적서/청구서 상태 (오늘 일자 및 기본 세율 유지, 나머지는 깨끗하게 초기화)
   const [invoiceForm, setInvoiceForm] = useState({
-    client: '종로문화재단 문화사업팀',
-    projectName: '2026 하반기 시민 예술 아카데미 출강 및 워크숍 용역',
+    client: '',
+    projectName: '',
     date: new Date().toISOString().split('T')[0],
-    amount: '1,200,000',
+    amount: '',
     taxType: '3.3%', // '3.3%' | '10%' | 'none'
-    bankInfo: '카카오뱅크 3333-01-1234567 (예금주: 김아라)',
-    notes: '본 견적은 재료비 및 강의 교안 제작비가 포함된 금액입니다.'
+    bankInfo: '',
+    notes: ''
   });
   const [invoiceResult, setInvoiceResult] = useState('');
 
@@ -659,7 +659,7 @@ ${cvForm.collections.trim()}
                 <span>교육 목표</span>
               </div>
               <div className="doc-box-highlight">
-                {lectureForm.goal || '색채 이론을 감각적으로 체득하고, 자신만의 캔버스 소품 1점을 완성하여 전시 경험을 갖는다.'}
+                {lectureForm.goal || '좌측 입력란에 교육 목표를 작성하시면 공문서 규격으로 자동 얹어집니다.'}
               </div>
 
               {/* 3. 주차별 세부 커리큘럼 (입력 시에만 출력) */}
@@ -1093,7 +1093,7 @@ ${cvForm.collections.trim()}
                     <tr>
                       <th style={{ width: '28%' }}>공급자</th>
                       <td>
-                        <span style={{ fontWeight: 700 }}>김아라</span>
+                        <span style={{ fontWeight: 700 }}>{user?.name || '작가 성명'}</span>
                         <span className="doc-stamp-circle" style={{ marginLeft: '6px' }}>인</span>
                       </td>
                     </tr>
@@ -1149,7 +1149,7 @@ ${cvForm.collections.trim()}
                 <tbody>
                   <tr>
                     <td className="center">1</td>
-                    <td style={{ fontWeight: 600 }}>{invoiceForm.projectName}</td>
+                    <td style={{ fontWeight: 600 }}>{invoiceForm.projectName || '용역 및 작업 내역'}</td>
                     <td className="center">1 식</td>
                     <td className="right">{invoiceRawAmt.toLocaleString()}원</td>
                     <td className="right" style={{ color: invoiceForm.taxType === '3.3%' ? '#DC2626' : '#2563EB', fontWeight: 600 }}>
@@ -1187,7 +1187,7 @@ ${cvForm.collections.trim()}
                 </div>
                 <div className="doc-sign-date">{invoiceForm.date}</div>
                 <div className="doc-sign-name">
-                  청구인 (공급자) : <span>김아라</span>
+                  청구인 (공급자) : <span>{user?.name || '작가 성명'}</span>
                   <span className="doc-stamp-circle">인</span>
                 </div>
               </div>

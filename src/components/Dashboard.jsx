@@ -17,7 +17,7 @@ import { getStoredUser, getUserScopedKey } from '../utils/authStorage';
 export default function Dashboard({ 
   onSelectView, 
   taxSummary = { totalIncome: 0, pendingAmount: 0 },
-  captionCount = 3,
+  captionCount: propCaptionCount = 0,
   onOpenNewToolModal,
   user = null
 }) {
@@ -32,17 +32,59 @@ export default function Dashboard({
     return 0;
   });
 
+  const [actualCaptionCount, setActualCaptionCount] = useState(() => {
+    if (!user) return 0;
+    try {
+      const key = getUserScopedKey('artflow_captions', user);
+      const saved = localStorage.getItem(key);
+      if (saved) return JSON.parse(saved).length;
+    } catch (e) {}
+    return 0;
+  });
+
+  const [actualPendingAmount, setActualPendingAmount] = useState(() => {
+    if (!user) return 0;
+    try {
+      const key = getUserScopedKey('artflow_incomes', user);
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const list = JSON.parse(saved);
+        return list
+          .filter(item => item.status === 'pending' || item.status === 'unbilled')
+          .reduce((sum, item) => sum + (Number(item.netAmount || item.grossAmount) || 0), 0);
+      }
+    } catch (e) {}
+    return 0;
+  });
+
   const refreshVault = () => {
     setArtworks(getArtworks(user));
     if (user) {
       try {
-        const key = getUserScopedKey('sujango_inspo_vault_v1', user);
-        const saved = localStorage.getItem(key);
-        if (saved) setInspoCount(JSON.parse(saved).length);
-        else setInspoCount(0);
+        const inspoKey = getUserScopedKey('sujango_inspo_vault_v1', user);
+        const savedInspo = localStorage.getItem(inspoKey);
+        setInspoCount(savedInspo ? JSON.parse(savedInspo).length : 0);
+
+        const captionKey = getUserScopedKey('artflow_captions', user);
+        const savedCaption = localStorage.getItem(captionKey);
+        setActualCaptionCount(savedCaption ? JSON.parse(savedCaption).length : 0);
+
+        const incomeKey = getUserScopedKey('artflow_incomes', user);
+        const savedIncome = localStorage.getItem(incomeKey);
+        if (savedIncome) {
+          const list = JSON.parse(savedIncome);
+          const pending = list
+            .filter(item => item.status === 'pending' || item.status === 'unbilled')
+            .reduce((sum, item) => sum + (Number(item.netAmount || item.grossAmount) || 0), 0);
+          setActualPendingAmount(pending);
+        } else {
+          setActualPendingAmount(0);
+        }
       } catch (e) {}
     } else {
       setInspoCount(0);
+      setActualCaptionCount(0);
+      setActualPendingAmount(0);
     }
   };
 
@@ -65,7 +107,7 @@ export default function Dashboard({
       icon: <Sparkles size={24} />,
       iconBg: '#ECFDF5',
       iconColor: '#059669',
-      badge: user ? `✨ ${inspoCount}개 보관` : '✨ 샘플 2개',
+      badge: (user && inspoCount > 0) ? `${inspoCount}개 보관` : null,
       badgeStyle: { background: '#F0FDFA', color: '#0F766E', border: '1px solid #CCFBF1' },
       desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 단정하게 아카이빙하고 창작의 소중한 씨앗으로 안전하게 보관합니다.',
       actionText: '영감 노트 열기'
@@ -88,7 +130,7 @@ export default function Dashboard({
       icon: <Tag size={24} />,
       iconBg: '#F8FAFC',
       iconColor: '#0F172A',
-      badge: user ? `🏷️ ${captionCount}점 준비` : '🏷️ 샘플 2점',
+      badge: (user && actualCaptionCount > 0) ? `${actualCaptionCount}점 준비` : null,
       badgeStyle: { background: '#F8FAFC', color: '#334155', border: '1px solid #E2E8F0' },
       desc: '작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고, 자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.',
       actionText: '캡션 명패 만들기'
@@ -111,12 +153,10 @@ export default function Dashboard({
       icon: <Receipt size={24} />,
       iconBg: '#FFFBEB',
       iconColor: '#D97706',
-      badge: user && taxSummary.pendingAmount > 0 
-        ? `💰 미수금 ${taxSummary.pendingAmount.toLocaleString()}원` 
-        : '💰 정산 완료',
-      badgeStyle: user && taxSummary.pendingAmount > 0 
-        ? { background: '#FEF3C7', color: '#B45309', border: '1px solid #FDE68A' } 
-        : { background: '#F0FDF4', color: '#15803D', border: '1px solid #BBF7D0' },
+      badge: (user && actualPendingAmount > 0) 
+        ? `미수금 ${actualPendingAmount.toLocaleString()}원` 
+        : null,
+      badgeStyle: { background: '#FEF3C7', color: '#B45309', border: '1px solid #FDE68A' },
       desc: '출강·작품 수입과 재료비 지출을 한눈에 관리하고, A4 지출 정산 증빙서를 인쇄 및 PDF로 저장합니다.',
       actionText: '가계부 열기'
     }

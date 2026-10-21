@@ -105,13 +105,13 @@ export default function App() {
 
   const [currentView, setCurrentView] = useState(getViewFromHash);
   const [selectedArtworkId, setSelectedArtworkId] = useState(getArtIdFromHash);
-  const [taxSummary, setTaxSummary] = useState({ totalIncome: 0, pendingAmount: 1200000 });
+  const [taxSummary, setTaxSummary] = useState({ totalIncome: 0, pendingAmount: 0 });
   const [captionCount, setCaptionCount] = useState(() => {
     try {
       const saved = localStorage.getItem('artflow_captions');
       if (saved) return JSON.parse(saved).length;
     } catch (e) {}
-    return 3;
+    return 0;
   });
   const [isNewToolModalOpen, setIsNewToolModalOpen] = useState(false);
 
@@ -380,7 +380,7 @@ export default function App() {
             )}
 
             {currentView === 'doc' && (
-              <DocStudio onBack={handleBack} />
+              <DocStudio onBack={handleBack} user={user} />
             )}
 
             {currentView === 'statement' && (

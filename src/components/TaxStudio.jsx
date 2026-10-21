@@ -444,28 +444,30 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
             </div>
 
             <form onSubmit={handleAddIncome}>
-              <div className="form-row">
-                <div className="form-group">
+              <div className="form-row" style={{ alignItems: 'flex-start' }}>
+                <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                   <label className="form-label">일자</label>
                   <input 
                     type="date" 
                     className="form-input" 
+                    style={{ height: '42px', boxSizing: 'border-box' }}
                     value={newIncome.date}
                     onChange={(e) => setNewIncome({...newIncome, date: e.target.value})}
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                   <label className="form-label">소득/세율 유형</label>
                   <select 
                     className="form-select"
+                    style={{ height: '42px', boxSizing: 'border-box' }}
                     value={newIncome.type}
                     onChange={(e) => setNewIncome({...newIncome, type: e.target.value})}
                   >
-                    <option value="business">출강/외주 (사업소득 3.3%)</option>
-                    <option value="other">1회성 특강/자문 (기타소득 8.8%)</option>
-                    <option value="gallery">갤러리 위탁판매 (수수료 40% 공제)</option>
-                    <option value="personal">개인 거래 / 직거래 (공제 없음 0%)</option>
+                    <option value="business">출강·외주 (3.3%)</option>
+                    <option value="other">특강·자문 (8.8%)</option>
+                    <option value="gallery">갤러리 위탁 (수수료 40%)</option>
+                    <option value="personal">개인 직거래 (0%)</option>
                   </select>
                 </div>
               </div>
@@ -619,29 +621,31 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
             </div>
 
             <form onSubmit={handleAddExpense}>
-              <div className="form-row">
-                <div className="form-group">
+              <div className="form-row" style={{ alignItems: 'flex-start' }}>
+                <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                   <label className="form-label">일자</label>
                   <input 
                     type="date" 
                     className="form-input" 
+                    style={{ height: '42px', boxSizing: 'border-box' }}
                     value={newExpense.date}
                     onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                   <label className="form-label">지출 분류</label>
                   <select 
                     className="form-select"
+                    style={{ height: '42px', boxSizing: 'border-box' }}
                     value={newExpense.category}
                     onChange={(e) => setNewExpense({...newExpense, category: e.target.value})}
                   >
-                    <option value="화구/재료비">화구/재료비 (물감, 붓, 흙 등)</option>
-                    <option value="캔버스/표구비">캔버스/표구비 (틀, 액자)</option>
-                    <option value="인쇄/도록비">인쇄/도록비 (엽서, 포스터)</option>
-                    <option value="공방/작업실비">공방/작업실비 (대여, 소모품)</option>
-                    <option value="기타 경비">기타 경비 (운송비, 식비 등)</option>
+                    <option value="화구/재료비">화구·재료비 (물감/붓/점토)</option>
+                    <option value="캔버스/표구비">캔버스·표구비 (틀/액자)</option>
+                    <option value="인쇄/도록비">인쇄·도록비 (엽서/포스터)</option>
+                    <option value="공방/작업실비">공방·작업실비 (대여/소모품)</option>
+                    <option value="기타 경비">기타 경비 (운송비/식비)</option>
                   </select>
                 </div>
               </div>
