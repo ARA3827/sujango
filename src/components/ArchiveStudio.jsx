@@ -815,17 +815,6 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                   <FileText size={15} /> 전시 캡션 만들기
                 </button>
               )}
-
-              {onNavigateToStatement && (
-                <button 
-                  onClick={() => onNavigateToStatement(currentArt?.id)}
-                  className="btn-outline"
-                  style={{ width: '100%', justifyContent: 'center', fontSize: '0.84rem' }}
-                  title="이 작품의 작가노트와 비하인드 스토리를 AI로 다듬습니다"
-                >
-                  <Edit3 size={15} /> 작가노트 다듬기
-                </button>
-              )}
             </div>
           </div>
 
@@ -872,16 +861,6 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
               </div>
 
               <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                {onNavigateToStatement && (
-                  <button 
-                    onClick={() => onNavigateToStatement(currentArt?.id)}
-                    className="btn-outline"
-                    style={{ fontSize: '0.78rem', padding: '0.3rem 0.65rem' }}
-                    title="작가노트 스튜디오에서 AI로 글 다듬기"
-                  >
-                    <Edit3 size={13} /> 작가노트 다듬기
-                  </button>
-                )}
                 {isEditingText ? (
                   <button 
                     onClick={handleSaveInlineText}
@@ -896,7 +875,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                     className="btn-outline"
                     style={{ fontSize: '0.78rem', padding: '0.3rem 0.65rem' }}
                   >
-                    <Edit3 size={13} /> 본문 수정
+                    <Edit3 size={13} /> 작가노트 수정
                   </button>
                 )}
 
@@ -931,12 +910,12 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
             ) : (
               <div className="output-box" style={{ minHeight: '380px', color: '#9CA3AF', textAlign: 'center', padding: '5rem 1rem' }}>
                 아직 작성된 내용이 없습니다.<br />
-                우측 상단의 <strong>[본문 수정]</strong> 버튼을 눌러 글을 보관해 보세요.
+                우측 상단의 <strong>[작가노트 수정]</strong> 버튼을 눌러 글을 보관해 보세요.
               </div>
             )}
 
             <div style={{ marginTop: '0.75rem', fontSize: '0.78rem', color: '#94A3B8', display: 'flex', justifyContent: 'space-between' }}>
-              <span>💡 더블클릭하거나 [본문 수정]을 눌러 글을 자유롭게 보완할 수 있습니다.</span>
+              <span>💡 더블클릭하거나 [작가노트 수정]을 눌러 글을 자유롭게 보완할 수 있습니다.</span>
               <span>등록일: {currentArt.createdAt || '최근'}</span>
             </div>
           </div>
