@@ -1273,11 +1273,6 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                   onChange={(e) => setModalForm({ ...modalForm, location: e.target.value })}
                 />
               </div>
-
-              {/* 글 작성 안내 팁 (역할 1:1 분리) */}
-              <div style={{ fontSize: '0.78rem', color: '#64748B', background: '#F8FAFC', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E2E8F0', lineHeight: 1.5 }}>
-                💡 <strong>안내:</strong> 도록용 작가노트, 인스타그램 캡션, 블로그 글은 상세 화면의 <strong>오른쪽 패널</strong>에서 그 자리에서 바로 직접 수정하고 보관하실 수 있습니다.
-              </div>
             </div>
 
             {/* 하단 버튼 푸터 */}

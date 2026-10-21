@@ -683,7 +683,6 @@ export default function App() {
               <span><strong>상호:</strong> Ara Agent Lab</span>
               <span><strong>대표자:</strong> 한서희</span>
               <span><strong>사업자등록번호:</strong> 133-16-68446</span>
-              <span><strong>통신판매업신고:</strong> 신고 준비 중</span>
               <span><strong>개인정보보호책임자:</strong> 한서희</span>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
