@@ -622,7 +622,6 @@ ${cvForm.collections.trim()}
             <div className="official-doc-container">
               {/* 상단 공문서 타이틀 */}
               <div className="official-doc-header">
-                <div className="official-doc-badge">수장고 표준 문화예술 교육 기안 서식</div>
                 <h3 className="official-doc-title">출 강 강 의 계 획 서</h3>
               </div>
 
@@ -757,10 +756,6 @@ ${cvForm.collections.trim()}
                   작성자 (담당 강사) : <span>{lectureForm.instructorName || '강사'}</span>
                   <span className="doc-stamp-circle">인</span>
                 </div>
-              </div>
-
-              <div className="print-official-doc-footer">
-                Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
               </div>
             </div>
           </div>
@@ -989,10 +984,6 @@ ${cvForm.collections.trim()}
                   </div>
                 </>
               )}
-
-              <div className="print-official-doc-footer">
-                Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
-              </div>
             </div>
           </div>
         </div>
@@ -1092,7 +1083,6 @@ ${cvForm.collections.trim()}
             <div className="official-doc-container">
               {/* 상단 공문서 타이틀 */}
               <div className="official-doc-header">
-                <div className="official-doc-badge">공식 비즈니스 견적 및 비용 청구서 (INVOICE)</div>
                 <h3 className="official-doc-title">견 적 및 청 구 서</h3>
               </div>
 
@@ -1219,10 +1209,6 @@ ${cvForm.collections.trim()}
                   청구인 (공급자) : <span>김아라</span>
                   <span className="doc-stamp-circle">인</span>
                 </div>
-              </div>
-
-              <div className="print-official-doc-footer">
-                Sujango (수장고) | 창작자를 위한 프라이빗 디지털 수장고
               </div>
             </div>
           </div>

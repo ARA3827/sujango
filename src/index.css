@@ -1418,18 +1418,9 @@ input, select, textarea {
     break-inside: avoid !important;
   }
 
-  /* 하단 바닥글: 중앙 정렬 & 단정하고 깔끔한 마무리 */
+  /* 하단 바닥글 숨김 (순수 공식 문서 화이트라벨 보장) */
   .print-official-doc-footer {
-    display: block !important;
-    text-align: center !important;
-    margin-top: 16px !important;
-    padding-top: 8px !important;
-    border-top: 0.75pt solid #CBD5E1 !important;
-    font-size: 8pt !important;
-    color: #64748B !important;
-    letter-spacing: -0.2px !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+    display: none !important;
   }
 
   /* 2. 전시 캡션 출력기 A4 용지 규격 인쇄 스타일 */
