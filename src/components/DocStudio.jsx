@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { Copy, Check, Printer, Sparkles, FileText, UserCheck, Calculator, Download } from 'lucide-react';
-import confetti from 'canvas-confetti';
+import { Printer, Sparkles, FileText, UserCheck, Calculator } from 'lucide-react';
 
 // 한글 금액 변환 헬퍼 (예: 1,160,400 -> 일백일십육만사백)
 function numberToKorean(number) {
@@ -319,26 +317,6 @@ ${cvForm.collections.trim()}
     triggerConfetti();
   };
 
-  const handleCopy = (text) => {
-    if (!text) return;
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleDownload = (content, filename) => {
-    if (!content) return;
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename || 'document.txt';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
   // 브라우저 머릿글 노출을 방지하고 깔끔하게 인쇄하는 핸들러
   const handlePrintDoc = () => {
     const originalTitle = document.title;
@@ -349,37 +327,29 @@ ${cvForm.collections.trim()}
     }, 1500);
   };
 
-  const renderActionButtons = (content, defaultFilename) => {
+  const renderActionButtons = () => {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-        <button 
-          className={`btn-subtle-copy ${copied ? 'copied' : ''}`}
-          onClick={() => handleCopy(content || '')}
-          title="클립보드 전체 텍스트 복사"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px', fontSize: '0.78rem' }}
-        >
-          {copied ? <Check size={13} /> : <Copy size={13} />}
-          <span>{copied ? '복사 완료!' : '텍스트 복사'}</span>
-        </button>
-        <button 
-          className="btn-subtle-copy"
-          onClick={() => handleDownload(content || '', defaultFilename)}
-          title="텍스트 파일(.txt)로 다운로드"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 8px', fontSize: '0.78rem' }}
-        >
-          <Download size={13} />
-          <span>TXT 저장</span>
-        </button>
-        <button 
-          className="btn-primary"
-          onClick={handlePrintDoc}
-          title="A4 공문서 규격 인쇄 및 PDF 저장"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 10px', fontSize: '0.78rem', background: '#0F172A', color: '#FFFFFF' }}
-        >
-          <Printer size={13} />
-          <span>A4 인쇄 / PDF 저장</span>
-        </button>
-      </div>
+      <button 
+        className="btn-primary"
+        onClick={handlePrintDoc}
+        title="A4 공문서 규격 인쇄 및 PDF 저장"
+        style={{ 
+          display: 'inline-flex', 
+          alignItems: 'center', 
+          gap: '6px', 
+          padding: '6px 14px', 
+          fontSize: '0.84rem', 
+          background: '#0F172A', 
+          color: '#FFFFFF', 
+          fontWeight: 600, 
+          borderRadius: '6px',
+          boxShadow: '0 2px 8px rgba(15, 23, 42, 0.15)',
+          cursor: 'pointer'
+        }}
+      >
+        <Printer size={14} />
+        <span>A4 인쇄 / PDF 저장</span>
+      </button>
     );
   };
 
@@ -625,7 +595,7 @@ ${cvForm.collections.trim()}
           <div className="panel-card printable" style={{ background: '#F8FAFC', padding: '1.25rem' }}>
             <div className="panel-card-title no-print" style={{ marginBottom: '1rem' }}>
               <span>완성된 강의계획서 미리보기</span>
-              {renderActionButtons(lectureResult, `${lectureForm.courseName || '강좌'}_강의계획서.txt`)}
+              {renderActionButtons()}
             </div>
 
             {/* 정식 공문서 폼 컴포넌트 */}
@@ -867,7 +837,7 @@ ${cvForm.collections.trim()}
           <div className="panel-card printable" style={{ background: '#F8FAFC', padding: '1.25rem' }}>
             <div className="panel-card-title no-print" style={{ marginBottom: '1rem' }}>
               <span>작가 프로필(CV) 표준 서식 미리보기</span>
-              {renderActionButtons(cvResult, `${cvForm.nameKo || '작가'}_작가프로필_CV.txt`)}
+              {renderActionButtons()}
             </div>
 
             {/* 정식 CV 서식 뷰 */}
@@ -1086,7 +1056,7 @@ ${cvForm.collections.trim()}
           <div className="panel-card printable" style={{ background: '#F8FAFC', padding: '1.25rem' }}>
             <div className="panel-card-title no-print" style={{ marginBottom: '1rem' }}>
               <span>완성된 견적·청구서 미리보기</span>
-              {renderActionButtons(invoiceResult, `${invoiceForm.projectName || '프로젝트'}_견적청구서.txt`)}
+              {renderActionButtons()}
             </div>
 
             {/* 정식 견적서 폼 컴포넌트 */}
