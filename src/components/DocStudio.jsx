@@ -604,9 +604,6 @@ ${cvForm.collections.trim()}
                 value={lectureForm.customCurriculum}
                 onChange={(e) => setLectureForm({...lectureForm, customCurriculum: e.target.value})}
               />
-              <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '4px', lineHeight: 1.4 }}>
-                💡 <strong>비워두시면 계획서에서 커리큘럼 표가 제외</strong>되어, 1회성 특강이나 간이 출강 서류로 단정하게 인쇄됩니다.
-              </div>
             </div>
 
             <button className="btn-primary" onClick={generateLecturePlan}>
