@@ -628,32 +628,38 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
               )}
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div style={{ width: '100%' }}>
               <div 
                 onClick={() => fileInputRef.current?.click()}
                 style={{
-                  width: '76px',
-                  height: '76px',
+                  width: '100%',
+                  height: artworkImage ? '140px' : '84px',
                   borderRadius: '10px',
                   border: '1.5px dashed #CBD5E1',
                   display: 'flex',
-                  flexDirection: 'column',
+                  flexDirection: artworkImage ? 'column' : 'row',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  gap: '8px',
                   cursor: 'pointer',
                   background: '#F8FAFC',
                   overflow: 'hidden',
-                  flexShrink: 0,
-                  transition: 'border-color 0.15s ease'
+                  boxSizing: 'border-box',
+                  transition: 'all 0.15s ease'
                 }}
+                title="클릭하여 작품 사진을 첨부하세요"
               >
                 {artworkImage ? (
-                  <img src={artworkImage} alt="선택된 작품" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img 
+                    src={artworkImage} 
+                    alt="선택된 작품" 
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#0F172A' }} 
+                  />
                 ) : (
                   <>
-                    <Upload size={18} color="#94A3B8" />
-                    <span style={{ fontSize: '0.68rem', color: '#64748B', marginTop: '2px' }}>
-                      {isCompressing ? '등록 중' : '사진 첨부'}
+                    <Upload size={18} color="#64748B" />
+                    <span style={{ fontSize: '0.84rem', color: '#475569', fontWeight: 500 }}>
+                      {isCompressing ? '사진 등록 중...' : '작품 사진 첨부하기 (클릭하여 파일 선택)'}
                     </span>
                   </>
                 )}
@@ -666,6 +672,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                 onChange={handleImageUpload} 
               />
             </div>
+
           </div>
 
 
