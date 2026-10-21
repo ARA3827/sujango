@@ -103,6 +103,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
     size: '',
     medium: '',
     status: 'available',
+    location: '',
     price: '',
     isNfs: false,
     imageUrl: '',
@@ -387,6 +388,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       size: '53.0 × 45.5 cm (10F)',
       medium: '캔버스에 유채 (Oil on canvas)',
       status: 'available',
+      location: '',
       price: '',
       isNfs: false,
       imageUrl: '',
@@ -408,6 +410,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       size: art.size || '',
       medium: art.medium || '',
       status: artStatus,
+      location: art.location || '',
       price: art.price || '',
       isNfs: artStatus === 'nfs',
       imageUrl: art.imageUrl || '',
@@ -486,11 +489,16 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
     const itemToSave = {
       ...(editingArtwork ? editingArtwork : {}),
       ...modalForm,
+      location: (modalForm.location || '').trim(),
       status: finalStatus,
       isNfs: finalStatus === 'nfs',
       isSold: finalStatus === 'sold',
       isExhibited: finalStatus === 'exhibited',
       price: finalStatus === 'nfs' ? 'NFS (비매품)' : modalForm.price,
+      // 기존 작성된 글이 있을 경우 소실되지 않도록 철저히 보존
+      statement: editingArtwork ? (editingArtwork.statement || modalForm.statement || '') : (modalForm.statement || ''),
+      instaCaption: editingArtwork ? (editingArtwork.instaCaption || modalForm.instaCaption || '') : (modalForm.instaCaption || ''),
+      blogStory: editingArtwork ? (editingArtwork.blogStory || modalForm.blogStory || '') : (modalForm.blogStory || ''),
       id: editingArtwork ? editingArtwork.id : 'art-' + Date.now()
     };
 
@@ -810,6 +818,12 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                   {currentArt.isNfs || currentArt.status === 'nfs' ? 'NFS (비매품 / 소장품)' : currentArt.price}
                 </div>
               )}
+              {currentArt.location && (
+                <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>📍</span>
+                  <span>보관 / 소장: {currentArt.location}</span>
+                </div>
+              )}
             </div>
 
             {/* 액션 버튼 */}
@@ -918,7 +932,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                     className="btn-outline"
                     style={{ fontSize: '0.78rem', padding: '0.3rem 0.65rem' }}
                   >
-                    <Edit3 size={13} /> 작가노트 수정
+                    <Edit3 size={13} /> {activeTab === 'statement' ? '작가노트 수정' : activeTab === 'insta' ? '인스타 캡션 수정' : '블로그 글 수정'}
                   </button>
                 )}
 
@@ -1011,7 +1025,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
               }}
             >
               <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0F172A' }}>
-                {editingArtwork ? '✏️ 작품 및 작가노트 정보 수정' : '🎨 새 작품 아카이브 등록'}
+                {editingArtwork ? '✏️ 작품 정보 수정' : '🎨 새 작품 아카이브 등록'}
               </h3>
               <button 
                 type="button"
@@ -1236,26 +1250,33 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                 />
               </div>
 
+              {/* 보관 / 소장 위치 입력 필드 */}
               <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">도록용 평론 작가노트 (선택)</label>
-                <textarea 
-                  className="form-textarea" 
-                  style={{ minHeight: '85px', fontSize: '0.86rem' }}
-                  placeholder="이 작품에 얽힌 작가노트를 보관해 보세요..."
-                  value={modalForm.statement}
-                  onChange={(e) => setModalForm({ ...modalForm, statement: e.target.value })}
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>보관 / 소장 위치 (선택)</span>
+                  <span style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 400 }}>
+                    작품이 현재 있는 장소를 기록합니다
+                  </span>
+                </label>
+                <input 
+                  type="text" 
+                  name="artwork-location"
+                  autoComplete="off"
+                  className="form-input" 
+                  placeholder={
+                    modalForm.status === 'sold' ? '예: 김민준 컬렉터 소장 / 2026 아트페어' :
+                    modalForm.status === 'nfs' ? '예: 작가 자택 거실 보관' :
+                    modalForm.status === 'exhibited' ? '예: 인사동 아라갤러리 기획전 출품 (~11/30)' :
+                    '예: 작업실 2층 수장고 B랙'
+                  }
+                  value={modalForm.location || ''}
+                  onChange={(e) => setModalForm({ ...modalForm, location: e.target.value })}
                 />
               </div>
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label">인스타그램 캡션 & 해시태그 (선택)</label>
-                <textarea 
-                  className="form-textarea" 
-                  style={{ minHeight: '75px', fontSize: '0.86rem' }}
-                  placeholder="SNS에 올렸거나 올릴 캡션을 보관해 보세요..."
-                  value={modalForm.instaCaption}
-                  onChange={(e) => setModalForm({ ...modalForm, instaCaption: e.target.value })}
-                />
+              {/* 글 작성 안내 팁 (역할 1:1 분리) */}
+              <div style={{ fontSize: '0.78rem', color: '#64748B', background: '#F8FAFC', padding: '10px 12px', borderRadius: '8px', border: '1px solid #E2E8F0', lineHeight: 1.5 }}>
+                💡 <strong>안내:</strong> 도록용 작가노트, 인스타그램 캡션, 블로그 글은 상세 화면의 <strong>오른쪽 패널</strong>에서 그 자리에서 바로 직접 수정하고 보관하실 수 있습니다.
               </div>
             </div>
 

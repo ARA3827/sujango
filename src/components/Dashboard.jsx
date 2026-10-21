@@ -213,7 +213,7 @@ export default function Dashboard({
               <table className="archive-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '56px', textAlign: 'center' }}>작품</th>
+                    <th style={{ width: '70px', textAlign: 'center' }}>작품</th>
                     <th>작품명</th>
                     <th>제작연도 / 규격</th>
                     <th>재료 및 기법</th>
@@ -231,38 +231,20 @@ export default function Dashboard({
                         style={{ cursor: 'pointer' }}
                         title="클릭하여 작품 상세 및 작가노트 열람"
                       >
-                        <td style={{ textAlign: 'center' }}>
+                        <td style={{ textAlign: 'center', padding: '10px 8px' }}>
                           <div className="archive-mini-thumb">
                             {art.imageUrl ? (
                               <img src={art.imageUrl} alt={art.title} />
                             ) : (
-                              <ImageIcon size={15} color="#94A3B8" />
+                              <ImageIcon size={20} color="#94A3B8" />
                             )}
                           </div>
                         </td>
                         <td>
-                          <div style={{ fontWeight: 600, color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span>《{art.title}》</span>
-                            {art.statement && (
-                              <span 
-                                title="작가노트 보관됨" 
-                                style={{ 
-                                  fontSize: '0.72rem', 
-                                  padding: '1px 5px', 
-                                  background: '#F1F5F9', 
-                                  color: '#475569', 
-                                  borderRadius: '4px',
-                                  fontWeight: 500,
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '2px'
-                                }}
-                              >
-                                📝 <span style={{ fontSize: '0.68rem' }}>노트</span>
-                              </span>
-                            )}
+                          <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.9rem' }}>
+                            《{art.title}》
                           </div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748B' }}>{art.artist || user?.name || '작가'}</div>
+                          <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '2px' }}>{art.artist || user?.name || '작가'}</div>
                         </td>
                         <td>
                           <span style={{ fontSize: '0.84rem', color: '#334155', fontWeight: 500 }}>{art.year}년</span>
@@ -276,10 +258,20 @@ export default function Dashboard({
                           </span>
                         </td>
                         <td>
-                          <span className={`archive-badge ${statusMeta.badgeClass}`} style={{ fontSize: '0.75rem', padding: '3px 8px' }}>
-                            <span>{statusMeta.dot}</span>
-                            <span>{statusMeta.shortLabel}</span>
-                          </span>
+                          <div>
+                            <span className={`archive-badge ${statusMeta.badgeClass}`}>
+                              <span className={`status-dot-indicator dot-${statusMeta.id}`} />
+                              <span>{statusMeta.shortLabel}</span>
+                            </span>
+                            {art.location && (
+                              <div 
+                                style={{ fontSize: '0.73rem', color: '#64748B', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }} 
+                                title={`보관/소장 위치: ${art.location}`}
+                              >
+                                📍 {art.location}
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td style={{ textAlign: 'right', fontSize: '0.78rem', color: '#94A3B8' }}>
                           {art.createdAt || '최근'}
@@ -310,11 +302,8 @@ export default function Dashboard({
                       )}
                     </div>
                     <div className="archive-mobile-info">
-                      <div className="archive-mobile-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span>《{art.title}》</span>
-                        {art.statement && (
-                          <span title="작가노트 보관됨" style={{ fontSize: '0.78rem' }}>📝</span>
-                        )}
+                      <div className="archive-mobile-title">
+                        《{art.title}》
                       </div>
                       <div className="archive-mobile-meta">
                         <span>{art.year}년</span>
@@ -331,11 +320,14 @@ export default function Dashboard({
                           </>
                         )}
                       </div>
-                      <div className="archive-mobile-badges" style={{ marginTop: '6px' }}>
+                      <div className="archive-mobile-badges" style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                         <span className={`archive-badge ${statusMeta.badgeClass}`}>
-                          <span>{statusMeta.dot}</span>
+                          <span className={`status-dot-indicator dot-${statusMeta.id}`} />
                           <span>{statusMeta.shortLabel}</span>
                         </span>
+                        {art.location && (
+                          <span style={{ fontSize: '0.72rem', color: '#64748B' }}>📍 {art.location}</span>
+                        )}
                         <span className="archive-mobile-date">{art.createdAt || '최근'}</span>
                       </div>
                     </div>

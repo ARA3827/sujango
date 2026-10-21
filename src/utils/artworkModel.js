@@ -54,7 +54,7 @@ export const ARTWORK_STATUS_LABELS = {
   nfs: { 
     id: 'nfs', 
     label: '소장품 (NFS / 비매품)', 
-    shortLabel: '소장품 NFS', 
+    shortLabel: '소장품', 
     badgeClass: 'badge-status-nfs', 
     dot: '🔵' 
   },
@@ -173,6 +173,7 @@ export function normalizeArtwork(raw = {}, user = null) {
       isExhibited: isExhibitedComputed,
       price: displayPrice,
       priceAmount: priceAmount,
+      location: (raw.location || '').trim(),
 
     // [비주얼 에셋]
     imageUrl: raw.imageUrl || '',

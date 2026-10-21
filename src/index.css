@@ -2096,6 +2096,32 @@ input, select, textarea {
   background: #FAFAFC;
 }
 
+/* PC 수장고 테이블 썸네일 (회화 디테일 감상용 확대) */
+.archive-mini-thumb {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  margin: 0 auto;
+}
+
+.archive-mini-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.archive-table tr:hover .archive-mini-thumb img {
+  transform: scale(1.06);
+}
+
 /* ===================================================================
    모바일 전용 수장고 작품 카드 리스트 (Mobile Archive Card List)
 =================================================================== */
@@ -2233,42 +2259,71 @@ input, select, textarea {
   border: 1px solid #F3E8FF;
 }
 
-/* 작품 소장/판매 상태 배지 */
+/* 작품 소장/판매 상태 배지 (미술관 도록형 차분한 미니멀 스타일) */
 .badge-status-available {
-  background: #ECFDF5;
-  color: #059669;
-  border: 1px solid #A7F3D0;
+  background: #F0FDF4;
+  color: #15803D;
+  border: 1px solid #DCFCE7;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  font-size: 0.73rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
 }
 
 .badge-status-sold {
   background: #FEF2F2;
-  color: #DC2626;
-  border: 1px solid #FECACA;
+  color: #B91C1C;
+  border: 1px solid #FEE2E2;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  font-size: 0.73rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
 }
 
 .badge-status-nfs {
-  background: #EFF6FF;
-  color: #1D4ED8;
-  border: 1px solid #BFDBFE;
+  background: #F8FAFC;
+  color: #334155;
+  border: 1px solid #E2E8F0;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  font-size: 0.73rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
 }
 
 .badge-status-exhibited {
-  background: #FEFCE8;
-  color: #A16207;
-  border: 1px solid #FEF08A;
+  background: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FEF3C7;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  font-size: 0.73rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
 }
+
+/* 섬세한 상태 인디케이터 도트 (이모지 대신 미니 서클 사용) */
+.status-dot-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.dot-available { background-color: #16A34A; }
+.dot-sold { background-color: #DC2626; }
+.dot-nfs { background-color: #64748B; }
+.dot-exhibited { background-color: #D97706; }
 
 /* 상태 선택 세그먼트 버튼 그룹 (모달 내) */
 .status-selector-group {
