@@ -50,19 +50,29 @@ export async function saveOriginalToVault(artworkId, fileOrBlob, originalFileNam
       const tx = db.transaction([STORE_NAME], 'readwrite');
       const store = tx.objectStore(STORE_NAME);
 
+      // File 객체를 순수 Blob 바이너리로 안전하게 변환 (브라우저 DataCloneError 방지)
+      const safeBlob = new Blob([fileOrBlob], { type: fileOrBlob.type || 'image/jpeg' });
+      safeBlob.originalName = originalFileName || fileOrBlob.name || '';
+
       const record = {
         id: artworkId,
-        blob: fileOrBlob,
-        name: originalFileName,
+        blob: safeBlob,
+        name: originalFileName || fileOrBlob.name || '',
         size: fileOrBlob.size,
-        type: fileOrBlob.type,
+        type: fileOrBlob.type || 'image/jpeg',
         savedAt: new Date().toISOString()
       };
 
-      const putRequest = store.put(record);
+      store.put(record);
 
-      putRequest.onsuccess = () => resolve(true);
-      putRequest.onerror = (e) => reject(e.target.error);
+      tx.oncomplete = () => {
+        resolve(true);
+      };
+
+      tx.onerror = (e) => {
+        console.error('[Raw Vault] 트랜잭션 쓰기 실패:', e.target.error);
+        reject(e.target.error);
+      };
     });
   } catch (error) {
     console.error('[Raw Vault] 원본 이미지 저장 실패:', error);

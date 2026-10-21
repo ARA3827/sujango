@@ -321,19 +321,15 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       // 1. 작가의 워터마크 보안 설정 조회
       const watermarkSettings = await fetchWatermarkSettings(user?.email || 'local_user') || {};
 
-      // 2. 수장고 뷰어용 깨끗한 고화질 이미지 (워터마크 없는 원본 그대로의 느낌)
-      const cleanViewerDataUrl = await compressImage(file, 1920, 0.88);
+      // 2. 수장고 화면 뷰어용 깨끗한 고화질 이미지 (localStorage 5MB 한도 안전 크기: 1200px / 워터마크 0개)
+      const cleanViewerDataUrl = await compressImage(file, 1200, 0.78);
 
-      // 3. 외부 클라이언트 시안 공유 전용 1080px 워터마크 합성본
-      const previewDataUrl = await generateWatermarkedPreview(file, watermarkSettings, 1080);
-
-      // 4. 400px 초경량 목록용 썸네일 생성
-      const thumbDataUrl = await generateThumbnail(file, 400, 0.75);
+      // 3. 400px 초경량 목록용 썸네일 생성
+      const thumbDataUrl = await generateThumbnail(file, 400, 0.72);
 
       setModalForm(prev => ({ 
         ...prev, 
-        imageUrl: cleanViewerDataUrl, // 수장고 내부에는 워터마크 없는 선명한 작품 표시
-        previewImageUrl: previewDataUrl, // 외부 시안 링크 발급 전용
+        imageUrl: cleanViewerDataUrl, // 수장고 내부에는 워터마크 없는 깨끗한 작품 표시
         thumbnailUrl: thumbDataUrl,
         fileSizeBytes: file.size
       }));
