@@ -385,6 +385,11 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
         </div>
       </div>
 
+      {/* 세무 참고용 안내 문구 (1단계 지시사항) */}
+      <div className="no-print" style={{ fontSize: '0.8rem', color: '#94A3B8', marginTop: '-0.75rem', marginBottom: '1.25rem', textAlign: 'right' }}>
+        ※ 세율 계산은 참고용입니다. 실제 세금 신고는 세무 전문가와 확인하세요.
+      </div>
+
       {/* 4. 수입 / 지출 탭 네비게이션 */}
       <div className="tab-nav no-print" style={{ marginBottom: '1.5rem', display: 'flex', gap: '8px' }}>
         <button 

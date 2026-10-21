@@ -133,7 +133,7 @@ export default function SideMenuDrawer({
                 1인 예술가를 위한 프라이빗 수장고
               </div>
               <p style={{ fontSize: '0.78rem', color: '#64748B', margin: '0 0 10px 0', lineHeight: 1.4 }}>
-                로그인하시면 30점 무료 서고와 도록 보안 링크를 바로 이용하실 수 있습니다.
+                로그인하시면 30점 무료 수장고와 도록 보안 링크를 바로 이용하실 수 있습니다.
               </p>
               <button
                 type="button"

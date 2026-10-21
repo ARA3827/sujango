@@ -272,7 +272,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
 
   // 작품 삭제
   const handleDelete = (id, title) => {
-    if (window.confirm(`《${title}》 작품과 관련된 모든 기록을 아카이브 서고에서 삭제하시겠습니까?`)) {
+    if (window.confirm(`《${title}》 작품과 관련된 모든 기록을 수장고에서 삭제하시겠습니까?`)) {
       const updated = deleteArtwork(id, user);
       setArtworks(updated);
       if (selectedId === id && updated.length > 0) {

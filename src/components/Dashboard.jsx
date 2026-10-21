@@ -273,7 +273,7 @@ export default function Dashboard({
       <div className="section-headline" style={{ marginTop: '2.5rem' }}>
         <span>🛠️ 창작 행정 & 비즈니스 비서 도구</span>
         <span style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'none', fontWeight: 400 }}>
-          클릭 시 2-Depth 상세 작업공간으로 진입합니다
+          카드를 눌러 바로 시작하세요
         </span>
       </div>
 

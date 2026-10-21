@@ -34,7 +34,7 @@ export default function GuidePage({ onOpenLogin, onNavigateToAbout }) {
             네, 기본 <span style={{ color: '#0284C7' }}>Free Artist 플랜</span>으로 창작에 꼭 필요한 4대 기능을 영구 무료로 이용하실 수 있습니다.
           </p>
           <ul style={{ margin: '0 0 0.85rem 1.25rem', padding: 0, color: '#334155', lineHeight: 1.8, fontSize: '0.92rem' }}>
-            <li><strong>작품 30점 무료 보관:</strong> 웹 최적화 규격으로 안전하게 디지털 서고 보관</li>
+            <li><strong>작품 30점 무료 보관:</strong> 웹 최적화 규격으로 안전하게 수장고 보관</li>
             <li><strong>AI 작가노트 생성:</strong> 미학 평론문, SNS 해시태그 무제한 추출</li>
             <li><strong>A4 전시 캡션 출력:</strong> 국영문 미술관 표준 규격 캡션 원클릭 인쇄</li>
             <li><strong>행정 서식 스튜디오:</strong> 출강 계획서, 표준 약력(CV), 간이 견적서 무제한 작성</li>

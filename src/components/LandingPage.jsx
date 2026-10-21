@@ -33,6 +33,7 @@ export default function LandingPage({
 }) {
   const [feedbacks, setFeedbacks] = useState([]);
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'yearly' | 'monthly'
+  const SHOW_REVIEWS = false; // 후기 섹션 제어 플래그 (지시서 1단계: 숨김 처리, 추후 true 전환 가능)
 
   useEffect(() => {
     setFeedbacks(getFeedbacks());
@@ -53,7 +54,7 @@ export default function LandingPage({
           <div className="landing-hero-text-col">
             <div className="landing-hero-badge">
               <Sparkles size={14} color="#B45309" />
-              <span>창작자를 위한 프라이빗 디지털 수장고</span>
+              <span>1인 창작자를 위한 프라이빗 수장고</span>
             </div>
 
             <h1 className="landing-hero-title">
@@ -61,9 +62,8 @@ export default function LandingPage({
             </h1>
 
             <p className="landing-hero-sub">
-              책 속 명문장과 영감의 기록부터 고해상도 작품 보관,<br />
-              미술관 규격 전시 캡션과 도록 출판까지.<br />
-              세월이 흘러도 변치 않는 미술 작가 맞춤형 디지털 수장고에서 품격 있게 관리하세요.
+              고해상도 원본 보관부터 작가노트, 전시 캡션, 출강 서류, 수입·지출 정리까지.<br />
+              작품과 작가의 모든 기록을 한 곳에서 품격 있게 관리하세요.
             </p>
 
             <div className="landing-hero-cta" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
@@ -75,7 +75,7 @@ export default function LandingPage({
               ) : (
                 <button onClick={() => onOpenLogin('login')} className="hero-primary-btn">
                   <Sparkles size={18} />
-                  수장고 시작하기
+                  무료로 수장고 열기
                 </button>
               )}
             </div>
@@ -88,24 +88,24 @@ export default function LandingPage({
         <div className="comparison-card">
           <div className="comparison-header muted">
             <Lock size={19} color="#64748B" />
-            <h3>일반 SNS나 개인 기기에만 보관할 때의 위험</h3>
+            <h3>SNS나 개인 기기에만 보관할 때</h3>
           </div>
           <ul className="comparison-list">
             <li>
               <span className="comparison-bullet-muted">✕</span>
-              <span><strong>계정 분실/기기 고장 한 번에</strong> 수년간 쌓아온 작품과 기록이 소실될 위험</span>
+              <span>계정 분실이나 기기 고장 한 번에 수년간의 작품과 기록이 사라질 수 있어요</span>
             </li>
             <li>
               <span className="comparison-bullet-muted">✕</span>
-              <span>사진이 강제로 저화질로 뭉개져 <strong>도록이나 인쇄용으로 재활용 불가</strong></span>
+              <span>업로드할 때마다 화질이 떨어져 도록이나 인쇄용으로 다시 쓰기 어려워요</span>
             </li>
             <li>
               <span className="comparison-bullet-muted">✕</span>
-              <span>작품 호수, 연도, 재료, 가격 등 <strong>미술계 표준 규격 정리가 불가능</strong></span>
+              <span>호수, 연도, 재료, 가격이 흩어져 있어 매번 다시 정리해야 해요</span>
             </li>
             <li>
               <span className="comparison-bullet-muted">✕</span>
-              <span>큐레이터나 갤러리 미팅 시 <strong>공식 포트폴리오로 제출하기 어려움</strong></span>
+              <span>큐레이터나 갤러리에 보낼 정돈된 포트폴리오가 없어요</span>
             </li>
           </ul>
         </div>
@@ -113,32 +113,32 @@ export default function LandingPage({
         <div className="comparison-card highlight">
           <div className="comparison-header safe">
             <ShieldCheck size={20} color="#0F172A" />
-            <h3 style={{ color: '#0F172A' }}>프라이빗 디지털 수장고</h3>
+            <h3 style={{ color: '#0F172A' }}>수장고에 보관할 때</h3>
           </div>
           <ul className="comparison-list">
             <li>
               <span className="comparison-bullet-navy">
                 <CheckCircle2 size={13} color="#FFFFFF" />
               </span>
-              <span><strong>어떤 플랫폼 변화에도 영원히 안전한</strong> 작가 본인 소유의 디지털 서고</span>
+              <span>원본은 무손실 그대로 보관하고, 웹 공유용 사본은 자동으로 가볍게 만들어요 (원본 보관은 Pro 플랜)</span>
             </li>
             <li>
               <span className="comparison-bullet-navy">
                 <CheckCircle2 size={13} color="#FFFFFF" />
               </span>
-              <span>20MB 원본 사진도 <strong>웹 최적화로 가볍게 자동 다이어트 압축</strong></span>
+              <span>작품을 누르면 작가노트와 캡션 정보가 한눈에 보여요</span>
             </li>
             <li>
               <span className="comparison-bullet-navy">
                 <CheckCircle2 size={13} color="#FFFFFF" />
               </span>
-              <span>작품 사진을 누르면 <strong>도록용 작가노트와 미술관 캡션 명패가 한눈에</strong></span>
+              <span>클릭 한 번으로 전체 기록을 내 PC에 내려받을 수 있어, 플랫폼에 묶이지 않아요</span>
             </li>
             <li>
               <span className="comparison-bullet-navy">
                 <CheckCircle2 size={13} color="#FFFFFF" />
               </span>
-              <span>클릭 한 번으로 <strong>전체 데이터를 내 PC에 파일로 안전하게 백업</strong></span>
+              <span>미술계 표준 규격으로 정리돼 바로 제출할 수 있어요</span>
             </li>
           </ul>
         </div>
@@ -148,139 +148,135 @@ export default function LandingPage({
       <section className="landing-features-section">
         <div className="section-title-center">
           <span className="section-sub-tag">CORE WORKSPACES</span>
-          <h2>창작 외의 모든 골칫거리를 해결해 드립니다</h2>
-          <p>기관과 미술관, 갤러리가 요구하는 표준 규격으로 한 번에 정리하세요.</p>
+          <h2>창작 외의 번거로운 일은 수장고가 정리합니다</h2>
+          <p>미술관, 갤러리, 기관이 요구하는 형식에 맞춰 한 번에 준비하세요.</p>
         </div>
 
         <div className="landing-feature-grid">
-          {/* 기능 1: 영감 노트 */}
-          <div className="feature-showcase-card" onClick={() => handleCardClick('inspo')} style={{ cursor: 'pointer' }}>
-            <div className="feature-icon-box" style={{ background: '#ECFDF5', color: '#059669' }}>
-              <Sparkles size={24} />
+          {/* 기능 1: 나의 작품 수장고 (1번으로 전진 배치) */}
+          <div className="feature-showcase-card" onClick={() => handleCardClick('archive')} style={{ cursor: 'pointer' }}>
+            <div className="feature-icon-box" style={{ background: '#EFF6FF', color: '#2563EB' }}>
+              <Archive size={24} />
             </div>
-            <h4>✨ 영감 노트</h4>
+            <h4>📁 나의 작품 수장고</h4>
             <p>
-              책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 단정하게 아카이빙하고
-              창작의 소중한 씨앗으로 안전하게 보관합니다.
+              작품 사진과 작가노트, 캡션 정보를 작품별로 차곡차곡 모아두는 나만의 디지털 도록. 원본은 그대로, 공유용은 가볍게.
             </p>
-            <div className="feature-tag">창작 영감 & 문장</div>
+            <div className="feature-tag">원본 보관</div>
           </div>
 
-          {/* 기능 2: 작가노트 & SNS */}
-          <div className="feature-showcase-card" onClick={() => handleCardClick('statement')} style={{ cursor: 'pointer' }}>
-            <div className="feature-icon-box" style={{ background: '#FDF4FF', color: '#A855F7' }}>
-              <PenTool size={24} />
-            </div>
-            <h4>✍️ 작가노트 & SNS</h4>
-            <p>
-              작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그,
-              블로그 후기를 동시에 추출하고 직접 수정합니다.
-            </p>
-            <div className="feature-tag">AI 글 생성</div>
-          </div>
-
-          {/* 기능 3: 전시 캡션 출력기 */}
+          {/* 기능 2: 전시 캡션 출력기 */}
           <div className="feature-showcase-card" onClick={() => handleCardClick('caption')} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#F8FAFC', color: '#0F172A' }}>
               <Tag size={24} />
             </div>
             <h4>🏛️ 전시 캡션 출력기</h4>
             <p>
-              작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고,
-              자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.
+              작품 옆 벽면에 붙이는 국영문 캡션을 자동으로 만들고, 재단선과 함께 A4 규격으로 한 번에 인쇄해요.
             </p>
-            <div className="feature-tag">전시 & 아트페어</div>
+            <div className="feature-tag">전시 · 아트페어</div>
           </div>
 
-          {/* 기능 4: 서류·출강 스튜디오 */}
+          {/* 기능 3: 서류·출강 스튜디오 */}
           <div className="feature-showcase-card" onClick={() => handleCardClick('doc')} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#F0FDF4', color: '#15803D' }}>
               <FileText size={24} />
             </div>
-            <h4>📄 서류·출강 스튜디오</h4>
+            <h4>📄 서류 · 출강 스튜디오</h4>
             <p>
-              출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를
-              공문서 규격으로 자동 완성합니다.
+              출강 강의계획서, 전시 약력(CV), 작업 견적서를 제출용 문서 형식으로 빠르게 완성해요.
             </p>
             <div className="feature-tag">행정 서류</div>
           </div>
 
-          {/* 기능 5: 창작 가계부 */}
+          {/* 기능 4: 창작 가계부 */}
           <div className="feature-showcase-card" onClick={() => handleCardClick('tax')} style={{ cursor: 'pointer' }}>
             <div className="feature-icon-box" style={{ background: '#FFFBEB', color: '#D97706' }}>
               <Receipt size={24} />
             </div>
             <h4>💰 창작 가계부</h4>
             <p>
-              출강·작품 수입과 재료비 지출을 한눈에 관리하고,
-              A4 지출 정산 증빙서를 인쇄 및 PDF로 저장합니다.
+              출강비, 작품 판매 수입과 재료비 지출을 한눈에 정리하고, 정산용 증빙서를 PDF로 저장해요.
             </p>
-            <div className="feature-tag">수입 & 지출 증빙</div>
+            <div className="feature-tag">수입 · 지출</div>
           </div>
 
-          {/* 기능 6: 나의 작품 디지털 수장고 */}
-          <div className="feature-showcase-card" onClick={() => handleCardClick('archive')} style={{ cursor: 'pointer' }}>
-            <div className="feature-icon-box" style={{ background: '#EFF6FF', color: '#2563EB' }}>
-              <Archive size={24} />
+          {/* 기능 5: 작가노트 & SNS */}
+          <div className="feature-showcase-card" onClick={() => handleCardClick('statement')} style={{ cursor: 'pointer' }}>
+            <div className="feature-icon-box" style={{ background: '#FDF4FF', color: '#A855F7' }}>
+              <PenTool size={24} />
             </div>
-            <h4>📁 나의 작품 디지털 수장고</h4>
+            <h4>✍️ 작가노트 & SNS</h4>
             <p>
-              작품 사진과 도록용 작가노트, 캡션 규격을 차곡차곡 모아두는 나만의 디지털 도록.
-              스마트폰 사진도 깃털처럼 가볍게 자동 압축 보관됩니다.
+              작품 키워드 세 개로 작가노트 초안, 인스타그램 캡션, 블로그 글을 함께 잡아드려요. 마지막 문장은 작가님의 손으로.
             </p>
-            <div className="feature-tag">프라이빗 영구 보존</div>
+            <div className="feature-tag">초안 작성</div>
+          </div>
+
+          {/* 기능 6: 영감 노트 */}
+          <div className="feature-showcase-card" onClick={() => handleCardClick('inspo')} style={{ cursor: 'pointer' }}>
+            <div className="feature-icon-box" style={{ background: '#ECFDF5', color: '#059669' }}>
+              <Sparkles size={24} />
+            </div>
+            <h4>✨ 영감 노트</h4>
+            <p>
+              책 속 한 줄, 영화 속 대사, 문득 떠오른 생각을 카드로 모아두는 창작의 씨앗 보관함.
+            </p>
+            <div className="feature-tag">영감 · 문장</div>
           </div>
         </div>
       </section>
 
-      {/* 3.5. 실제 작가들의 생생한 목소리 (Testimonials / Social Proof) */}
-      <section className="landing-reviews-section" style={{ maxWidth: '1120px', margin: '4rem auto 2rem', padding: '0 1.5rem' }}>
-        <div className="section-title-center">
-          <span className="section-sub-tag">GLOBAL ARTIST COMMUNITY & REVIEWS</span>
-          <h2>수장고와 함께하는 국내외 작가들의 생생한 목소리</h2>
-          <p>
-            국내외 1인 창작 예술가들이 현장에서 직접 경험한 솔직한 이용 소감과 생생한 후기입니다.
-          </p>
-        </div>
+      {/* 3.5. 실제 작가들의 생생한 목소리 (Testimonials / Social Proof) - SHOW_REVIEWS 설정값으로 숨김 제어 */}
+      {SHOW_REVIEWS && (
+        <section className="landing-reviews-section" style={{ maxWidth: '1120px', margin: '4rem auto 2rem', padding: '0 1.5rem' }}>
+          <div className="section-title-center">
+            <span className="section-sub-tag">GLOBAL ARTIST COMMUNITY & REVIEWS</span>
+            <h2>수장고와 함께하는 국내외 작가들의 생생한 목소리</h2>
+            <p>
+              국내외 1인 창작 예술가들이 현장에서 직접 경험한 솔직한 이용 소감과 생생한 후기입니다.
+            </p>
+          </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', marginTop: '2rem' }}>
-          {feedbacks.slice(0, 6).map((fb) => (
-            <div 
-              key={fb.id}
-              style={{
-                background: '#FFFFFF',
-                border: '1px solid #E2E8F0',
-                borderRadius: '16px',
-                padding: '1.75rem',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between'
-              }}
-            >
-              <div>
-                <div style={{ display: 'flex', gap: '3px', marginBottom: '0.75rem' }}>
-                  {[...Array(fb.rating || 5)].map((_, i) => (
-                    <Star key={i} size={15} color="#F59E0B" fill="#F59E0B" />
-                  ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', marginTop: '2rem' }}>
+            {feedbacks.slice(0, 6).map((fb) => (
+              <div 
+                key={fb.id}
+                style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: '16px',
+                  padding: '1.75rem',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', gap: '3px', marginBottom: '0.75rem' }}>
+                    {[...Array(fb.rating || 5)].map((_, i) => (
+                      <Star key={i} size={15} color="#F59E0B" fill="#F59E0B" />
+                    ))}
+                  </div>
+                  <p style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.6, margin: '0 0 1.25rem 0' }}>
+                    "{fb.text}"
+                  </p>
                 </div>
-                <p style={{ fontSize: '0.9rem', color: '#334155', lineHeight: 1.6, margin: '0 0 1.25rem 0' }}>
-                  "{fb.text}"
-                </p>
-              </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #F1F5F9', paddingTop: '0.85rem' }}>
-                <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0F172A' }}>
-                  {fb.author}
-                </span>
-                <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
-                  {fb.createdAt}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #F1F5F9', paddingTop: '0.85rem' }}>
+                  <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0F172A' }}>
+                    {fb.author}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+                    {fb.createdAt}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 4. 요금제 안내 섹션 (Free vs Pro 100GB vs Studio 500GB) */}
       <section className="landing-pricing-section">
@@ -355,7 +351,7 @@ export default function LandingPage({
 
             <div className="plan-capacity-box">
               <div style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
-                📁 작품 아카이브 서고 최대 30점 보관
+                📁 작품 수장고 최대 30점 보관
               </div>
               <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '3px' }}>
                 내 PC 브라우저 안전 저장 & 단일 JSON 백업
@@ -363,7 +359,7 @@ export default function LandingPage({
             </div>
 
             <ul className="plan-features">
-              <li><CheckCircle2 size={16} color="#059669" /> <strong>작품 아카이브 서고 최대 30점</strong> 보관</li>
+              <li><CheckCircle2 size={16} color="#059669" /> <strong>작품 수장고 최대 30점</strong> 보관</li>
               <li><CheckCircle2 size={16} color="#059669" /> 웹 최적화 확인용 압축 보관 (내 PC 브라우저 안전 저장)</li>
               <li><CheckCircle2 size={16} color="#059669" /> 기기 교체 시 단일 JSON 파일 백업/복원 이동</li>
               <li><CheckCircle2 size={16} color="#059669" /> 출강 강의계획서 & 표준 CV 약력 & 견적서 무제한</li>
@@ -500,11 +496,11 @@ export default function LandingPage({
 
       {/* 5. 하단 CTA */}
       <section className="landing-bottom-cta">
-        <h2>당신의 소중한 작품 세계, 이제 수장고(Sujango)에서 지키세요</h2>
-        <p>어떤 복잡한 설정도 필요 없습니다. 오늘부터 당신만의 디지털 수장고가 시작됩니다.</p>
+        <h2>오늘의 작품부터 수장고에 모셔두세요</h2>
+        <p>가입은 1분, 첫 작품 등록은 무료입니다.</p>
         <button onClick={() => onOpenLogin('signup')} className="hero-primary-btn" style={{ margin: '0 auto', padding: '0.95rem 2.2rem', fontSize: '1.02rem' }}>
           <Sparkles size={18} />
-          수장고 시작하기
+          무료로 시작하기
         </button>
       </section>
     </div>
