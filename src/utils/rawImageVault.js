@@ -88,7 +88,11 @@ export async function getOriginalFromVault(artworkId) {
       getRequest.onsuccess = () => {
         const result = getRequest.result;
         if (result && result.blob) {
-          resolve(result.blob);
+          // blob 자체에 원본 메타데이터(name, originalSize)를 프로퍼티로 바인딩하여 반환
+          const blob = result.blob;
+          blob.originalName = result.name || '';
+          blob.originalSize = result.size || blob.size;
+          resolve(blob);
         } else {
           resolve(null);
         }

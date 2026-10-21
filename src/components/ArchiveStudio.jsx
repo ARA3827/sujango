@@ -155,9 +155,16 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       const vaultBlob = await getOriginalFromVault(artwork.id);
 
       if (vaultBlob && vaultBlob.size > 0) {
+        // 원본 파일의 원래 확장자(.jpg, .jpeg, .png 등)를 100% 그대로 보존
         let extension = 'jpg';
-        if (vaultBlob.type.includes('png')) extension = 'png';
-        else if (vaultBlob.type.includes('webp')) extension = 'webp';
+        if (vaultBlob.originalName && vaultBlob.originalName.includes('.')) {
+          const parts = vaultBlob.originalName.split('.');
+          extension = parts[parts.length - 1].toLowerCase();
+        } else if (vaultBlob.type.includes('png')) {
+          extension = 'png';
+        } else if (vaultBlob.type.includes('webp')) {
+          extension = 'webp';
+        }
 
         const fileName = `${artistName}_《${cleanTitle}》_원본.${extension}`;
         const blobUrl = window.URL.createObjectURL(vaultBlob);
