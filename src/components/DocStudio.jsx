@@ -1,4 +1,6 @@
+import React, { useState } from 'react';
 import { Printer, Sparkles, FileText, UserCheck, Calculator } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 // 한글 금액 변환 헬퍼 (예: 1,160,400 -> 일백일십육만사백)
 function numberToKorean(number) {
