@@ -106,6 +106,56 @@ function parseCvEntries(text) {
   });
 }
 
+// 직접 입력한 주차별 커리큘럼 텍스트 파싱 헬퍼
+function parseCustomCurriculum(text, defaultDuration) {
+  if (!text || !text.trim()) {
+    return getCurriculumList(defaultDuration);
+  }
+
+  // 1. "1주차", "1차시", "[1주차]", "• 1주차" 등으로 분할 시도
+  const blocks = text.split(/(?=(?:^|\n)\s*(?:[\[\(]?\d+[주차|차시|회차|강][\]\)]?|•\s*\[?\d+[주차|차시]))/g).filter(b => b.trim());
+
+  if (blocks.length > 0) {
+    return blocks.map((block, idx) => {
+      const lines = block.trim().split('\n').map(l => l.trim()).filter(Boolean);
+      const firstLine = lines[0] || '';
+      
+      // 주차 라벨과 주제 분리 (예: "[1주차 - 붓과 안료의 호흡]" 또는 "1주차: 붓과 안료")
+      const weekMatch = firstLine.match(/^[•\s\-\[\(]*(\d+[주차|차시|회차|강][^\]\)\:\-]*)[\:\-\]\)]?\s*(.*)$/);
+      let week = `${idx + 1}주차`;
+      let theme = firstLine;
+      let details = lines.slice(1).join('\n');
+
+      if (weekMatch) {
+        week = weekMatch[1].trim();
+        theme = weekMatch[2] ? weekMatch[2].replace(/^[\-\:\s]+/, '').trim() : `${idx + 1}주차 주제`;
+        if (!theme && lines.length > 1) {
+          theme = lines[1];
+          details = lines.slice(2).join('\n');
+        }
+      }
+
+      return {
+        week: week || `${idx + 1}주차`,
+        theme: theme || '강의 주제',
+        details: details || lines.join('\n')
+      };
+    });
+  }
+
+  // 만약 주차 키워드가 없다면 줄바꿈 기준으로 단순 분할
+  const lines = text.trim().split('\n').filter(Boolean);
+  if (lines.length > 0) {
+    return lines.map((line, idx) => ({
+      week: `${idx + 1}주차`,
+      theme: line.replace(/^[•\-\*]\s*/, ''),
+      details: '• 이론 및 맞춤형 개별 실습 지도'
+    }));
+  }
+
+  return getCurriculumList(defaultDuration);
+}
+
 export default function DocStudio({ onBack }) {
   const [activeTab, setActiveTab] = useState('lecture'); // 'lecture' | 'cv' | 'invoice'
   const [copied, setCopied] = useState(false);
@@ -120,10 +170,23 @@ export default function DocStudio({ onBack }) {
     materialsBudget: '25,000',
     genre: '서양화 (유화/아크릴)',
     instructorName: '김아라',
-    goal: '색채 이론을 감각적으로 체득하고, 자신만의 캔버스 소품 1점을 완성하여 전시 경험을 갖는다.'
+    goal: '색채 이론을 감각적으로 체득하고, 자신만의 캔버스 소품 1점을 완성하여 전시 경험을 갖는다.',
+    customCurriculum: '' // 선택사항: 비워두면 duration 기반 표준 커리큘럼 자동 적용
   });
   const [lectureCurriculum, setLectureCurriculum] = useState(() => getCurriculumList('4주'));
   const [lectureResult, setLectureResult] = useState('');
+
+  // 현재 커리큘럼 (직접 입력이 있으면 파싱 결과, 비어있으면 차시별 표준 템플릿)
+  const currentCurriculum = lectureForm.customCurriculum && lectureForm.customCurriculum.trim()
+    ? parseCustomCurriculum(lectureForm.customCurriculum, lectureForm.duration)
+    : getCurriculumList(lectureForm.duration);
+
+  // 표준 템플릿 텍스트 불러오기 핸들러
+  const handleLoadDefaultCurriculum = () => {
+    const list = getCurriculumList(lectureForm.duration);
+    const text = list.map(item => `[${item.week} - ${item.theme}]\n${item.details}`).join('\n\n');
+    setLectureForm(prev => ({ ...prev, customCurriculum: text }));
+  };
 
   // 2. 이력서(CV) 상태
   const [cvForm, setCvForm] = useState({
@@ -151,7 +214,7 @@ export default function DocStudio({ onBack }) {
 
   // 강의계획서 생성 로직
   const generateLecturePlan = () => {
-    const list = getCurriculumList(lectureForm.duration);
+    const list = currentCurriculum;
     setLectureCurriculum(list);
 
     let curriculumText = list.map(item => `• [${item.week} - ${item.theme}]\n${item.details}`).join('\n\n');
@@ -505,6 +568,47 @@ ${cvForm.collections.trim()}
               />
             </div>
 
+            {/* 주차별 세부 커리큘럼 (선택사항 - 미입력 시 표준 자동 적용) */}
+            <div className="form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.45rem', flexWrap: 'wrap', gap: '6px' }}>
+                <label className="form-label" style={{ margin: 0 }}>
+                  주차별 세부 커리큘럼 <span style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 400 }}>(선택사항)</span>
+                </label>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <button
+                    type="button"
+                    onClick={handleLoadDefaultCurriculum}
+                    className="tag-chip"
+                    style={{ fontSize: '0.74rem', padding: '2px 8px', background: '#F1F5F9', border: '1px solid #CBD5E1', cursor: 'pointer' }}
+                    title="현재 선택된 교육 차시의 표준 커리큘럼을 불러와서 수정합니다"
+                  >
+                    ⚡ 표준 커리큘럼 불러오기
+                  </button>
+                  {lectureForm.customCurriculum && (
+                    <button
+                      type="button"
+                      onClick={() => setLectureForm({ ...lectureForm, customCurriculum: '' })}
+                      className="tag-chip"
+                      style={{ fontSize: '0.74rem', padding: '2px 8px', color: '#EF4444', background: '#FEF2F2', border: '1px solid #FECACA', cursor: 'pointer' }}
+                      title="직접 입력을 지우고 자동 추천 템플릿으로 되돌립니다"
+                    >
+                      비우기
+                    </button>
+                  )}
+                </div>
+              </div>
+              <textarea 
+                className="form-textarea" 
+                style={{ minHeight: '115px', fontSize: '0.83rem', lineHeight: 1.55 }}
+                placeholder={`직접 입력하지 않아도 [${lectureForm.duration}]에 맞춰 표준 커리큘럼이 자동 생성됩니다.\n\n수정하시려면 위 [⚡ 표준 커리큘럼 불러오기]를 누르시거나,\n예: 1주차: 붓과 안료의 호흡 | 나만의 컬러 차트 10선 만들기`}
+                value={lectureForm.customCurriculum}
+                onChange={(e) => setLectureForm({...lectureForm, customCurriculum: e.target.value})}
+              />
+              <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '4px', lineHeight: 1.4 }}>
+                💡 비워두시면 교육 차시(<strong>{lectureForm.duration}</strong>)에 맞춘 표준 커리큘럼이 자동으로 우측 표에 채워집니다.
+              </div>
+            </div>
+
             <button className="btn-primary" onClick={generateLecturePlan}>
               <Sparkles size={16} /> 강의계획서 서식 갱신
             </button>
@@ -600,7 +704,7 @@ ${cvForm.collections.trim()}
                   </tr>
                 </thead>
                 <tbody>
-                  {lectureCurriculum.map((item, idx) => (
+                  {currentCurriculum.map((item, idx) => (
                     <tr key={idx}>
                       <td className="center" style={{ fontWeight: 700, color: '#334155' }}>{item.week}</td>
                       <td style={{ fontWeight: 600 }}>{item.theme}</td>
