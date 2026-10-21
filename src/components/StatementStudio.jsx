@@ -1043,17 +1043,17 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             />
           </div>
 
-          {/* 창작 배경 / 영감 메모 (7단계: 영감 노트 연결) */}
+          {/* 창작 배경 / 영감 메모 (7단계: 영감 노트 연결 - 컴팩트 칩 & 동적 높이) */}
           <div className="form-group" style={{ marginBottom: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '6px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', flexWrap: 'wrap', gap: '6px' }}>
               <label className="form-label" style={{ margin: 0 }}>창작 배경 / 영감 메모</label>
               <button
                 type="button"
                 onClick={() => setIsInspoModalOpen(true)}
                 className="btn-outline"
                 style={{
-                  padding: '3px 9px',
-                  fontSize: '0.78rem',
+                  padding: '2px 8px',
+                  fontSize: '0.75rem',
                   color: '#0284C7',
                   borderColor: '#BAE6FD',
                   background: '#F0F9FF',
@@ -1066,91 +1066,94 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                 }}
                 title="영감 노트에 모아둔 명문장과 사유를 가져와 AI 초안에 반영합니다"
               >
-                <Quote size={12} color="#0284C7" /> 영감 노트에서 문장 가져오기
+                <Quote size={11} color="#0284C7" /> 영감 노트 문장 ({selectedInspoQuotes.length}/3)
               </button>
             </div>
 
-            {/* 선택된 영감 문장 칩 목록 */}
+            {/* 컴팩트 가로 인라인 태그 칩 (화면 늘어남 원천 방지) */}
             {selectedInspoQuotes.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '8px' }}>
-                <div style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
-                  💡 참고할 영감 문장 ({selectedInspoQuotes.length} / 3개):
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  {selectedInspoQuotes.map((q, idx) => (
-                    <div 
-                      key={q.id || idx}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        background: '#F8FAFC',
-                        border: '1px solid #E2E8F0',
-                        borderRadius: '6px',
-                        padding: '6px 10px',
-                        fontSize: '0.78rem',
-                        color: '#334155'
-                      }}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginBottom: '6px' }}>
+                {selectedInspoQuotes.map((q, idx) => (
+                  <div 
+                    key={q.id || idx}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      background: '#F0F9FF',
+                      border: '1px solid #BAE6FD',
+                      borderRadius: '999px',
+                      padding: '3px 8px',
+                      fontSize: '0.74rem',
+                      color: '#0369A1',
+                      maxWidth: '100%'
+                    }}
+                  >
+                    <Quote size={10} color="#0284C7" style={{ flexShrink: 0 }} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '240px' }} title={q.text}>
+                      “{q.text}”
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedInspoQuotes(prev => prev.filter(item => (item.id || item.text) !== (q.id || q.text)))}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0284C7', padding: '0 1px', display: 'flex', alignItems: 'center' }}
+                      title="제외하기"
                     >
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85%' }}>
-                        “{q.text}” <small style={{ color: '#94A3B8' }}>— {q.workTitle || q.creator || '영감 노트'}</small>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedInspoQuotes(prev => prev.filter(item => (item.id || item.text) !== (q.id || q.text)))}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: '2px', display: 'flex' }}
-                        title="제외하기"
-                      >
-                        <X size={13} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
 
             <textarea 
               className="form-textarea" 
-              style={{ minHeight: '100px', fontSize: '0.88rem', lineHeight: '1.6' }}
-              placeholder="예: 작업실 창가에 드리운 빛의 경계와 깊은 새벽의 공기에서 시작되었습니다."
+              style={{ 
+                minHeight: selectedInspoQuotes.length > 0 ? '65px' : '85px', 
+                fontSize: '0.86rem', 
+                lineHeight: '1.5',
+                padding: '0.55rem 0.75rem',
+                transition: 'all 0.2s ease'
+              }}
+              placeholder={selectedInspoQuotes.length > 0 ? "선택하신 영감 문장 외에 추가로 덧붙이고 싶은 감각이나 계기를 적어보세요..." : "예: 작업실 창가에 드리운 빛의 경계와 깊은 새벽의 공기에서 시작되었습니다."}
               value={artwork.inspiration}
               onChange={(e) => setArtwork({...artwork, inspiration: e.target.value})}
             />
           </div>
 
-          {/* 7단계-1: 작가 문체 학습 안내 배지 */}
+          {/* 7단계-1: 작가 문체 학습 안내 배지 (슬림 디자인) */}
           {(() => {
             const styleInfo = getAuthorStyleAnalysis();
             return (
-              <div style={{ marginTop: '0.5rem' }}>
+              <div style={{ marginTop: '0.35rem' }}>
                 {styleInfo.hasStyle ? (
                   <div style={{
-                    fontSize: '0.76rem',
+                    fontSize: '0.73rem',
                     color: '#059669',
                     background: '#ECFDF5',
                     border: '1px solid #A7F3D0',
-                    padding: '6px 10px',
+                    padding: '4px 8px',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '5px'
                   }}>
-                    <CheckCircle2 size={13} color="#059669" />
+                    <CheckCircle2 size={12} color="#059669" />
                     <span>작가님의 최근 작가노트 <strong>{styleInfo.count}편</strong>의 고유 문체가 초안에 자동 반영됩니다.</span>
                   </div>
                 ) : (
                   <div style={{
-                    fontSize: '0.76rem',
+                    fontSize: '0.73rem',
                     color: '#64748B',
                     background: '#F8FAFC',
                     border: '1px solid #E2E8F0',
-                    padding: '6px 10px',
+                    padding: '4px 8px',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '5px'
                   }}>
-                    <Sparkles size={13} color="#64748B" />
+                    <Sparkles size={12} color="#64748B" />
                     <span>수장고 표준 미술평론 어휘와 조형 언어로 단아하게 작성됩니다.</span>
                   </div>
                 )}
@@ -1158,10 +1161,10 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
             );
           })()}
 
-          {/* 새 작품인 경우 수장고 동시 보관 체크박스 */}
+          {/* 새 작품인 경우 수장고 동시 보관 체크박스 (슬림 패딩) */}
           {!artworkId && (
-            <div className="caption-vault-sync-box" style={{ margin: '0.4rem 0 0 0' }}>
-              <label className="caption-vault-sync-label">
+            <div className="caption-vault-sync-box" style={{ margin: '0.35rem 0 0 0', padding: '0.45rem 0.75rem' }}>
+              <label className="caption-vault-sync-label" style={{ fontSize: '0.8rem', margin: 0 }}>
                 <input
                   type="checkbox"
                   checked={syncWithVaultOnCreate}
@@ -1169,7 +1172,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                 />
                 <span>이 작품을 수장고에도 함께 보관하기</span>
               </label>
-              <div className="caption-vault-sync-desc">
+              <div className="caption-vault-sync-desc" style={{ fontSize: '0.72rem', marginTop: '2px' }}>
                 수장고에 새 작품으로 자동 보관되어 작품 보관함과 전시 캡션 출력기에서도 바로 활용할 수 있습니다.
               </div>
             </div>
@@ -1177,7 +1180,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
 
           {/* 좌측 액션 버튼: AI 초안 생성 & 내 글 바로 등록 (1:1 나란히 배치) */}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '0.85rem' }}>
             <button 
               type="button"
               className="btn-action-generate" 
