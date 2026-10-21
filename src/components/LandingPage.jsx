@@ -564,7 +564,7 @@ export default function LandingPage({
         <div className="landing-legal-shield-box">
           <div className="legal-shield-header">
             <ShieldCheck size={20} color="#0284C7" />
-            <h4>Ara Agent Lab의 3대 안심 서비스 보증</h4>
+            <h4>수장고의 3대 안심 서비스 보증</h4>
           </div>
           <div className="legal-shield-grid">
             <div className="shield-item">
