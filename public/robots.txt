@@ -1,0 +1,18 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Allow: /#landing
+Allow: /#about
+Allow: /#guide
+
+# 비공개 작가 개인 작업실 및 보안 영역 크롤링 제외
+Disallow: /#dashboard
+Disallow: /#archive
+Disallow: /#caption
+Disallow: /#statement
+Disallow: /#doc
+Disallow: /#tax
+Disallow: /#inspo
+Disallow: /#share
+
+Sitemap: https://sujango.com/sitemap.xml
