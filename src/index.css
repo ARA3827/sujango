@@ -1365,55 +1365,102 @@ input, select, textarea {
   }
 
   .doc-section-title {
-    font-size: 9.5pt !important;
-    margin: 10px 0 4px 0 !important;
+    font-size: 10pt !important;
+    margin: 12px 0 5px 0 !important;
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
   }
 
-  .doc-form-table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    border-top: 1.5pt solid #0F172A !important;
-    border-bottom: 1.5pt solid #0F172A !important;
-    margin-bottom: 8px !important;
-    font-size: 8.8pt !important;
-    line-height: 1.45 !important;
-  }
-
-  .doc-form-table th,
-  .doc-form-table td {
-    border: 0.6pt solid #475569 !important;
-    padding: 5px 7px !important;
-  }
-
-  .doc-form-table th {
-    background: #F1F5F9 !important;
+  .doc-section-num {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 19px !important;
+    height: 19px !important;
+    border-radius: 3px !important;
+    background: #0F172A !important;
+    color: #FFFFFF !important;
+    font-size: 7.5pt !important;
     font-weight: 700 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
+  .doc-form-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border-top: 1.8px solid #0F172A !important;
+    border-bottom: 1.8px solid #0F172A !important;
+    margin-bottom: 10px !important;
+    font-size: 8.8pt !important;
+    line-height: 1.5 !important;
+    background: #FFFFFF !important;
+  }
+
+  .doc-form-table th,
+  .doc-form-table td {
+    border: 1px solid #CBD5E1 !important; /* 화면과 동일한 세련된 슬레이트 그레이 선 */
+    padding: 7px 10px !important;
+    vertical-align: middle !important;
+  }
+
+  .doc-form-table th {
+    background: #F8FAFC !important; /* 화면과 동일한 부드러운 아이보리빛 헤더 음영 */
+    color: #334155 !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .doc-form-table td {
+    color: #0F172A !important;
+  }
+
   .doc-box-highlight {
     background: #F8FAFC !important;
-    border: 0.6pt solid #94A3B8 !important;
-    padding: 6px 10px !important;
-    font-size: 8.5pt !important;
-    line-height: 1.45 !important;
+    border: 1px solid #E2E8F0 !important; /* 화면과 동일한 부드러운 테두리 */
+    border-radius: 6px !important;
+    padding: 10px 14px !important;
+    font-size: 8.8pt !important;
+    line-height: 1.55 !important;
+    color: #1E293B !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   .invoice-total-banner {
-    background: #F1F5F9 !important;
-    border: 1pt solid #334155 !important;
-    padding: 7px 12px !important;
-    margin: 8px 0 !important;
+    background: #F8FAFC !important;
+    border: 1.5px solid #94A3B8 !important;
+    padding: 10px 14px !important;
+    margin: 10px 0 !important;
+    border-radius: 6px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .doc-stamp-circle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 25px !important;
+    height: 25px !important;
+    border: 1.5px dashed #DC2626 !important;
+    border-radius: 50% !important;
+    color: #DC2626 !important;
+    font-size: 7.5pt !important;
+    font-weight: 800 !important;
+    transform: rotate(-10deg) !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
   .doc-sign-area {
-    margin-top: 14px !important;
-    padding-top: 10px !important;
+    margin-top: 16px !important;
+    padding-top: 12px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }

@@ -339,6 +339,16 @@ ${cvForm.collections.trim()}
     URL.revokeObjectURL(url);
   };
 
+  // 브라우저 머릿글 노출을 방지하고 깔끔하게 인쇄하는 핸들러
+  const handlePrintDoc = () => {
+    const originalTitle = document.title;
+    document.title = ' '; // 공백으로 설정하여 브라우저 헤더의 Sujango 서비스명 인쇄 차단
+    window.print();
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 1500);
+  };
+
   const renderActionButtons = (content, defaultFilename) => {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
@@ -362,7 +372,7 @@ ${cvForm.collections.trim()}
         </button>
         <button 
           className="btn-primary"
-          onClick={() => window.print()}
+          onClick={handlePrintDoc}
           title="A4 공문서 규격 인쇄 및 PDF 저장"
           style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '4px 10px', fontSize: '0.78rem', background: '#0F172A', color: '#FFFFFF' }}
         >
@@ -412,7 +422,7 @@ ${cvForm.collections.trim()}
           ← 전체 도구 목록으로
         </button>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button onClick={() => window.print()} className="btn-primary" style={{ background: '#0F172A' }}>
+          <button onClick={handlePrintDoc} className="btn-primary" style={{ background: '#0F172A' }}>
             <Printer size={15} /> A4 인쇄 / PDF 저장
           </button>
         </div>
