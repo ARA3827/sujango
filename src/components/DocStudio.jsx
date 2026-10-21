@@ -338,15 +338,19 @@ ${cvForm.collections.trim()}
         style={{ 
           display: 'inline-flex', 
           alignItems: 'center', 
+          justifyContent: 'center',
           gap: '6px', 
           padding: '6px 14px', 
-          fontSize: '0.84rem', 
+          width: 'auto',
+          fontSize: '0.82rem', 
           background: '#0F172A', 
           color: '#FFFFFF', 
           fontWeight: 600, 
           borderRadius: '6px',
-          boxShadow: '0 2px 8px rgba(15, 23, 42, 0.15)',
-          cursor: 'pointer'
+          boxShadow: '0 2px 8px rgba(15, 23, 42, 0.12)',
+          cursor: 'pointer',
+          whiteSpace: 'nowrap',
+          flexShrink: 0
         }}
       >
         <Printer size={14} />
@@ -393,11 +397,6 @@ ${cvForm.collections.trim()}
         <button onClick={onBack} className="back-btn">
           ← 전체 도구 목록으로
         </button>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button onClick={handlePrintDoc} className="btn-primary" style={{ background: '#0F172A' }}>
-            <Printer size={15} /> A4 인쇄 / PDF 저장
-          </button>
-        </div>
       </div>
 
       <div className="workspace-title-area no-print" style={{ marginBottom: '1.5rem' }}>
@@ -595,7 +594,7 @@ ${cvForm.collections.trim()}
 
           {/* 우측 공문서 서식 뷰 (화면 & 인쇄 동시 적용) */}
           <div className="panel-card printable" style={{ background: '#F8FAFC', padding: '1.25rem' }}>
-            <div className="panel-card-title no-print" style={{ marginBottom: '1rem' }}>
+            <div className="panel-card-title no-print" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
               <span>완성된 강의계획서 미리보기</span>
               {renderActionButtons()}
             </div>
@@ -837,7 +836,7 @@ ${cvForm.collections.trim()}
           </div>
 
           <div className="panel-card printable" style={{ background: '#F8FAFC', padding: '1.25rem' }}>
-            <div className="panel-card-title no-print" style={{ marginBottom: '1rem' }}>
+            <div className="panel-card-title no-print" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
               <span>작가 프로필(CV) 표준 서식 미리보기</span>
               {renderActionButtons()}
             </div>
@@ -1056,7 +1055,7 @@ ${cvForm.collections.trim()}
           </div>
 
           <div className="panel-card printable" style={{ background: '#F8FAFC', padding: '1.25rem' }}>
-            <div className="panel-card-title no-print" style={{ marginBottom: '1rem' }}>
+            <div className="panel-card-title no-print" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
               <span>완성된 견적·청구서 미리보기</span>
               {renderActionButtons()}
             </div>
