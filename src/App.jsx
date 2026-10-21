@@ -132,7 +132,7 @@ export default function App() {
     setIsPolicyModalOpen(true);
   };
 
-  // 브라우저 URL 파싱 (Hash 및 Query Search 양방향 완벽 감지)
+  // 브라우저 URL 파싱 (Pathname, Hash 및 Query Search 삼방향 완벽 감지)
   const getViewFromHash = () => {
     // 1. Query Search 파라미터에 token이나 share가 있는 경우 즉시 보안 시안 뷰어로 진입
     const searchParams = new URLSearchParams(window.location.search);
@@ -143,6 +143,11 @@ export default function App() {
     // 2. Hash 기반 파싱 (#share?token=...)
     const rawHash = window.location.hash.replace('#', '').split('?')[0];
     if (rawHash.startsWith('share')) return 'share';
+
+    // 3. Pathname 기반 파싱 (/about, /guide)
+    const pathname = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
+    if (pathname === 'about') return 'about';
+    if (pathname === 'guide') return 'guide';
 
     const validViews = ['doc', 'statement', 'tax', 'caption', 'archive', 'inspo', 'about', 'guide', 'landing'];
     return validViews.includes(rawHash) ? rawHash : (getStoredUser() ? 'dashboard' : 'landing');
