@@ -26,10 +26,11 @@ import { getUserScopedKey } from '../utils/authStorage';
 import { getArtworks, saveSingleArtwork } from '../utils/archiveStorage';
 import { generateArtworkId } from '../utils/artworkModel';
 
-export default function CaptionStudio({ onBack, user = null }) {
+export default function CaptionStudio({ onBack, user = null, initialArtworkId = null }) {
   const [styleMode, setStyleMode] = useState('classic'); // 'classic' | 'modern' | 'commercial'
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [editingId, setEditingId] = useState(null); // 수정 중인 캡션 ID
+
 
   // 수장고 연동 관련 상태 (Step 6-2-B)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -228,6 +229,18 @@ export default function CaptionStudio({ onBack, user = null }) {
     setVaultDiffNotice(null);
     showToast('수장고의 최신 작품 정보를 캡션에 반영했습니다.');
   };
+
+  // 수장고에서 특정 작품을 선택하고 넘어왔을 때 자동 로드
+  useEffect(() => {
+    if (initialArtworkId) {
+      const allArts = getArtworks(user) || [];
+      const target = allArts.find(a => a.id === initialArtworkId);
+      if (target) {
+        handleSelectArtworkFromVault(target);
+      }
+    }
+  }, [initialArtworkId]);
+
 
   // 등록 및 수정 완료 핸들러 (수장고 독립성 보장)
   const handleSubmit = async (e) => {

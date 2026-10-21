@@ -28,7 +28,7 @@ import { getUserScopedKey } from '../utils/authStorage';
 import { saveOriginalToVault } from '../utils/rawImageVault';
 
 
-export default function StatementStudio({ onBack, user = null, onNavigateToArchive }) {
+export default function StatementStudio({ onBack, user = null, onNavigateToArchive, initialArtworkId = null }) {
   const [activeTab, setActiveTab] = useState('statement'); // 'statement' | 'insta' | 'blog'
   const [copied, setCopied] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false); // 직접 수정 모드 토글
@@ -204,6 +204,17 @@ export default function StatementStudio({ onBack, user = null, onNavigateToArchi
 
     showToast(`'${art.title || '작품'}'의 정보를 수장고에서 불러왔습니다.`);
   };
+
+  // 수장고에서 특정 작품을 선택하고 넘어왔을 때 자동 로드
+  useEffect(() => {
+    if (initialArtworkId) {
+      const allArts = getArtworks(user) || [];
+      const target = allArts.find(a => a.id === initialArtworkId);
+      if (target) {
+        handleSelectArtworkFromVault(target);
+      }
+    }
+  }, [initialArtworkId]);
 
   // 연결 해제 (독립 작품으로 전환)
   const handleClearArtworkLink = () => {

@@ -20,7 +20,9 @@ import {
   X,
   Crown,
   AlertCircle,
-  ShieldCheck
+  ShieldCheck,
+  FileText,
+  GitMerge
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import WatermarkSettingsModal from './WatermarkSettingsModal';
@@ -81,6 +83,11 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareTargetArtwork, setShareTargetArtwork] = useState(null);
 
+  // 중복 의심 작품 감지 및 수동 병합 모달 상태 (Step 6-2-D)
+  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+  const [currentDupGroupIndex, setCurrentDupGroupIndex] = useState(0);
+  const [dismissedDuplicates, setDismissedDuplicates] = useState(() => new Set());
+
   // 모달 상태 (새 작품 등록 / 수정)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalAttention, setModalAttention] = useState(false);
@@ -127,6 +134,122 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       setIsEditingText(false);
     }
   }, [selectedId, activeTab, currentArt]);
+
+  // 중복 의심 작품 그룹 감지 (동일 제목 + 동일 제작연도, 무제 제외)
+  const duplicateGroups = React.useMemo(() => {
+    if (!artworks || artworks.length < 2) return [];
+    const groupsMap = new Map();
+
+    artworks.forEach(art => {
+      const rawTitle = (art.title || '').trim().toLowerCase();
+      const rawYear = String(art.year || '').trim();
+
+      // '무제', 'untitled', 빈 제목 등은 동일 제목이라도 연작일 수 있으므로 자동 제외
+      if (!rawTitle || rawTitle === '무제' || rawTitle === 'untitled') return;
+      if (!rawYear) return;
+
+      const key = `${rawTitle}___${rawYear}`;
+      if (!groupsMap.has(key)) {
+        groupsMap.set(key, []);
+      }
+      groupsMap.get(key).push(art);
+    });
+
+    const duplicates = [];
+    groupsMap.forEach((items) => {
+      if (items.length >= 2) {
+        const groupKey = items.map(i => i.id).sort().join('_');
+        if (!dismissedDuplicates.has(groupKey)) {
+          duplicates.push({
+            groupKey,
+            title: items[0].title,
+            year: items[0].year,
+            items
+          });
+        }
+      }
+    });
+    return duplicates;
+  }, [artworks, dismissedDuplicates]);
+
+  // 중복 작품 수동 병합 실행
+  const handleMergeArtworks = async (primaryArt, secondaryArt) => {
+    if (!primaryArt || !secondaryArt) return;
+
+    // 1. primary 작품을 기준으로 삼고, 비어있는 필드를 secondary에서 보충 (정보 누락 원천 차단)
+    const mergedArt = {
+      ...primaryArt,
+      artist: primaryArt.artist || secondaryArt.artist || user?.name || '작가',
+      size: primaryArt.size || secondaryArt.size || '',
+      medium: primaryArt.medium || secondaryArt.medium || '',
+      price: primaryArt.price || secondaryArt.price || '',
+      isNfs: primaryArt.isNfs !== undefined ? primaryArt.isNfs : Boolean(secondaryArt.isNfs),
+      keywords: primaryArt.keywords || secondaryArt.keywords || '',
+      inspiration: primaryArt.inspiration || secondaryArt.inspiration || '',
+      statement: primaryArt.statement || secondaryArt.statement || '',
+      instaCaption: primaryArt.instaCaption || secondaryArt.instaCaption || '',
+      blogStory: primaryArt.blogStory || secondaryArt.blogStory || '',
+      imageUrl: primaryArt.imageUrl || secondaryArt.imageUrl || '',
+      statementHistory: primaryArt.statementHistory || secondaryArt.statementHistory || null,
+      updatedAt: new Date().toISOString()
+    };
+
+    // 사진 병합: primary에 이미지가 없고 secondary에 이미지가 있을 경우 금고 원본도 복사
+    if (!primaryArt.imageUrl && secondaryArt.imageUrl) {
+      try {
+        const secVaultBlob = await getOriginalFromVault(secondaryArt.id);
+        if (secVaultBlob) {
+          await saveOriginalToVault(primaryArt.id, secVaultBlob, secVaultBlob.originalName || '');
+        }
+      } catch (err) {
+        console.warn('[ArchiveStudio] 금고 원본 복사 중 오류:', err);
+      }
+    }
+
+    // 기본 작품 저장
+    saveSingleArtwork(mergedArt, user);
+
+    // 중복된 보조 작품 삭제 및 금고 정리
+    deleteArtwork(secondaryArt.id, user);
+    try {
+      await deleteOriginalFromVault(secondaryArt.id);
+    } catch (e) {}
+
+    // 목록 갱신
+    const updated = getArtworks(user);
+    setArtworks(updated);
+
+    if (selectedId === secondaryArt.id) {
+      setSelectedId(primaryArt.id);
+    }
+
+    // 그룹 내 남은 아이템 처리 또는 다음 그룹 진행
+    const remainingInGroup = duplicateGroups[currentDupGroupIndex]?.items.filter(
+      item => item.id !== secondaryArt.id
+    ) || [];
+
+    if (remainingInGroup.length < 2) {
+      if (duplicateGroups.length <= 1) {
+        setIsDuplicateModalOpen(false);
+        setCurrentDupGroupIndex(0);
+        confetti({ particleCount: 35, spread: 60 });
+        alert('작품 정보를 깔끔하게 정리했습니다.');
+      } else {
+        setCurrentDupGroupIndex(prev => Math.min(prev, duplicateGroups.length - 2));
+      }
+    }
+  };
+
+  // 현재 중복 그룹 건너뛰기 (둘 다 독립 유지)
+  const handleDismissDuplicateGroup = (groupKey) => {
+    setDismissedDuplicates(prev => new Set([...prev, groupKey]));
+    if (duplicateGroups.length <= 1) {
+      setIsDuplicateModalOpen(false);
+      setCurrentDupGroupIndex(0);
+    } else {
+      setCurrentDupGroupIndex(prev => Math.min(prev, duplicateGroups.length - 2));
+    }
+  };
 
   // 원본 이미지 다운로드 상태
   const [isDownloading, setIsDownloading] = useState(false);
@@ -474,6 +597,52 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
         </div>
       </div>
 
+      {/* 중복 의심 작품 감지 배너 (안전한 수동 정리 안내) */}
+      {duplicateGroups.length > 0 && (
+        <div style={{
+          background: '#FFFBEB',
+          border: '1px solid #FDE68A',
+          borderRadius: '10px',
+          padding: '0.85rem 1.1rem',
+          marginBottom: '1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <AlertCircle size={18} color="#D97706" style={{ flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#92400E' }}>
+                같은 작품으로 보이는 항목이 {duplicateGroups.length}건 있습니다
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#B45309', marginTop: '2px' }}>
+                제목과 제작연도가 동일하게 등록된 작품들입니다. 도록을 깔끔하게 정리하시겠습니까?
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setCurrentDupGroupIndex(0);
+              setIsDuplicateModalOpen(true);
+            }}
+            className="btn-primary"
+            style={{
+              fontSize: '0.82rem',
+              padding: '0.45rem 0.95rem',
+              background: '#D97706',
+              borderColor: '#B45309',
+              color: '#FFFFFF',
+              width: 'auto'
+            }}
+          >
+            <GitMerge size={14} style={{ display: 'inline', marginRight: '5px' }} />
+            비교 및 정리하기
+          </button>
+        </div>
+      )}
+
       {/* 2. 타이틀 영역 */}
       <div className="workspace-title-area" style={{ marginBottom: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
@@ -638,11 +807,23 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
 
               {onNavigateToCaption && (
                 <button 
-                  onClick={() => onNavigateToCaption(currentArt)}
+                  onClick={() => onNavigateToCaption(currentArt?.id)}
                   className="btn-outline"
                   style={{ width: '100%', justifyContent: 'center', fontSize: '0.84rem' }}
+                  title="이 작품의 전시 캡션 명패를 출력용으로 제작합니다"
                 >
-                  <Tag size={15} /> 이 작품 캡션 명패 출력하기
+                  <FileText size={15} /> 전시 캡션 만들기
+                </button>
+              )}
+
+              {onNavigateToStatement && (
+                <button 
+                  onClick={() => onNavigateToStatement(currentArt?.id)}
+                  className="btn-outline"
+                  style={{ width: '100%', justifyContent: 'center', fontSize: '0.84rem' }}
+                  title="이 작품의 작가노트와 비하인드 스토리를 AI로 다듬습니다"
+                >
+                  <Edit3 size={15} /> 작가노트 다듬기
                 </button>
               )}
             </div>
@@ -690,7 +871,17 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                 )}
               </div>
 
-              <div style={{ display: 'flex', gap: '6px' }}>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                {onNavigateToStatement && (
+                  <button 
+                    onClick={() => onNavigateToStatement(currentArt?.id)}
+                    className="btn-outline"
+                    style={{ fontSize: '0.78rem', padding: '0.3rem 0.65rem' }}
+                    title="작가노트 스튜디오에서 AI로 글 다듬기"
+                  >
+                    <Edit3 size={13} /> 작가노트 다듬기
+                  </button>
+                )}
                 {isEditingText ? (
                   <button 
                     onClick={handleSaveInlineText}
@@ -1137,6 +1328,165 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
         artwork={shareTargetArtwork}
         user={user}
       />
+
+      {/* 6. 중복 의심 작품 비교 및 수동 병합 모달 (Step 6-2-D) */}
+      {isDuplicateModalOpen && duplicateGroups.length > 0 && (() => {
+        const activeGroup = duplicateGroups[currentDupGroupIndex] || duplicateGroups[0];
+        const artA = activeGroup?.items[0];
+        const artB = activeGroup?.items[1];
+
+        if (!artA || !artB) return null;
+
+        return (
+          <div className="modal-backdrop" onClick={() => setIsDuplicateModalOpen(false)}>
+            <div 
+              className="modal-dialog" 
+              style={{ maxWidth: '820px', width: '95%', padding: '1.75rem', maxHeight: '90vh', overflowY: 'auto' }} 
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* 모달 헤더 */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E2E8F0', paddingBottom: '1rem', marginBottom: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <GitMerge size={20} color="#D97706" />
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0, color: '#0F172A' }}>
+                    중복 의심 작품 비교 및 정리 ({currentDupGroupIndex + 1} / {duplicateGroups.length})
+                  </h3>
+                </div>
+                <button 
+                  onClick={() => setIsDuplicateModalOpen(false)}
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748B' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* 안내 문구 */}
+              <div style={{ background: '#FFFBEB', border: '1px solid #FEF3C7', borderRadius: '8px', padding: '0.75rem 1rem', marginBottom: '1.25rem', fontSize: '0.84rem', color: '#92400E', lineHeight: 1.5 }}>
+                제목(<strong>{activeGroup.title || '작품'}</strong>)과 제작연도(<strong>{activeGroup.year}</strong>)가 동일한 2개의 작품이 감지되었습니다.<br />
+                어느 한쪽을 기준으로 합치면, 상대방에만 작성되어 있던 사진이나 작가노트를 <strong>빠짐없이 보존하여 하나로 통합</strong>합니다.
+              </div>
+
+              {/* A vs B 2열 비교 카드 */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                {/* A 작품 카드 */}
+                <div style={{ border: '2px solid #E2E8F0', borderRadius: '10px', padding: '1rem', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 700, background: '#F1F5F9', color: '#334155', padding: '3px 8px', borderRadius: '6px' }}>
+                      항목 A
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+                      등록 ID: {artA.id ? artA.id.slice(0, 8) : '기존'}
+                    </span>
+                  </div>
+
+                  {/* 썸네일 */}
+                  <div style={{ width: '100%', height: '180px', background: '#F8FAFC', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.85rem', border: '1px solid #E2E8F0' }}>
+                    {artA.imageUrl ? (
+                      <img src={artA.imageUrl} alt={artA.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    ) : (
+                      <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem' }}>
+                        <ImageIcon size={28} style={{ margin: '0 auto 4px', display: 'block', opacity: 0.5 }} />
+                        등록된 이미지 없음
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 정보 리스트 */}
+                  <div style={{ fontSize: '0.82rem', color: '#334155', lineHeight: 1.6, flex: 1, marginBottom: '1rem' }}>
+                    <div><strong>제목:</strong> {artA.title || '무제'} ({artA.year || '미기재'})</div>
+                    <div><strong>작가:</strong> {artA.artist || '미기재'}</div>
+                    <div><strong>규격:</strong> {artA.size || '미기재'}</div>
+                    <div><strong>재료:</strong> {artA.medium || '미기재'}</div>
+                    <div><strong>가격:</strong> {artA.isNfs ? 'NFS (작가소장)' : (artA.price || '미기재')}</div>
+                    <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed #E2E8F0', color: '#64748B' }}>
+                      <div>• 작가노트: {artA.statement ? `${artA.statement.length}자 작성됨` : '비어있음'}</div>
+                      <div>• 인스타 캡션: {artA.instaCaption ? '작성됨' : '비어있음'}</div>
+                      <div>• 블로그 비하인드: {artA.blogStory ? '작성됨' : '비어있음'}</div>
+                    </div>
+                  </div>
+
+                  {/* 기준 병합 버튼 */}
+                  <button
+                    onClick={() => handleMergeArtworks(artA, artB)}
+                    className="btn-primary"
+                    style={{ width: '100%', justifyContent: 'center', padding: '0.65rem', fontSize: '0.86rem' }}
+                  >
+                    [A 작품] 기준으로 합치기
+                  </button>
+                </div>
+
+                {/* B 작품 카드 */}
+                <div style={{ border: '2px solid #E2E8F0', borderRadius: '10px', padding: '1rem', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 700, background: '#F1F5F9', color: '#334155', padding: '3px 8px', borderRadius: '6px' }}>
+                      항목 B
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+                      등록 ID: {artB.id ? artB.id.slice(0, 8) : '기존'}
+                    </span>
+                  </div>
+
+                  {/* 썸네일 */}
+                  <div style={{ width: '100%', height: '180px', background: '#F8FAFC', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.85rem', border: '1px solid #E2E8F0' }}>
+                    {artB.imageUrl ? (
+                      <img src={artB.imageUrl} alt={artB.title} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    ) : (
+                      <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: '0.8rem' }}>
+                        <ImageIcon size={28} style={{ margin: '0 auto 4px', display: 'block', opacity: 0.5 }} />
+                        등록된 이미지 없음
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 정보 리스트 */}
+                  <div style={{ fontSize: '0.82rem', color: '#334155', lineHeight: 1.6, flex: 1, marginBottom: '1rem' }}>
+                    <div><strong>제목:</strong> {artB.title || '무제'} ({artB.year || '미기재'})</div>
+                    <div><strong>작가:</strong> {artB.artist || '미기재'}</div>
+                    <div><strong>규격:</strong> {artB.size || '미기재'}</div>
+                    <div><strong>재료:</strong> {artB.medium || '미기재'}</div>
+                    <div><strong>가격:</strong> {artB.isNfs ? 'NFS (작가소장)' : (artB.price || '미기재')}</div>
+                    <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed #E2E8F0', color: '#64748B' }}>
+                      <div>• 작가노트: {artB.statement ? `${artB.statement.length}자 작성됨` : '비어있음'}</div>
+                      <div>• 인스타 캡션: {artB.instaCaption ? '작성됨' : '비어있음'}</div>
+                      <div>• 블로그 비하인드: {artB.blogStory ? '작성됨' : '비어있음'}</div>
+                    </div>
+                  </div>
+
+                  {/* 기준 병합 버튼 */}
+                  <button
+                    onClick={() => handleMergeArtworks(artB, artA)}
+                    className="btn-primary"
+                    style={{ width: '100%', justifyContent: 'center', padding: '0.65rem', fontSize: '0.86rem' }}
+                  >
+                    [B 작품] 기준으로 합치기
+                  </button>
+                </div>
+              </div>
+
+              {/* 모달 하단 컨트롤 바 */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', borderTop: '1px solid #E2E8F0', paddingTop: '1rem' }}>
+                <button
+                  type="button"
+                  onClick={() => handleDismissDuplicateGroup(activeGroup.groupKey)}
+                  className="btn-outline"
+                  style={{ fontSize: '0.84rem', color: '#64748B', padding: '0.55rem 0.95rem' }}
+                >
+                  합치지 않고 둘 다 유지하기
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsDuplicateModalOpen(false)}
+                  className="btn-outline"
+                  style={{ fontSize: '0.84rem', padding: '0.55rem 0.95rem' }}
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

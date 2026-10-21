@@ -500,6 +500,7 @@ export default function App() {
                 onBack={handleBack} 
                 user={user}
                 onNavigateToArchive={(newArtId) => navigate('archive', newArtId)}
+                initialArtworkId={selectedArtworkId}
               />
             )}
 
@@ -512,19 +513,24 @@ export default function App() {
             )}
 
             {currentView === 'caption' && (
-              <CaptionStudio onBack={handleBack} user={user} />
+              <CaptionStudio 
+                onBack={handleBack} 
+                user={user} 
+                initialArtworkId={selectedArtworkId}
+              />
             )}
 
             {currentView === 'archive' && (
               <ArchiveStudio 
                 onBack={handleBack} 
-                onNavigateToCaption={() => navigate('caption')}
-                onNavigateToStatement={() => navigate('statement')}
+                onNavigateToCaption={(artId) => navigate('caption', artId)}
+                onNavigateToStatement={(artId) => navigate('statement', artId)}
                 onOpenPricing={() => setIsPricingModalOpen(true)}
                 user={user}
                 initialArtworkId={selectedArtworkId}
               />
             )}
+
 
             {currentView === 'inspo' && (
               <InspoVaultView onBack={handleBack} user={user} />
