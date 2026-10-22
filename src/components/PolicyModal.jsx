@@ -74,13 +74,44 @@ export default function PolicyModal({ isOpen, onClose, initialTab = 'terms' }) {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {currentPolicy.sections.map((sec, idx) => (
-              <div key={idx} style={{ background: '#F8FAFC', padding: '1rem 1.15rem', borderRadius: '6px', border: '1px solid #E2E8F0' }}>
-                <h5 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1E293B', marginBottom: '0.5rem' }}>
+              <div key={idx} style={{ background: '#F8FAFC', padding: '1.15rem', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                <h5 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#1E293B', marginBottom: '0.6rem' }}>
                   {sec.heading}
                 </h5>
-                <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.65, whiteSpace: 'pre-line', margin: 0 }}>
-                  {sec.content}
-                </p>
+                {sec.content && (
+                  <p style={{ fontSize: '0.84rem', color: '#475569', lineHeight: 1.65, whiteSpace: 'pre-line', margin: 0 }}>
+                    {sec.content}
+                  </p>
+                )}
+                {sec.table && (
+                  <div style={{ marginTop: '0.85rem', overflowX: 'auto', border: '1px solid #CBD5E1', borderRadius: '6px', background: '#FFFFFF' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', minWidth: '620px' }}>
+                      <thead>
+                        <tr style={{ background: '#F1F5F9', borderBottom: '1px solid #CBD5E1', color: '#0F172A', fontWeight: 700, textAlign: 'left' }}>
+                          {sec.table.headers.map((h, hIdx) => (
+                            <th key={hIdx} style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sec.table.rows.map((row, rIdx) => (
+                          <tr key={rIdx} style={{ borderBottom: rIdx === sec.table.rows.length - 1 ? 'none' : '1px solid #E2E8F0' }}>
+                            {row.map((cell, cIdx) => (
+                              <td key={cIdx} style={{ padding: '8px 10px', color: '#334155', verticalAlign: 'top', lineHeight: 1.5 }}>
+                                {cell}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                {sec.notes && (
+                  <div style={{ marginTop: '0.85rem', padding: '0.75rem 0.9rem', background: '#EFF6FF', borderRadius: '6px', border: '1px solid #BFDBFE', fontSize: '0.8rem', color: '#1E40AF', lineHeight: 1.55 }}>
+                    {sec.notes}
+                  </div>
+                )}
               </div>
             ))}
           </div>
