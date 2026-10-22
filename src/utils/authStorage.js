@@ -87,6 +87,16 @@ export function findRegisteredUser(email) {
 }
 
 /**
+ * 활동명(작가명/닉네임/아이디)으로 등록된 사용자 조회
+ */
+export function findRegisteredUserByName(name) {
+  const cleanName = (name || '').trim().toLowerCase();
+  if (!cleanName || cleanName === '작가') return null;
+  const users = getRegisteredUsers();
+  return users.find(u => (u.name || '').trim().toLowerCase() === cleanName) || null;
+}
+
+/**
  * 소셜(Google 등) 사용자 등록 또는 기존 활동명 유지 업데이트
  */
 export function saveOrUpdateSocialUser(socialUser) {
@@ -129,6 +139,8 @@ export function saveOrUpdateSocialUser(socialUser) {
  */
 export function registerLocalUser(email, password, name = '작가') {
   const cleanEmail = (email || '').trim().toLowerCase();
+  const cleanName = (name || '').trim();
+
   if (!cleanEmail) {
     throw new Error('이메일 주소를 입력해 주세요.');
   }
@@ -137,14 +149,24 @@ export function registerLocalUser(email, password, name = '작가') {
   }
 
   const users = getRegisteredUsers();
-  const existing = users.find(u => (u.email || '').toLowerCase() === cleanEmail);
-  if (existing) {
-    throw new Error('이미 등록된 이메일입니다. [기존 계정 로그인]을 진행해 주세요.');
+
+  // 1) 이메일 중복 체크
+  const existingEmail = users.find(u => (u.email || '').toLowerCase() === cleanEmail);
+  if (existingEmail) {
+    throw new Error('이미 등록된 이메일 주소입니다. 기존 계정으로 로그인해 주세요.');
+  }
+
+  // 2) 활동명(아이디) 중복 체크
+  if (cleanName && cleanName !== '작가') {
+    const existingName = users.find(u => (u.name || '').trim().toLowerCase() === cleanName.toLowerCase());
+    if (existingName) {
+      throw new Error(`이미 사용 중인 활동명(아이디) '${cleanName}' 입니다. 다른 활동명을 입력해 주세요.`);
+    }
   }
 
   const newUser = {
     id: `user-${Date.now()}`,
-    name: (name || '').trim() || '작가',
+    name: cleanName || '작가',
     email: cleanEmail,
     password: password.trim(),
     role: '창작 예술가',

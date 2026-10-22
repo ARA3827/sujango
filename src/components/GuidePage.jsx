@@ -276,7 +276,7 @@ export default function GuidePage({ onOpenLogin, onNavigateToAbout }) {
                 "화면을 지배하는 짙푸른 색채는 침묵의 경계를 부유하는 작가의 내면적 사유를 투영한다. 덧칠된 물감의 층위는 시간의 무게를 머금고 있으며..."
               </div>
               <div style={{ marginTop: '0.75rem', display: 'flex', gap: '6px', flexWrap: 'wrap', fontSize: '0.74rem', color: '#0284C7' }}>
-                <span>#새벽의경계</span> <span>#현대미술</span> <span>#아라작가</span> <span>#유화도록</span>
+                <span>#새벽의경계</span> <span>#현대미술</span> <span>#신진작가</span> <span>#유화도록</span>
               </div>
             </div>
           </div>

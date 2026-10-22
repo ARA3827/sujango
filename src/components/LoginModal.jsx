@@ -13,11 +13,11 @@ import {
 } from 'lucide-react';
 import { getGoogleClientId, loginWithGoogle } from '../utils/googleAuth';
 import { supabase, isSupabaseConfigured, signInWithEmail, signUpWithEmail, resendConfirmationEmail } from '../utils/supabaseClient';
-import { registerLocalUser, loginLocalUser, findRegisteredUser, saveOrUpdateSocialUser } from '../utils/authStorage';
+import { registerLocalUser, loginLocalUser, findRegisteredUser, findRegisteredUserByName, saveOrUpdateSocialUser } from '../utils/authStorage';
 import confetti from 'canvas-confetti';
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMode = 'login' }) {
-  // 화면 모드: 'login' (기본 로그인) | 'signup' (간편 회원가입) | 'profile_setup' (구글 가입 후 작가명 확인) | 'email_sent' (인증 메일 발송 안내)
+  // 화면 모드: 'login' | 'signup' | 'profile_setup' | 'email_sent' | 'signup_success' (가입 환영)
   const [viewMode, setViewMode] = useState(initialMode === 'signup' ? 'signup' : 'login');
 
   // 이메일 로그인/회원가입 입력값
@@ -29,6 +29,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [isResending, setIsResending] = useState(false);
   const [resendNotice, setResendNotice] = useState('');
+  const [signupSuccessData, setSignupSuccessData] = useState(null);
 
   // Google 로그인 진행 상태 & 소셜 사용자 정보
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -53,7 +54,15 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     } catch (e) {}
   };
 
-  // Google 로그인 / 회원가입 실행 (선택지 B: 중간 창 생략하고 원클릭 직행!)
+  // 가입 환영 화면에서 대시보드로 입장
+  const handleEnterFromSuccess = () => {
+    if (signupSuccessData) {
+      onLoginSuccess(signupSuccessData, { isNewUser: true });
+    }
+    onClose();
+  };
+
+  // Google 로그인 / 회원가입 실행 (신규 가입 시 환영 화면, 기존 회원은 직행)
   const handleGoogleAuth = () => {
     setErrorMessage('');
     setIsGoogleLoading(true);
@@ -70,16 +79,22 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           ? existing.name
           : (googleUser.name?.trim() || (googleUser.email ? googleUser.email.split('@')[0] : '작가'));
 
-        // 2. [선택지 B] 별도의 닉네임 확인창 없이 즉시 저장 후 대시보드로 직행!
         const finalUser = saveOrUpdateSocialUser({
           ...googleUser,
           ...(existing || {}),
           name: candidateName
         });
 
-        onLoginSuccess(finalUser, { isNewUser: !existing });
-        onClose();
-        triggerConfetti();
+        // 2. 신규 가입이면 가입 환영 축하 화면, 기존 회원이면 즉시 대시보드 입장!
+        if (!existing) {
+          setSignupSuccessData(finalUser);
+          setViewMode('signup_success');
+          triggerConfetti();
+        } else {
+          onLoginSuccess(finalUser, { isNewUser: false });
+          onClose();
+          triggerConfetti();
+        }
       },
       (err) => {
         setIsGoogleLoading(false);
@@ -106,8 +121,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
       name: name.trim()
     });
 
-    onLoginSuccess(finalUser, { isNewUser: true });
-    onClose();
+    setSignupSuccessData(finalUser);
+    setViewMode('signup_success');
     triggerConfetti();
   };
 
@@ -154,11 +169,17 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
       return;
     }
 
-    // [중복 확인 1단계: 로컬 사전 검증] 이미 등록된 이메일이면 즉시 안내
+    // [중복 확인 1단계: 로컬 사전 검증] 이메일 & 활동명(아이디) 중복 여부 철저 검증
     if (isSigningUp) {
-      const existingLocal = findRegisteredUser(cleanEmail);
-      if (existingLocal) {
+      const existingEmail = findRegisteredUser(cleanEmail);
+      if (existingEmail) {
         setErrorMessage('이미 등록된 이메일 주소입니다. 기존 계정으로 로그인해 주세요.');
+        return;
+      }
+
+      const existingName = findRegisteredUserByName(cleanName);
+      if (existingName) {
+        setErrorMessage(`이미 사용 중인 활동명(아이디) '${cleanName}' 입니다. 다른 활동명을 입력해 주세요.`);
         return;
       }
     }
@@ -222,8 +243,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           newUser = registerLocalUser(cleanEmail, cleanPassword, cleanName || '작가');
         }
 
-        onLoginSuccess(newUser, { isNewUser: true });
-        onClose();
+        // 🌟 [요청 2번] 회원가입 완료 축하 및 환영 화면으로 즉시 전환!
+        setSignupSuccessData(newUser);
+        setViewMode('signup_success');
         triggerConfetti();
       } else {
         let loggedInUser = null;
@@ -339,11 +361,13 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', color: '#0284C7', padding: '2px 8px', borderRadius: '999px', fontSize: '0.74rem', fontWeight: 700, marginBottom: '0.35rem' }}>
               <Sparkles size={12} />
-              <span>{viewMode === 'signup' ? 'SUJANGO SIGNUP' : viewMode === 'email_sent' ? 'EMAIL VERIFICATION' : 'SUJANGO LOGIN'}</span>
+              <span>{viewMode === 'signup' ? 'SUJANGO SIGNUP' : viewMode === 'email_sent' ? 'EMAIL VERIFICATION' : viewMode === 'signup_success' ? 'WELCOME TO SUJANGO' : 'SUJANGO LOGIN'}</span>
             </div>
             <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
               {viewMode === 'signup' 
                 ? '수장고(Sujango) 회원가입' 
+                : viewMode === 'signup_success'
+                ? '수장고에 오신 것을 환영합니다!'
                 : viewMode === 'profile_setup' 
                 ? '수장고 작가 프로필 설정' 
                 : viewMode === 'email_sent'
@@ -353,6 +377,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
             <p style={{ fontSize: '0.82rem', color: '#64748B', margin: '4px 0 0 0' }}>
               {viewMode === 'signup' 
                 ? '원하는 방식으로 간편하게 회원가입하세요.' 
+                : viewMode === 'signup_success'
+                ? '작가님만의 프라이빗 디지털 아카이브가 개설되었습니다.'
                 : viewMode === 'profile_setup'
                 ? '활동하실 작가 활동명(아이디)을 확인해 주세요.'
                 : viewMode === 'email_sent'
@@ -360,7 +386,17 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                 : '등록하신 계정으로 안전하게 로그인하세요.'}
             </p>
           </div>
-          <button onClick={onClose} className="modal-close-btn" aria-label="닫기" style={{ padding: '4px', color: '#64748B' }}>
+          <button 
+            onClick={() => {
+              if (viewMode === 'signup_success' && signupSuccessData) {
+                onLoginSuccess(signupSuccessData, { isNewUser: true });
+              }
+              onClose();
+            }} 
+            className="modal-close-btn" 
+            aria-label="닫기" 
+            style={{ padding: '4px', color: '#64748B' }}
+          >
             <X size={20} />
           </button>
         </div>
@@ -520,13 +556,28 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                   <input
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="예: 아라작가 / 멜로디"
-                    style={{ width: '100%', padding: '0.65rem 0.75rem 0.65rem 2.2rem', border: '1px solid #CBD5E1', borderRadius: '8px', fontSize: '0.88rem' }}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (errorMessage) setErrorMessage('');
+                    }}
+                    placeholder="활동명 또는 작가명을 입력하세요"
+                    style={{ 
+                      width: '100%', 
+                      padding: '0.65rem 0.75rem 0.65rem 2.2rem', 
+                      border: Boolean(name.trim() && findRegisteredUserByName(name.trim())) ? '1.5px solid #F59E0B' : '1px solid #CBD5E1', 
+                      borderRadius: '8px', 
+                      fontSize: '0.88rem',
+                      outline: 'none'
+                    }}
                     required
                   />
                   <User size={15} color="#94A3B8" style={{ position: 'absolute', left: '10px', top: '14px' }} />
                 </div>
+                {Boolean(name.trim() && findRegisteredUserByName(name.trim())) && (
+                  <div style={{ marginTop: '5px', padding: '4px 8px', background: '#FFFBEB', borderRadius: '6px', fontSize: '0.75rem', color: '#B45309' }}>
+                    <span>이미 등록된 활동명(아이디)입니다. 다른 이름을 사용해 주세요.</span>
+                  </div>
+                )}
               </div>
 
               <div style={{ marginBottom: '0.85rem' }}>
@@ -765,7 +816,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="예: 아라작가 / 멜로디"
+                    placeholder="활동명 또는 작가명을 입력하세요"
                     style={{ 
                       width: '100%', 
                       padding: '0.75rem 0.75rem 0.75rem 2.4rem', 
@@ -781,7 +832,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                   <Edit3 size={16} color="#0284C7" style={{ position: 'absolute', left: '12px', top: '16px' }} />
                 </div>
                 <p style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '6px', lineHeight: 1.4 }}>
-                  수장고에서 불릴 작가명 또는 닉네임입니다. 언제든 프로필에서 변경하실 수 있어요.
+                  수장고에서 활동하실 작가명 또는 닉네임입니다. 언제든 프로필에서 변경하실 수 있어요.
                 </p>
               </div>
 
@@ -799,6 +850,72 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                 <ArrowRight size={18} />
               </button>
             </form>
+          </div>
+        )}
+
+        {/* ➎ 회원가입 완료 축하 및 환영 화면 (요청 2번) */}
+        {viewMode === 'signup_success' && (
+          <div style={{ textAlign: 'center', padding: '0.6rem 0' }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: '#ECFDF5',
+              border: '2px solid #A7F3D0',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#059669',
+              marginBottom: '1rem'
+            }}>
+              <CheckCircle2 size={34} />
+            </div>
+
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0FDF4', color: '#16A34A', padding: '3px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.6rem' }}>
+              <Sparkles size={13} />
+              <span>회원가입 완료</span>
+            </div>
+
+            <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0F172A', margin: '0 0 0.5rem 0', fontFamily: 'var(--font-serif)' }}>
+              수장고에 오신 것을 환영합니다!
+            </h3>
+
+            <p style={{ fontSize: '0.86rem', color: '#475569', margin: '0 0 1.25rem 0', lineHeight: 1.5 }}>
+              <strong>{signupSuccessData?.name || '작가'}</strong> 작가님만의 프라이빗 디지털 수장고가 성공적으로 개설되었습니다.
+            </p>
+
+            <div style={{
+              background: '#F8FAFC',
+              borderRadius: '12px',
+              padding: '1rem 1.1rem',
+              marginBottom: '1.4rem',
+              border: '1px solid #E2E8F0',
+              textAlign: 'left'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '8px' }}>
+                <span style={{ color: '#64748B' }}>활동명 (작가명)</span>
+                <span style={{ fontWeight: 700, color: '#0F172A' }}>{signupSuccessData?.name || '작가'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                <span style={{ color: '#64748B' }}>등록 계정</span>
+                <span style={{ fontWeight: 600, color: '#0284C7' }}>{signupSuccessData?.email || ''}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleEnterFromSuccess}
+              style={{
+                ...commonBtnStyle,
+                background: '#0F172A',
+                color: '#FFFFFF',
+                border: 'none',
+                fontSize: '0.96rem'
+              }}
+            >
+              <span>내 수장고 바로 입장하기</span>
+              <ArrowRight size={18} />
+            </button>
           </div>
         )}
 
