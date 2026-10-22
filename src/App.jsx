@@ -25,6 +25,7 @@ import { getStoredUser, saveUser, DEMO_USER } from './utils/authStorage';
 import { syncUserProfile } from './utils/supabaseClient';
 import { exportArchiveBackup } from './utils/archiveStorage';
 import { requestPersistentStorage, migrateArtworksToV6 } from './utils/artworkModel';
+import { migrateLegacyLocalData } from './utils/dataMigration';
 import { UserCheck, UserX, Sparkles, Crown, AlertCircle, Download, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
@@ -205,10 +206,15 @@ export default function App() {
     } catch (e) {}
   }, [currentView]);
 
-  // 초기 로드 시 기존 로그인 작가 프로필 동기화
+  // 초기 로드 시 기존 로그인 작가 프로필 동기화 및 레거시 데이터 마이그레이션 점검
   useEffect(() => {
     if (user) {
       syncUserProfile(user);
+      migrateLegacyLocalData(user).then((res) => {
+        if (res.isMigrated && res.migratedArtworksCount > 0) {
+          showToast(`📦 이 브라우저에 보관 중이던 기존 작품 ${res.migratedArtworksCount}점을 안전하게 동기화했습니다!`);
+        }
+      }).catch((e) => console.warn('[Migration] Init check notice:', e));
     }
   }, [user]);
 
@@ -285,11 +291,22 @@ export default function App() {
   };
 
   // 로그인 성공 처리 (신규 가입 / 기존 로그인 명확한 피드백 제공)
-  const handleLoginSuccess = (loggedInUser, meta = {}) => {
+  const handleLoginSuccess = async (loggedInUser, meta = {}) => {
     setUser(loggedInUser);
     saveUser(loggedInUser);
     syncUserProfile(loggedInUser);
     setCurrentView('dashboard');
+
+    // 🌟 [과제 1] 로컬 브라우저 레거시 작가 데이터(작품/도구) 안전 자동 마이그레이션 실행
+    try {
+      const migrationRes = await migrateLegacyLocalData(loggedInUser);
+      if (migrationRes.isMigrated && migrationRes.migratedArtworksCount > 0) {
+        showToast(`📦 이 브라우저에 보관 중이던 기존 작품 ${migrationRes.migratedArtworksCount}점을 새 수장고로 안전하게 이전했습니다!`);
+        return;
+      }
+    } catch (migErr) {
+      console.warn('[Migration] Login migration notice:', migErr);
+    }
 
     if (meta.isNewUser) {
       showToast(`🎉 수장고에 오신 것을 환영합니다! ${loggedInUser.name || '작가'}님의 회원가입이 완료되었습니다.`);
