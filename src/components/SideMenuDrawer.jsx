@@ -202,53 +202,30 @@ export default function SideMenuDrawer({
                   </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-                <button
-                  type="button"
-                  onClick={() => { onClose(); onLogout(); }}
-                  style={{ 
-                    border: '1px solid #E2E8F0', 
-                    background: '#FFFFFF', 
-                    color: '#64748B', 
-                    cursor: 'pointer', 
-                    fontSize: '0.78rem', 
-                    padding: '4px 10px',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    fontWeight: 600,
-                    transition: 'all 0.15s ease'
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.borderColor = '#FECACA'; e.currentTarget.style.background = '#FEF2F2'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.background = '#FFFFFF'; }}
-                  title="로그아웃"
-                >
-                  <LogOut size={13} />
-                  <span>로그아웃</span>
-                </button>
-                {onOpenDeleteAccount && (
-                  <button
-                    type="button"
-                    onClick={() => { onClose(); onOpenDeleteAccount(); }}
-                    style={{
-                      border: 'none',
-                      background: 'transparent',
-                      color: '#94A3B8',
-                      cursor: 'pointer',
-                      fontSize: '0.72rem',
-                      padding: '2px 4px',
-                      textDecoration: 'underline',
-                      transition: 'color 0.15s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = '#DC2626'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = '#94A3B8'}
-                    title="회원 탈퇴 및 데이터 삭제"
-                  >
-                    회원탈퇴
-                  </button>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => { onClose(); onLogout(); }}
+                style={{ 
+                  border: '1px solid #E2E8F0', 
+                  background: '#FFFFFF', 
+                  color: '#64748B', 
+                  cursor: 'pointer', 
+                  fontSize: '0.78rem', 
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  fontWeight: 600,
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.borderColor = '#FECACA'; e.currentTarget.style.background = '#FEF2F2'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.background = '#FFFFFF'; }}
+                title="로그아웃"
+              >
+                <LogOut size={13} />
+                <span>로그아웃</span>
+              </button>
             </div>
           ) : (
             <div>
