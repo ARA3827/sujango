@@ -706,7 +706,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                   <Edit3 size={16} color="#0284C7" style={{ position: 'absolute', left: '12px', top: '16px' }} />
                 </div>
                 <p style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '6px', lineHeight: 1.4 }}>
-                  작품 보증서, 전시 캡션, 세무 정산 서류에 표기될 작가명입니다. 언제든 변경하실 수 있습니다.
+                  작품 보증서, 전시 캡션, 도록에 표기될 작가명입니다. 언제든 변경하실 수 있습니다.
                 </p>
               </div>
 
