@@ -105,7 +105,7 @@ export default function Dashboard({
     {
       id: 'statement',
       title: '작가노트 & SNS',
-      tag: '연지색 · AI 글 생성',
+      tag: '초안 작성',
       icon: PenTool,
       badge: null,
       desc: '작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그, 블로그 후기를 동시에 추출하고 직접 수정합니다.'
@@ -113,7 +113,7 @@ export default function Dashboard({
     {
       id: 'caption',
       title: '전시 캡션 출력기',
-      tag: '쪽빛 · 전시 & 아트페어',
+      tag: '전시 · 아트페어',
       icon: Tag,
       badge: (user && actualCaptionCount > 0) ? `${actualCaptionCount}점 준비` : null,
       desc: '작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고, 자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.'
@@ -121,7 +121,7 @@ export default function Dashboard({
     {
       id: 'doc',
       title: '서류·출강 스튜디오',
-      tag: '송화색 · 행정 서류',
+      tag: '행정 서류',
       icon: FileText,
       badge: null,
       desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 기관이 요구하는 공문서 규격으로 단정하게 완성합니다.'
@@ -129,7 +129,7 @@ export default function Dashboard({
     {
       id: 'tax',
       title: '창작 가계부',
-      tag: '황토색 · 수입 & 지출',
+      tag: '수입 · 지출',
       icon: Receipt,
       badge: (user && actualPendingAmount > 0) 
         ? `미수금 ${actualPendingAmount.toLocaleString()}원` 
@@ -139,7 +139,7 @@ export default function Dashboard({
     {
       id: 'inspo',
       title: '영감 노트',
-      tag: '청자색 · 영감 & 문장',
+      tag: '영감 · 문장',
       icon: Quote,
       badge: (user && inspoCount > 0) ? `${inspoCount}개 보관` : null,
       desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 단정하게 아카이빙하고 창작의 소중한 씨앗으로 안전하게 보관합니다.'
