@@ -53,7 +53,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     } catch (e) {}
   };
 
-  // Google 로그인 / 회원가입 실행 (팝업 토큰 클라이언트)
+  // Google 로그인 / 회원가입 실행 (선택지 B: 중간 창 생략하고 원클릭 직행!)
   const handleGoogleAuth = () => {
     setErrorMessage('');
     setIsGoogleLoading(true);
@@ -62,21 +62,24 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
       (googleUser) => {
         setIsGoogleLoading(false);
 
-        // 1. 이미 등록된 활동명이 있는 기존 작가님인지 확인
+        // 1. 기존 가입 여부 및 기설정된 활동명 확인
         const existing = findRegisteredUser(googleUser.email);
-        if (existing && existing.name && existing.name !== '작가') {
-          // 이미 활동명을 설정한 적이 있으면 재입력 창 없이 바로 기존 로그인 입장!
-          const loggedInUser = saveOrUpdateSocialUser({ ...googleUser, ...existing });
-          onLoginSuccess(loggedInUser, { isNewUser: false });
-          onClose();
-          triggerConfetti();
-          return;
-        }
+        
+        // 닉네임 자동 결정: 기존 설정 이름 유지 -> 구글 프로필 이름 -> 이메일 아이디 -> '작가'
+        const candidateName = (existing?.name && existing.name !== '작가')
+          ? existing.name
+          : (googleUser.name?.trim() || (googleUser.email ? googleUser.email.split('@')[0] : '작가'));
 
-        // 2. 최초 회원가입인 경우에만 작가 활동명 확인 온보딩 표시
-        setSocialUser(googleUser);
-        setName(googleUser.name || '작가');
-        setViewMode('profile_setup');
+        // 2. [선택지 B] 별도의 닉네임 확인창 없이 즉시 저장 후 대시보드로 직행!
+        const finalUser = saveOrUpdateSocialUser({
+          ...googleUser,
+          ...(existing || {}),
+          name: candidateName
+        });
+
+        onLoginSuccess(finalUser, { isNewUser: !existing });
+        onClose();
+        triggerConfetti();
       },
       (err) => {
         setIsGoogleLoading(false);
@@ -90,7 +93,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     );
   };
 
-  // 소셜 최초 가입 시 작가 프로필(활동명/아이디) 확정
+  // 소셜 최초 가입 시 작가 프로필(활동명/아이디) 확정 (수동 전환 시 폴백용)
   const handleConfirmProfile = (e) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -125,26 +128,39 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     }
   };
 
-  // 이메일/비밀번호 로그인 및 회원가입 처리 (100% 로컬 영구 볼트 + 클라우드 백업)
+  // 이메일/비밀번호 로그인 및 회원가입 처리 (중복 확인 3단계 철벽 방어 + 100% 로컬 영구 볼트)
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setResendNotice('');
 
-    if (!email.trim()) {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+    const cleanName = name.trim();
+
+    if (!cleanEmail) {
       setErrorMessage('이메일 주소를 입력해 주세요.');
       return;
     }
-    if (!password.trim() || password.length < 6) {
+    if (!cleanPassword || cleanPassword.length < 6) {
       setErrorMessage('비밀번호는 최소 6자 이상이어야 합니다.');
       return;
     }
 
     const isSigningUp = (viewMode === 'signup');
 
-    if (isSigningUp && !name.trim()) {
+    if (isSigningUp && !cleanName) {
       setErrorMessage('활동하실 작가명(아이디)을 입력해 주세요.');
       return;
+    }
+
+    // [중복 확인 1단계: 로컬 사전 검증] 이미 등록된 이메일이면 즉시 안내
+    if (isSigningUp) {
+      const existingLocal = findRegisteredUser(cleanEmail);
+      if (existingLocal) {
+        setErrorMessage('이미 등록된 이메일 주소입니다. 기존 계정으로 로그인해 주세요.');
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -152,14 +168,21 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
       if (isSigningUp) {
         let newUser = null;
 
-        // 1. 유효한 Supabase 설정이 있으면 클라우드 가입 시도
+        // [중복 확인 2단계: Supabase 클라우드 가입 시도 및 중복 방어]
         if (isSupabaseConfigured() && supabase) {
           try {
-            const data = await signUpWithEmail(email.trim(), password.trim(), name.trim() || '작가');
+            const data = await signUpWithEmail(cleanEmail, cleanPassword, cleanName || '작가');
             
+            // Supabase '이메일 열거 방지' 활성화 상태: identities가 빈 배열이면 이미 등록된 계정임
+            if (data?.user?.identities && data.user.identities.length === 0) {
+              setErrorMessage('이미 등록된 이메일 주소입니다. 기존 계정으로 로그인해 주세요.');
+              setIsSubmitting(false);
+              return;
+            }
+
             // 이메일 인증이 활성화되어 있어 세션이 아직 없는 경우 -> 인증 메일 확인 안내 화면으로 직관적 전환!
             if (data?.user && !data?.session) {
-              setRegisteredEmail(email.trim());
+              setRegisteredEmail(cleanEmail);
               setViewMode('email_sent');
               triggerConfetti();
               return;
@@ -167,8 +190,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
 
             newUser = {
               id: data?.user?.id || `user-${Date.now()}`,
-              name: name.trim() || '작가',
-              email: email.trim(),
+              name: cleanName || '작가',
+              email: cleanEmail,
               role: '창작 예술가',
               membership: 'Free Artist',
               isPro: false,
@@ -177,13 +200,26 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
               signedAt: new Date().toISOString()
             };
           } catch (cloudErr) {
-            console.warn('[Supabase] 클라우드 가입 스킵, 로컬 영구 볼트에 저장:', cloudErr);
+            console.warn('[Supabase] 클라우드 가입 결과:', cloudErr);
+            const cloudMsg = (cloudErr?.message || '').toLowerCase();
+            
+            // Supabase가 중복 가입 에러를 반환한 경우 (로컬 가입으로 무분별 폴백되지 않고 즉각 차단!)
+            if (
+              cloudMsg.includes('already registered') || 
+              cloudMsg.includes('already exists') || 
+              cloudMsg.includes('duplicate') ||
+              cloudMsg.includes('user already registered')
+            ) {
+              setErrorMessage('이미 등록된 이메일 주소입니다. 기존 계정으로 로그인해 주세요.');
+              setIsSubmitting(false);
+              return;
+            }
           }
         }
 
-        // 2. 로컬 영구 볼트에 100% 안전 저장 (모든 작가 개별 격리 저장)
+        // [중복 확인 3단계: 로컬 영구 볼트에 100% 안전 저장]
         if (!newUser) {
-          newUser = registerLocalUser(email.trim(), password.trim(), name.trim() || '작가');
+          newUser = registerLocalUser(cleanEmail, cleanPassword, cleanName || '작가');
         }
 
         onLoginSuccess(newUser, { isNewUser: true });
@@ -195,12 +231,12 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
         // 1. 유효한 Supabase 설정이 있으면 클라우드 로그인 시도
         if (isSupabaseConfigured() && supabase) {
           try {
-            const data = await signInWithEmail(email.trim(), password.trim());
+            const data = await signInWithEmail(cleanEmail, cleanPassword);
             const userMeta = data?.user?.user_metadata || {};
             loggedInUser = {
               id: data?.user?.id || `user-${Date.now()}`,
-              name: userMeta.name || name.trim() || '작가',
-              email: data?.user?.email || email.trim(),
+              name: userMeta.name || cleanName || '작가',
+              email: data?.user?.email || cleanEmail,
               role: userMeta.role || '창작 예술가',
               membership: 'Free Artist',
               isPro: false,
@@ -210,12 +246,22 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
             };
           } catch (cloudErr) {
             console.warn('[Supabase] 클라우드 로그인 스킵, 로컬 볼트 조회:', cloudErr);
+            const cloudMsg = (cloudErr?.message || '').toLowerCase();
+            if (cloudMsg.includes('invalid login credentials') || cloudMsg.includes('invalid_grant')) {
+              // 로컬 유저가 아예 없는 경우: 가입되지 않은 이메일 안내
+              const localUser = findRegisteredUser(cleanEmail);
+              if (!localUser) {
+                setErrorMessage('가입되지 않은 이메일 주소입니다. [새 계정으로 간편 회원가입]을 진행해 주세요.');
+                setIsSubmitting(false);
+                return;
+              }
+            }
           }
         }
 
         // 2. 로컬 영구 볼트 인증
         if (!loggedInUser) {
-          loggedInUser = loginLocalUser(email.trim(), password.trim());
+          loggedInUser = loginLocalUser(cleanEmail, cleanPassword);
         }
 
         onLoginSuccess(loggedInUser, { isNewUser: false });
@@ -225,16 +271,23 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     } catch (err) {
       console.error('인증 실패:', err);
       let userMsg = err.message || '인증에 실패했습니다.';
+      const lower = userMsg.toLowerCase();
       
       // 이메일 미인증 에러 감지 시 친절한 안내로 변환
-      if (userMsg.toLowerCase().includes('email not confirmed')) {
-        setRegisteredEmail(email.trim());
+      if (lower.includes('email not confirmed')) {
+        setRegisteredEmail(cleanEmail);
         userMsg = '이메일 인증이 아직 완료되지 않았습니다. 메일함에서 인증 링크를 클릭해 주세요.';
+      } else if (lower.includes('already registered') || lower.includes('already exists') || lower.includes('이미 등록된 이메일')) {
+        userMsg = '이미 등록된 이메일 주소입니다. 기존 계정으로 로그인해 주세요.';
+      } else if (lower.includes('가입되지 않은 이메일') || lower.includes('user not found')) {
+        userMsg = '가입되지 않은 이메일 주소입니다. [새 계정으로 간편 회원가입]을 진행해 주세요.';
+      } else if (lower.includes('invalid login credentials') || lower.includes('비밀번호가 일치하지 않습니다')) {
+        userMsg = '이메일 주소 또는 비밀번호가 일치하지 않습니다. 다시 확인해 주세요.';
       } else if (userMsg.includes('Failed to fetch')) {
         try {
           const fallbackUser = isSigningUp 
-            ? registerLocalUser(email.trim(), password.trim(), name.trim() || '작가')
-            : loginLocalUser(email.trim(), password.trim());
+            ? registerLocalUser(cleanEmail, cleanPassword, cleanName || '작가')
+            : loginLocalUser(cleanEmail, cleanPassword);
           onLoginSuccess(fallbackUser, { isNewUser: isSigningUp });
           onClose();
           triggerConfetti();
@@ -364,7 +417,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                 </button>
               </div>
             )}
-            {errorMessage.includes('이미 등록된 이메일') && (
+            {(errorMessage.includes('이미 등록된 이메일') || errorMessage.includes('이미 가입된 이메일')) && (
               <button
                 type="button"
                 onClick={() => { setViewMode('login'); setErrorMessage(''); }}
@@ -484,13 +537,35 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (errorMessage) setErrorMessage('');
+                    }}
                     placeholder="artist@example.com"
-                    style={{ width: '100%', padding: '0.65rem 0.75rem 0.65rem 2.2rem', border: '1px solid #CBD5E1', borderRadius: '8px', fontSize: '0.88rem' }}
+                    style={{ 
+                      width: '100%', 
+                      padding: '0.65rem 0.75rem 0.65rem 2.2rem', 
+                      border: Boolean(email.trim() && findRegisteredUser(email.trim())) ? '1.5px solid #F59E0B' : '1px solid #CBD5E1', 
+                      borderRadius: '8px', 
+                      fontSize: '0.88rem',
+                      outline: 'none'
+                    }}
                     required
                   />
                   <Mail size={15} color="#94A3B8" style={{ position: 'absolute', left: '10px', top: '14px' }} />
                 </div>
+                {Boolean(email.trim() && findRegisteredUser(email.trim())) && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '6px', padding: '5px 8px', background: '#FFFBEB', borderRadius: '6px', fontSize: '0.75rem', color: '#B45309' }}>
+                    <span>이미 등록된 이메일 주소입니다.</span>
+                    <button
+                      type="button"
+                      onClick={() => { setViewMode('login'); setErrorMessage(''); }}
+                      style={{ background: 'none', border: 'none', color: '#0284C7', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                    >
+                      기존 계정으로 로그인 →
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div style={{ marginBottom: '1.25rem' }}>
