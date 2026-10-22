@@ -461,14 +461,14 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
             <form onSubmit={handleEmailAuth}>
               <div style={{ marginBottom: '0.85rem' }}>
                 <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
-                  작가 활동명 (또는 상호) *
+                  활동명 (작가명 / 닉네임) *
                 </label>
                 <div style={{ position: 'relative' }}>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="예: 수장고 / 아라작가"
+                    placeholder="예: 아라작가 / 멜로디"
                     style={{ width: '100%', padding: '0.65rem 0.75rem 0.65rem 2.2rem', border: '1px solid #CBD5E1', borderRadius: '8px', fontSize: '0.88rem' }}
                     required
                   />
@@ -683,14 +683,14 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
             <form onSubmit={handleConfirmProfile}>
               <div style={{ marginBottom: '1.25rem' }}>
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-                  수장고 작가 활동명 (아이디) *
+                  수장고 활동명 (작가명 / 닉네임) *
                 </label>
                 <div style={{ position: 'relative' }}>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="예: 홍길동 작가 / 아라스튜디오"
+                    placeholder="예: 아라작가 / 멜로디"
                     style={{ 
                       width: '100%', 
                       padding: '0.75rem 0.75rem 0.75rem 2.4rem', 
@@ -706,7 +706,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                   <Edit3 size={16} color="#0284C7" style={{ position: 'absolute', left: '12px', top: '16px' }} />
                 </div>
                 <p style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '6px', lineHeight: 1.4 }}>
-                  작품 보증서, 전시 캡션, 도록에 표기될 작가명입니다. 언제든 변경하실 수 있습니다.
+                  수장고에서 불릴 작가명 또는 닉네임입니다. 언제든 프로필에서 변경하실 수 있어요.
                 </p>
               </div>
 
