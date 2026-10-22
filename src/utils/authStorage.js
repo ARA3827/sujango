@@ -125,7 +125,10 @@ export function saveOrUpdateSocialUser(socialUser) {
       role: '창작 예술가',
       membership: 'Free Artist',
       isPro: false,
-      signedAt: new Date().toISOString()
+      signedAt: new Date().toISOString(),
+      termsAgreedAt: socialUser.termsAgreedAt || new Date().toISOString(),
+      privacyAgreedAt: socialUser.privacyAgreedAt || new Date().toISOString(),
+      policyVersion: socialUser.policyVersion || '2026-10-31'
     };
     users.push(newUser);
     saveRegisteredUsers(users);
@@ -137,7 +140,7 @@ export function saveOrUpdateSocialUser(socialUser) {
 /**
  * 1. 로컬 영구 회원가입 (오프라인 및 클라우드 지연 시 100% 보장)
  */
-export function registerLocalUser(email, password, name = '작가') {
+export function registerLocalUser(email, password, name = '작가', agreements = {}) {
   const cleanEmail = (email || '').trim().toLowerCase();
   const cleanName = (name || '').trim();
 
@@ -164,6 +167,7 @@ export function registerLocalUser(email, password, name = '작가') {
     }
   }
 
+  const now = new Date().toISOString();
   const newUser = {
     id: `user-${Date.now()}`,
     name: cleanName || '작가',
@@ -174,7 +178,10 @@ export function registerLocalUser(email, password, name = '작가') {
     isPro: false,
     avatarUrl: '',
     provider: 'email',
-    signedAt: new Date().toISOString()
+    signedAt: now,
+    termsAgreedAt: agreements.termsAgreedAt || now,
+    privacyAgreedAt: agreements.privacyAgreedAt || now,
+    policyVersion: agreements.policyVersion || '2026-10-31'
   };
 
   users.push(newUser);

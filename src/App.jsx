@@ -587,6 +587,7 @@ export default function App() {
         initialMode={loginInitialMode}
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
+        onOpenPolicy={handleOpenPolicy}
       />
 
       {/* Pro 멤버십 요금제 모달 */}

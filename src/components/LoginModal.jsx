@@ -9,15 +9,17 @@ import {
   User, 
   ArrowRight,
   CheckCircle2,
-  Edit3
+  Edit3,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import { getGoogleClientId, loginWithGoogle } from '../utils/googleAuth';
 import { supabase, isSupabaseConfigured, signInWithEmail, signUpWithEmail, resendConfirmationEmail } from '../utils/supabaseClient';
 import { registerLocalUser, loginLocalUser, findRegisteredUser, findRegisteredUserByName, saveOrUpdateSocialUser } from '../utils/authStorage';
 import confetti from 'canvas-confetti';
 
-export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMode = 'login' }) {
-  // 화면 모드: 'login' | 'signup' | 'profile_setup' | 'email_sent' | 'signup_success' (가입 환영)
+export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMode = 'login', onOpenPolicy }) {
+  // 화면 모드: 'login' | 'signup' | 'profile_setup' | 'email_sent' | 'signup_success' | 'already_registered' | 'google_agreement'
   const [viewMode, setViewMode] = useState(initialMode === 'signup' ? 'signup' : 'login');
 
   // 이메일 로그인/회원가입 입력값
@@ -31,6 +33,20 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
   const [resendNotice, setResendNotice] = useState('');
   const [signupSuccessData, setSignupSuccessData] = useState(null);
   const [existingAccountUser, setExistingAccountUser] = useState(null);
+  const [pendingGoogleUser, setPendingGoogleUser] = useState(null);
+
+  // 약관 동의 체크박스 상태 (이메일 및 구글 가입 공통)
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [agreeAge, setAgreeAge] = useState(false);
+  const isAllAgreed = agreeTerms && agreePrivacy && agreeAge;
+
+  const handleToggleAllAgreed = () => {
+    const nextVal = !isAllAgreed;
+    setAgreeTerms(nextVal);
+    setAgreePrivacy(nextVal);
+    setAgreeAge(nextVal);
+  };
 
   // Google 로그인 진행 상태 & 소셜 사용자 정보
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -41,6 +57,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     setErrorMessage('');
     setIsGoogleLoading(false);
     setViewMode(initialMode === 'signup' ? 'signup' : 'login');
+    setAgreeTerms(false);
+    setAgreePrivacy(false);
+    setAgreeAge(false);
   }, [isOpen, initialMode]);
 
   if (!isOpen) return null;
@@ -102,11 +121,13 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           return;
         }
 
-        // 3. 신규 회원이면 가입 환영 축하 화면 노출!
+        // 3. 신규 회원이면 서비스 이용 전 필수 약관 동의 화면 노출!
         if (!existing) {
-          setSignupSuccessData(finalUser);
-          setViewMode('signup_success');
-          triggerConfetti();
+          setPendingGoogleUser(finalUser);
+          setAgreeTerms(false);
+          setAgreePrivacy(false);
+          setAgreeAge(false);
+          setViewMode('google_agreement');
           return;
         }
 
@@ -125,6 +146,21 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
         }
       }
     );
+  };
+
+  // 구글 신규 회원 필수 약관 동의 확정 및 가입 완료
+  const handleConfirmGoogleAgreement = () => {
+    if (!isAllAgreed || !pendingGoogleUser) return;
+    const now = new Date().toISOString();
+    const userWithAgreements = saveOrUpdateSocialUser({
+      ...pendingGoogleUser,
+      termsAgreedAt: now,
+      privacyAgreedAt: now,
+      policyVersion: '2026-10-31'
+    });
+    setSignupSuccessData(userWithAgreements);
+    setViewMode('signup_success');
+    triggerConfetti();
   };
 
   // 소셜 최초 가입 시 작가 프로필(활동명/아이디) 확정 (수동 전환 시 폴백용)
@@ -188,8 +224,13 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
       return;
     }
 
-    // [중복 확인 1단계: 로컬 사전 검증] 이메일 & 활동명(아이디) 중복 여부 철저 검증
+    // [중복 확인 1단계: 로컬 사전 검증] 이메일 & 활동명(아이디) 중복 및 약관 동의 검증
     if (isSigningUp) {
+      if (!isAllAgreed) {
+        setErrorMessage('필수 이용약관, 개인정보 수집·이용 및 만 14세 이상 확인에 모두 동의해 주세요.');
+        return;
+      }
+
       const existingEmail = findRegisteredUser(cleanEmail);
       if (existingEmail) {
         setErrorMessage('이미 등록된 이메일 주소입니다. 기존 계정으로 로그인해 주세요.');
@@ -207,6 +248,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     try {
       if (isSigningUp) {
         let newUser = null;
+        const now = new Date().toISOString();
 
         // [중복 확인 2단계: Supabase 클라우드 가입 시도 및 중복 방어]
         if (isSupabaseConfigured() && supabase) {
@@ -237,7 +279,10 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
               isPro: false,
               avatarUrl: '',
               provider: 'supabase_email',
-              signedAt: new Date().toISOString()
+              signedAt: now,
+              termsAgreedAt: now,
+              privacyAgreedAt: now,
+              policyVersion: '2026-10-31'
             };
           } catch (cloudErr) {
             console.warn('[Supabase] 클라우드 가입 결과:', cloudErr);
@@ -259,7 +304,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
 
         // [중복 확인 3단계: 로컬 영구 볼트에 100% 안전 저장]
         if (!newUser) {
-          newUser = registerLocalUser(cleanEmail, cleanPassword, cleanName || '작가');
+          newUser = registerLocalUser(cleanEmail, cleanPassword, cleanName || '작가', {
+            termsAgreedAt: now,
+            privacyAgreedAt: now,
+            policyVersion: '2026-10-31'
+          });
         }
 
         // 🌟 [요청 2번] 회원가입 완료 축하 및 환영 화면으로 즉시 전환!
@@ -380,11 +429,13 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', color: '#0284C7', padding: '2px 8px', borderRadius: '999px', fontSize: '0.74rem', fontWeight: 700, marginBottom: '0.35rem' }}>
               <Sparkles size={12} />
-              <span>{viewMode === 'signup' ? 'SUJANGO SIGNUP' : viewMode === 'email_sent' ? 'EMAIL VERIFICATION' : viewMode === 'signup_success' ? 'WELCOME TO SUJANGO' : viewMode === 'already_registered' ? 'ACCOUNT FOUND' : 'SUJANGO LOGIN'}</span>
+              <span>{viewMode === 'signup' ? 'SUJANGO SIGNUP' : viewMode === 'google_agreement' ? 'TERMS AGREEMENT' : viewMode === 'email_sent' ? 'EMAIL VERIFICATION' : viewMode === 'signup_success' ? 'WELCOME TO SUJANGO' : viewMode === 'already_registered' ? 'ACCOUNT FOUND' : 'SUJANGO LOGIN'}</span>
             </div>
             <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
               {viewMode === 'signup' 
                 ? '수장고(Sujango) 회원가입' 
+                : viewMode === 'google_agreement'
+                ? '서비스 이용 약관 동의'
                 : viewMode === 'signup_success'
                 ? '수장고에 오신 것을 환영합니다!'
                 : viewMode === 'already_registered'
@@ -398,6 +449,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
             <p style={{ fontSize: '0.82rem', color: '#64748B', margin: '4px 0 0 0' }}>
               {viewMode === 'signup' 
                 ? '원하는 방식으로 간편하게 회원가입하세요.' 
+                : viewMode === 'google_agreement'
+                ? '수장고 서비스를 안전하게 시작하기 위해 필수 약관에 동의해 주세요.'
                 : viewMode === 'signup_success'
                 ? '작가님만의 프라이빗 디지털 아카이브가 개설되었습니다.'
                 : viewMode === 'already_registered'
@@ -661,21 +714,83 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                 </div>
               </div>
 
+              {/* 필수 약관 동의 3종 체크박스 */}
+              <div style={{ marginBottom: '1.25rem', padding: '0.85rem 1rem', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px' }}>
+                {/* 1. 전체 동의 */}
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none', paddingBottom: '0.6rem', borderBottom: '1px solid #E2E8F0', fontWeight: 700, fontSize: '0.84rem', color: isAllAgreed ? '#0F172A' : '#475569' }}>
+                  <input type="checkbox" checked={isAllAgreed} onChange={handleToggleAllAgreed} style={{ display: 'none' }} />
+                  <div style={{ color: isAllAgreed ? '#0284C7' : '#94A3B8', display: 'flex', alignItems: 'center' }}>
+                    {isAllAgreed ? <CheckSquare size={17} /> : <Square size={17} />}
+                  </div>
+                  <span>모든 필수 약관에 전체 동의합니다</span>
+                </label>
+
+                {/* 개별 체크박스 목록 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingTop: '0.6rem' }}>
+                  {/* 이용약관 */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: agreeTerms ? '#0F172A' : '#64748B' }}>
+                      <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} style={{ display: 'none' }} />
+                      <div style={{ color: agreeTerms ? '#0284C7' : '#CBD5E1', display: 'flex', alignItems: 'center' }}>
+                        {agreeTerms ? <CheckSquare size={15} /> : <Square size={15} />}
+                      </div>
+                      <span><strong>[필수]</strong> 이용약관 동의</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => onOpenPolicy && onOpenPolicy('terms')}
+                      style={{ border: 'none', background: 'transparent', color: '#64748B', fontSize: '0.74rem', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                    >
+                      보기
+                    </button>
+                  </div>
+
+                  {/* 개인정보 처리방침 */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: agreePrivacy ? '#0F172A' : '#64748B' }}>
+                      <input type="checkbox" checked={agreePrivacy} onChange={(e) => setAgreePrivacy(e.target.checked)} style={{ display: 'none' }} />
+                      <div style={{ color: agreePrivacy ? '#0284C7' : '#CBD5E1', display: 'flex', alignItems: 'center' }}>
+                        {agreePrivacy ? <CheckSquare size={15} /> : <Square size={15} />}
+                      </div>
+                      <span><strong>[필수]</strong> 개인정보 수집·이용 동의</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => onOpenPolicy && onOpenPolicy('privacy')}
+                      style={{ border: 'none', background: 'transparent', color: '#64748B', fontSize: '0.74rem', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                    >
+                      보기
+                    </button>
+                  </div>
+
+                  {/* 만 14세 이상 */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: agreeAge ? '#0F172A' : '#64748B' }}>
+                      <input type="checkbox" checked={agreeAge} onChange={(e) => setAgreeAge(e.target.checked)} style={{ display: 'none' }} />
+                      <div style={{ color: agreeAge ? '#0284C7' : '#CBD5E1', display: 'flex', alignItems: 'center' }}>
+                        {agreeAge ? <CheckSquare size={15} /> : <Square size={15} />}
+                      </div>
+                      <span><strong>[필수]</strong> 만 14세 이상입니다</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               {/* 하단 버튼: 회원가입 완료 */}
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isAllAgreed}
                 className="btn-primary"
                 style={{
                   ...commonBtnStyle,
-                  background: '#0F172A',
+                  background: isAllAgreed ? '#0F172A' : '#94A3B8',
                   color: '#FFFFFF',
                   border: 'none',
-                  opacity: isSubmitting ? 0.7 : 1,
-                  cursor: isSubmitting ? 'not-allowed' : 'pointer'
+                  opacity: (isSubmitting || !isAllAgreed) ? 0.7 : 1,
+                  cursor: (isSubmitting || !isAllAgreed) ? 'not-allowed' : 'pointer'
                 }}
               >
-                <span>{isSubmitting ? '가입 처리 중...' : '회원가입 완료'}</span>
+                <span>{isSubmitting ? '가입 처리 중...' : isAllAgreed ? '회원가입 완료' : '필수 약관에 동의해 주세요'}</span>
                 <ArrowRight size={16} />
               </button>
 
@@ -809,6 +924,129 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                 </button>
               </div>
             </form>
+          </div>
+        )}
+
+        {/* ➋-1 Google 신규 가입 직후 ➔ 필수 약관 동의 브릿지 화면 */}
+        {viewMode === 'google_agreement' && (
+          <div>
+            {/* 구글 계정 정보 카드 */}
+            <div style={{ 
+              background: '#F8FAFC', 
+              borderRadius: '12px', 
+              padding: '1rem 1.15rem', 
+              marginBottom: '1.25rem',
+              border: '1px solid #E2E8F0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                background: '#FFFFFF',
+                border: '1px solid #CBD5E1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: '0.74rem', color: '#64748B', display: 'block' }}>Google 연동 인증 완료</span>
+                <strong style={{ fontSize: '0.92rem', color: '#0F172A', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {pendingGoogleUser?.name || '작가'} ({pendingGoogleUser?.email})
+                </strong>
+              </div>
+            </div>
+
+            {/* 필수 약관 동의 3종 체크박스 */}
+            <div style={{ marginBottom: '1.25rem', padding: '0.85rem 1rem', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px' }}>
+              {/* 1. 전체 동의 */}
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none', paddingBottom: '0.6rem', borderBottom: '1px solid #E2E8F0', fontWeight: 700, fontSize: '0.84rem', color: isAllAgreed ? '#0F172A' : '#475569' }}>
+                <input type="checkbox" checked={isAllAgreed} onChange={handleToggleAllAgreed} style={{ display: 'none' }} />
+                <div style={{ color: isAllAgreed ? '#0284C7' : '#94A3B8', display: 'flex', alignItems: 'center' }}>
+                  {isAllAgreed ? <CheckSquare size={17} /> : <Square size={17} />}
+                </div>
+                <span>모든 필수 약관에 전체 동의합니다</span>
+              </label>
+
+              {/* 개별 체크박스 목록 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingTop: '0.6rem' }}>
+                {/* 이용약관 */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: agreeTerms ? '#0F172A' : '#64748B' }}>
+                    <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} style={{ display: 'none' }} />
+                    <div style={{ color: agreeTerms ? '#0284C7' : '#CBD5E1', display: 'flex', alignItems: 'center' }}>
+                      {agreeTerms ? <CheckSquare size={15} /> : <Square size={15} />}
+                    </div>
+                    <span><strong>[필수]</strong> 이용약관 동의</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => onOpenPolicy && onOpenPolicy('terms')}
+                    style={{ border: 'none', background: 'transparent', color: '#64748B', fontSize: '0.74rem', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                  >
+                    보기
+                  </button>
+                </div>
+
+                {/* 개인정보 처리방침 */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: agreePrivacy ? '#0F172A' : '#64748B' }}>
+                    <input type="checkbox" checked={agreePrivacy} onChange={(e) => setAgreePrivacy(e.target.checked)} style={{ display: 'none' }} />
+                    <div style={{ color: agreePrivacy ? '#0284C7' : '#CBD5E1', display: 'flex', alignItems: 'center' }}>
+                      {agreePrivacy ? <CheckSquare size={15} /> : <Square size={15} />}
+                    </div>
+                    <span><strong>[필수]</strong> 개인정보 수집·이용 동의</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => onOpenPolicy && onOpenPolicy('privacy')}
+                    style={{ border: 'none', background: 'transparent', color: '#64748B', fontSize: '0.74rem', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
+                  >
+                    보기
+                  </button>
+                </div>
+
+                {/* 만 14세 이상 */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: agreeAge ? '#0F172A' : '#64748B' }}>
+                    <input type="checkbox" checked={agreeAge} onChange={(e) => setAgreeAge(e.target.checked)} style={{ display: 'none' }} />
+                    <div style={{ color: agreeAge ? '#0284C7' : '#CBD5E1', display: 'flex', alignItems: 'center' }}>
+                      {agreeAge ? <CheckSquare size={15} /> : <Square size={15} />}
+                    </div>
+                    <span><strong>[필수]</strong> 만 14세 이상입니다</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* 동의 완료 및 수장고 시작 버튼 */}
+            <button
+              type="button"
+              onClick={handleConfirmGoogleAgreement}
+              disabled={!isAllAgreed}
+              className="btn-primary"
+              style={{
+                ...commonBtnStyle,
+                background: isAllAgreed ? '#0F172A' : '#94A3B8',
+                color: '#FFFFFF',
+                border: 'none',
+                opacity: !isAllAgreed ? 0.7 : 1,
+                cursor: !isAllAgreed ? 'not-allowed' : 'pointer'
+              }}
+            >
+              <span>{isAllAgreed ? '동의하고 수장고 시작하기' : '필수 약관에 동의해 주세요'}</span>
+              <ArrowRight size={16} />
+            </button>
           </div>
         )}
 
