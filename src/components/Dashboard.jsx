@@ -3,11 +3,17 @@ import {
   Plus, 
   ArrowRight,
   Image as ImageIcon,
-  ChevronRight
+  ChevronRight,
+  Tag,
+  FileText,
+  Receipt,
+  PenTool,
+  Quote
 } from 'lucide-react';
 import { getArtworks } from '../utils/archiveStorage';
 import { getStoredUser, getUserScopedKey } from '../utils/authStorage';
 import { getArtworkStatusMeta } from '../utils/artworkModel';
+import { TRADITIONAL_COLORS } from '../constants/themeColors';
 
 export default function Dashboard({ 
   onSelectView, 
@@ -94,67 +100,49 @@ export default function Dashboard({
     };
   }, [user]);
 
-  // 포스트잇 스타일 밀크 파스텔 5대 카드 정의
+  // 한국 전통색 5대 도구 카드 정의
   const tools = [
-    {
-      id: 'inspo',
-      title: '영감 노트',
-      tag: '창작 영감 & 문장',
-      bg: '#F0FDFA', // 소프트 민트/틸 포스트잇
-      border: '#CCFBF1',
-      tagColor: '#0F766E',
-      tagBg: 'rgba(255, 255, 255, 0.85)',
-      badge: (user && inspoCount > 0) ? `${inspoCount}개 보관` : null,
-      badgeStyle: { background: '#CCFBF1', color: '#0F766E' },
-      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 단정하게 아카이빙하고 창작의 소중한 씨앗으로 안전하게 보관합니다.'
-    },
     {
       id: 'statement',
       title: '작가노트 & SNS',
-      tag: 'AI 글 생성',
-      bg: '#FAF5FF', // 소프트 라벤더 포스트잇
-      border: '#F3E8FF',
-      tagColor: '#7E22CE',
-      tagBg: 'rgba(255, 255, 255, 0.85)',
+      tag: '연지색 · AI 글 생성',
+      icon: PenTool,
       badge: null,
       desc: '작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그, 블로그 후기를 동시에 추출하고 직접 수정합니다.'
     },
     {
       id: 'caption',
       title: '전시 캡션 출력기',
-      tag: '전시 & 아트페어',
-      bg: '#F0F9FF', // 소프트 아이스 블루 포스트잇
-      border: '#E0F2FE',
-      tagColor: '#0284C7',
-      tagBg: 'rgba(255, 255, 255, 0.85)',
+      tag: '쪽빛 · 전시 & 아트페어',
+      icon: Tag,
       badge: (user && actualCaptionCount > 0) ? `${actualCaptionCount}점 준비` : null,
-      badgeStyle: { background: '#E0F2FE', color: '#0284C7' },
       desc: '작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고, 자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.'
     },
     {
       id: 'doc',
       title: '서류·출강 스튜디오',
-      tag: '행정 서류',
-      bg: '#F0FDF4', // 소프트 세이지 그린 포스트잇
-      border: '#DCFCE7',
-      tagColor: '#15803D',
-      tagBg: 'rgba(255, 255, 255, 0.85)',
+      tag: '송화색 · 행정 서류',
+      icon: FileText,
       badge: null,
       desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 기관이 요구하는 공문서 규격으로 단정하게 완성합니다.'
     },
     {
       id: 'tax',
       title: '창작 가계부',
-      tag: '수입 & 지출 증빙',
-      bg: '#FEFCE8', // 소프트 버터 옐로우 포스트잇
-      border: '#FEF08A',
-      tagColor: '#B45309',
-      tagBg: 'rgba(255, 255, 255, 0.85)',
+      tag: '황토색 · 수입 & 지출',
+      icon: Receipt,
       badge: (user && actualPendingAmount > 0) 
         ? `미수금 ${actualPendingAmount.toLocaleString()}원` 
         : null,
-      badgeStyle: { background: '#FEF08A', color: '#B45309' },
       desc: '출강·작품 수입과 재료비 지출을 한눈에 관리하고, 카드 영수증이 첨부된 정산 증빙서를 A4 인쇄 및 PDF로 보관합니다.'
+    },
+    {
+      id: 'inspo',
+      title: '영감 노트',
+      tag: '청자색 · 영감 & 문장',
+      icon: Quote,
+      badge: (user && inspoCount > 0) ? `${inspoCount}개 보관` : null,
+      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 단정하게 아카이빙하고 창작의 소중한 씨앗으로 안전하게 보관합니다.'
     }
   ];
 
@@ -385,63 +373,85 @@ export default function Dashboard({
       </div>
 
       <div className="tool-grid">
-        {tools.map((tool) => (
-          <div 
-            key={tool.id} 
-            className="tool-card" 
-            onClick={() => onSelectView(tool.id)}
-            role="button"
-            tabIndex={0}
-            style={{
-              background: tool.bg,
-              border: `1px solid ${tool.border}`,
-              borderRadius: '16px',
-              padding: '1.5rem',
-              boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-start'
-            }}
-          >
-            <div className="tool-card-header" style={{ marginBottom: '1.15rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span 
-                className="tool-tag"
-                style={{
-                  background: tool.tagBg,
-                  color: tool.tagColor,
-                  border: `1px solid ${tool.border}`,
-                  fontSize: '0.74rem',
-                  fontWeight: 600,
-                  padding: '3px 10px',
-                  borderRadius: '999px',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-                }}
-              >
-                {tool.tag}
-              </span>
-              {tool.badge && (
-                <span style={{ 
-                  fontSize: '0.74rem', 
-                  fontWeight: 600, 
-                  padding: '3px 9px', 
-                  borderRadius: '999px',
-                  ...tool.badgeStyle
+        {tools.map((tool) => {
+          const color = TRADITIONAL_COLORS[tool.id];
+          const IconComponent = tool.icon;
+          return (
+            <div 
+              key={tool.id} 
+              className="tool-card" 
+              onClick={() => onSelectView(tool.id)}
+              role="button"
+              tabIndex={0}
+              style={{
+                background: color.bg,
+                border: `1px solid ${color.border}`,
+                borderRadius: '16px',
+                padding: '1.5rem',
+                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-start',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div className="tool-card-header" style={{ marginBottom: '1.15rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '10px',
+                  background: color.iconBg,
+                  color: color.iconColor,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: `1px solid ${color.border}`
                 }}>
-                  {tool.badge}
-                </span>
-              )}
+                  <IconComponent size={19} />
+                </div>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <span 
+                    className="tool-tag"
+                    style={{
+                      background: color.tagBg,
+                      color: color.tagColor,
+                      border: `1px solid ${color.border}`,
+                      fontSize: '0.74rem',
+                      fontWeight: 600,
+                      padding: '3px 10px',
+                      borderRadius: '999px',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                    }}
+                  >
+                    {tool.tag}
+                  </span>
+                  {tool.badge && (
+                    <span style={{ 
+                      fontSize: '0.74rem', 
+                      fontWeight: 600, 
+                      padding: '3px 9px', 
+                      borderRadius: '999px',
+                      background: color.iconBg,
+                      color: color.accent,
+                      border: `1px solid ${color.border}`
+                    }}>
+                      {tool.badge}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="tool-card-body">
+                <h3 style={{ fontSize: '1.22rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.6rem', letterSpacing: '-0.02em' }}>
+                  {tool.title}
+                </h3>
+                <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.6, margin: 0 }}>
+                  {tool.desc}
+                </p>
+              </div>
             </div>
-            <div className="tool-card-body">
-              <h3 style={{ fontSize: '1.22rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.6rem', letterSpacing: '-0.02em' }}>
-                {tool.title}
-              </h3>
-              <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.6, margin: 0 }}>
-                {tool.desc}
-              </p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* 5번째 모듈: 소소한 툴 추가 슬롯 */}
         <div 

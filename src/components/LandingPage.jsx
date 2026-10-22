@@ -21,6 +21,7 @@ import {
   Quote
 } from 'lucide-react';
 import { getFeedbacks } from '../utils/feedbackStorage';
+import { TRADITIONAL_COLORS } from '../constants/themeColors';
 
 export default function LandingPage({ 
   user,
@@ -172,105 +173,105 @@ export default function LandingPage({
             {
               id: 'archive',
               title: '나의 작품 수장고',
-              tag: '원본 보관',
-              bg: '#F0F7FF',
-              border: '#DBEAFE',
-              tagColor: '#1D4ED8',
-              tagBg: 'rgba(255, 255, 255, 0.85)',
+              tag: '먹색 · 원본 보관',
+              icon: Archive,
               desc: '작품 사진과 작가노트, 캡션 정보를 작품별로 차곡차곡 모아두는 나만의 작품 보관함. 원본은 그대로, 공유용은 가볍게.'
             },
             {
               id: 'caption',
               title: '전시 캡션 출력기',
-              tag: '전시 · 아트페어',
-              bg: '#F0F9FF',
-              border: '#E0F2FE',
-              tagColor: '#0284C7',
-              tagBg: 'rgba(255, 255, 255, 0.85)',
+              tag: '쪽빛 · 전시 · 아트페어',
+              icon: Tag,
               desc: '작품 옆 벽면에 붙이는 국영문 캡션을 자동으로 만들고, 재단선과 함께 A4 규격으로 한 번에 인쇄해요.'
             },
             {
               id: 'doc',
               title: '서류 · 출강 스튜디오',
-              tag: '행정 서류',
-              bg: '#F0FDF4',
-              border: '#DCFCE7',
-              tagColor: '#15803D',
-              tagBg: 'rgba(255, 255, 255, 0.85)',
+              tag: '송화색 · 행정 서류',
+              icon: FileText,
               desc: '출강 강의계획서, 전시 약력(CV), 작업 견적서를 기관 제출용 공문서 형식으로 단정하게 완성해요.'
             },
             {
               id: 'tax',
               title: '창작 가계부',
-              tag: '수입 · 지출',
-              bg: '#FEFCE8',
-              border: '#FEF08A',
-              tagColor: '#B45309',
-              tagBg: 'rgba(255, 255, 255, 0.85)',
+              tag: '황토색 · 수입 · 지출',
+              icon: Receipt,
               desc: '출강비, 작품 판매 수입과 재료비 지출을 한눈에 정리하고, 카드 영수증이 첨부된 정산서를 PDF로 저장해요.'
             },
             {
               id: 'statement',
               title: '작가노트 & SNS',
-              tag: '초안 작성',
-              bg: '#FAF5FF',
-              border: '#F3E8FF',
-              tagColor: '#7E22CE',
-              tagBg: 'rgba(255, 255, 255, 0.85)',
+              tag: '연지색 · 초안 작성',
+              icon: PenTool,
               desc: '작품 키워드 세 개로 심층 작가노트 초안, 인스타그램 캡션, 블로그 글을 함께 잡아드려요. 마지막 문장은 작가님의 손으로.'
             },
             {
               id: 'inspo',
               title: '영감 노트',
-              tag: '영감 · 문장',
-              bg: '#F0FDFA',
-              border: '#CCFBF1',
-              tagColor: '#0F766E',
-              tagBg: 'rgba(255, 255, 255, 0.85)',
+              tag: '청자색 · 영감 · 문장',
+              icon: Quote,
               desc: '책 속 한 줄, 영화 속 대사, 문득 떠오른 사유를 카드로 모아두는 창작의 소중한 씨앗 보관함.'
             }
-          ].map((item) => (
-            <div 
-              key={item.id}
-              className="feature-showcase-card" 
-              onClick={() => handleCardClick(item.id)} 
-              style={{ 
-                background: item.bg,
-                border: `1px solid ${item.border}`,
-                borderRadius: '16px',
-                padding: '1.5rem',
-                cursor: 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-start',
-                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)'
-              }}
-            >
-              <div style={{ marginBottom: '1.15rem' }}>
-                <span 
-                  className="feature-tag"
-                  style={{
-                    background: item.tagBg,
-                    color: item.tagColor,
-                    border: `1px solid ${item.border}`,
-                    fontSize: '0.74rem',
-                    fontWeight: 600,
-                    padding: '3px 10px',
-                    borderRadius: '999px',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-                  }}
-                >
-                  {item.tag}
-                </span>
+          ].map((item) => {
+            const color = TRADITIONAL_COLORS[item.id];
+            const IconComponent = item.icon;
+            return (
+              <div 
+                key={item.id}
+                className="feature-showcase-card" 
+                onClick={() => handleCardClick(item.id)} 
+                style={{ 
+                  background: color.bg,
+                  border: `1px solid ${color.border}`,
+                  borderRadius: '16px',
+                  padding: '1.5rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'flex-start',
+                  boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{ marginBottom: '1.15rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: color.iconBg,
+                    color: color.iconColor,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: `1px solid ${color.border}`
+                  }}>
+                    <IconComponent size={19} />
+                  </div>
+                  <span 
+                    className="feature-tag"
+                    style={{
+                      background: color.tagBg,
+                      color: color.tagColor,
+                      border: `1px solid ${color.border}`,
+                      fontSize: '0.74rem',
+                      fontWeight: 600,
+                      padding: '3px 10px',
+                      borderRadius: '999px',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                    }}
+                  >
+                    {item.tag}
+                  </span>
+                </div>
+                <h4 style={{ fontSize: '1.22rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.55rem', letterSpacing: '-0.02em' }}>
+                  {item.title}
+                </h4>
+                <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.6, margin: 0 }}>
+                  {item.desc}
+                </p>
               </div>
-              <h4 style={{ fontSize: '1.22rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.55rem', letterSpacing: '-0.02em' }}>
-                {item.title}
-              </h4>
-              <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.6, margin: 0 }}>
-                {item.desc}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

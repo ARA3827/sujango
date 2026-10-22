@@ -37,6 +37,31 @@
   
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 한국 전통색 6대 기능 팔레트 (Korean Traditional Colors) */
+  --k-archive-bg: #F4F3F0;
+  --k-archive-accent: #3F3B36;
+  --k-archive-border: #E4E2DC;
+
+  --k-caption-bg: #EEF2F6;
+  --k-caption-accent: #3D5A80;
+  --k-caption-border: #DCE4ED;
+
+  --k-doc-bg: #F6F4E8;
+  --k-doc-accent: #7A6F2E;
+  --k-doc-border: #E7E4D0;
+
+  --k-tax-bg: #F8F1E6;
+  --k-tax-accent: #A0703A;
+  --k-tax-border: #EADECF;
+
+  --k-statement-bg: #F7EFEF;
+  --k-statement-accent: #9E5A5A;
+  --k-statement-border: #E8DCDC;
+
+  --k-inspo-bg: #EEF4F1;
+  --k-inspo-accent: #4F7F6E;
+  --k-inspo-border: #DCE7E1;
 }
 
 * {
