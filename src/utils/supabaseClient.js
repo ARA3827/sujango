@@ -209,6 +209,21 @@ export async function signInWithEmail(email, password) {
 }
 
 /**
+ * Supabase 회원가입 확인 인증 메일 재발송
+ */
+export async function resendConfirmationEmail(email) {
+  if (!isSupabaseConfigured() || !supabase) {
+    throw new Error('클라우드 서버(Supabase) 연결 정보를 확인해 주세요.');
+  }
+  const { data, error } = await supabase.auth.resend({
+    type: 'signup',
+    email
+  });
+  if (error) throw error;
+  return data;
+}
+
+/**
  * Supabase 정식 로그아웃
  */
 export async function signOutSupabase() {

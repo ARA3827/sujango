@@ -12,12 +12,12 @@ import {
   Edit3
 } from 'lucide-react';
 import { getGoogleClientId, loginWithGoogle } from '../utils/googleAuth';
-import { supabase, isSupabaseConfigured, signInWithEmail, signUpWithEmail } from '../utils/supabaseClient';
+import { supabase, isSupabaseConfigured, signInWithEmail, signUpWithEmail, resendConfirmationEmail } from '../utils/supabaseClient';
 import { registerLocalUser, loginLocalUser, findRegisteredUser, saveOrUpdateSocialUser } from '../utils/authStorage';
 import confetti from 'canvas-confetti';
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMode = 'login' }) {
-  // 화면 모드: 'login' (기본 로그인) | 'signup' (간편 회원가입) | 'profile_setup' (구글 가입 후 작가명 확인)
+  // 화면 모드: 'login' (기본 로그인) | 'signup' (간편 회원가입) | 'profile_setup' (구글 가입 후 작가명 확인) | 'email_sent' (인증 메일 발송 안내)
   const [viewMode, setViewMode] = useState(initialMode === 'signup' ? 'signup' : 'login');
 
   // 이메일 로그인/회원가입 입력값
@@ -26,6 +26,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [isResending, setIsResending] = useState(false);
+  const [resendNotice, setResendNotice] = useState('');
 
   // Google 로그인 진행 상태 & 소셜 사용자 정보
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -105,10 +108,28 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     triggerConfetti();
   };
 
+  // 인증 메일 재발송 처리
+  const handleResendConfirmation = async () => {
+    const targetEmail = registeredEmail || email;
+    if (!targetEmail) return;
+    setIsResending(true);
+    setResendNotice('');
+    try {
+      await resendConfirmationEmail(targetEmail);
+      setResendNotice('인증 메일을 다시 발송했습니다. 메일함을 확인해 주세요.');
+    } catch (err) {
+      console.warn('재발송 안내:', err);
+      setResendNotice(err.message || '잠시 후 다시 시도해 주세요.');
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   // 이메일/비밀번호 로그인 및 회원가입 처리 (100% 로컬 영구 볼트 + 클라우드 백업)
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     setErrorMessage('');
+    setResendNotice('');
 
     if (!email.trim()) {
       setErrorMessage('이메일 주소를 입력해 주세요.');
@@ -135,6 +156,15 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
         if (isSupabaseConfigured() && supabase) {
           try {
             const data = await signUpWithEmail(email.trim(), password.trim(), name.trim() || '작가');
+            
+            // 이메일 인증이 활성화되어 있어 세션이 아직 없는 경우 -> 인증 메일 확인 안내 화면으로 직관적 전환!
+            if (data?.user && !data?.session) {
+              setRegisteredEmail(email.trim());
+              setViewMode('email_sent');
+              triggerConfetti();
+              return;
+            }
+
             newUser = {
               id: data?.user?.id || `user-${Date.now()}`,
               name: name.trim() || '작가',
@@ -195,7 +225,12 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     } catch (err) {
       console.error('인증 실패:', err);
       let userMsg = err.message || '인증에 실패했습니다.';
-      if (userMsg.includes('Failed to fetch')) {
+      
+      // 이메일 미인증 에러 감지 시 친절한 안내로 변환
+      if (userMsg.toLowerCase().includes('email not confirmed')) {
+        setRegisteredEmail(email.trim());
+        userMsg = '이메일 인증이 아직 완료되지 않았습니다. 메일함에서 인증 링크를 클릭해 주세요.';
+      } else if (userMsg.includes('Failed to fetch')) {
         try {
           const fallbackUser = isSigningUp 
             ? registerLocalUser(email.trim(), password.trim(), name.trim() || '작가')
@@ -251,16 +286,24 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', color: '#0284C7', padding: '2px 8px', borderRadius: '999px', fontSize: '0.74rem', fontWeight: 700, marginBottom: '0.35rem' }}>
               <Sparkles size={12} />
-              <span>{viewMode === 'signup' ? 'SUJANGO SIGNUP' : 'SUJANGO LOGIN'}</span>
+              <span>{viewMode === 'signup' ? 'SUJANGO SIGNUP' : viewMode === 'email_sent' ? 'EMAIL VERIFICATION' : 'SUJANGO LOGIN'}</span>
             </div>
             <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
-              {viewMode === 'signup' ? '수장고(Sujango) 회원가입' : viewMode === 'profile_setup' ? '수장고 작가 프로필 설정' : '수장고(Sujango) 로그인'}
+              {viewMode === 'signup' 
+                ? '수장고(Sujango) 회원가입' 
+                : viewMode === 'profile_setup' 
+                ? '수장고 작가 프로필 설정' 
+                : viewMode === 'email_sent'
+                ? '이메일 인증 안내'
+                : '수장고(Sujango) 로그인'}
             </h3>
             <p style={{ fontSize: '0.82rem', color: '#64748B', margin: '4px 0 0 0' }}>
               {viewMode === 'signup' 
                 ? '원하는 방식으로 간편하게 회원가입하세요.' 
                 : viewMode === 'profile_setup'
                 ? '활동하실 작가 활동명(아이디)을 확인해 주세요.'
+                : viewMode === 'email_sent'
+                ? '수신하신 메일함에서 인증을 완료하시면 가입이 완료됩니다.'
                 : '등록하신 계정으로 안전하게 로그인하세요.'}
             </p>
           </div>
@@ -269,6 +312,14 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           </button>
         </div>
 
+        {/* 재발송 성공 안내 메시지 */}
+        {resendNotice && (
+          <div style={{ padding: '0.8rem 0.95rem', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '10px', color: '#065F46', fontSize: '0.82rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CheckCircle2 size={16} color="#059669" style={{ flexShrink: 0 }} />
+            <span>{resendNotice}</span>
+          </div>
+        )}
+
         {/* 에러 안내 메시지 및 스마트 전환 버튼 */}
         {errorMessage && (
           <div style={{ padding: '0.85rem 0.95rem', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '10px', color: '#991B1B', fontSize: '0.82rem', marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: 1.5 }}>
@@ -276,6 +327,43 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
               <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
               <span>{errorMessage}</span>
             </div>
+            {errorMessage.includes('이메일 인증이 아직 완료되지 않았습니다') && (
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '2px' }}>
+                <button
+                  type="button"
+                  onClick={() => { setViewMode('email_sent'); setErrorMessage(''); }}
+                  style={{
+                    background: '#0F172A',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '5px 12px',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  인증 안내 화면 보기 →
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResendConfirmation}
+                  disabled={isResending}
+                  style={{
+                    background: '#FFFFFF',
+                    color: '#991B1B',
+                    border: '1px solid #FCA5A5',
+                    borderRadius: '6px',
+                    padding: '5px 12px',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {isResending ? '재발송 중...' : '인증 메일 다시 보내기'}
+                </button>
+              </div>
+            )}
             {errorMessage.includes('이미 등록된 이메일') && (
               <button
                 type="button"
@@ -636,6 +724,107 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                 <ArrowRight size={18} />
               </button>
             </form>
+          </div>
+        )}
+
+        {/* ➍ 이메일 인증 발송 완료 안내 화면 (과제 2) */}
+        {viewMode === 'email_sent' && (
+          <div style={{ textAlign: 'center', padding: '0.5rem 0' }}>
+            <div style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              background: '#F0F9FF',
+              border: '1.5px solid #BAE6FD',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#0284C7',
+              marginBottom: '1rem'
+            }}>
+              <Mail size={28} />
+            </div>
+
+            <div style={{
+              display: 'inline-block',
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              borderRadius: '8px',
+              padding: '0.4rem 0.9rem',
+              fontSize: '0.88rem',
+              fontWeight: 700,
+              color: '#0F172A',
+              marginBottom: '1.1rem'
+            }}>
+              {registeredEmail || email || '가입하신 이메일'}
+            </div>
+
+            <div style={{
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              borderRadius: '12px',
+              padding: '1.1rem',
+              textAlign: 'left',
+              fontSize: '0.82rem',
+              color: '#334155',
+              lineHeight: 1.6,
+              marginBottom: '1.4rem'
+            }}>
+              <div style={{ fontWeight: 700, color: '#0F172A', marginBottom: '8px' }}>
+                ✉️ 다음 순서로 인증을 완료해 주세요:
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                <span style={{ fontWeight: 700, color: '#0284C7', minWidth: '16px' }}>1.</span>
+                <span>수신하신 메일함(네이버, 지메일 등)을 열어주세요.</span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
+                <span style={{ fontWeight: 700, color: '#0284C7', minWidth: '16px' }}>2.</span>
+                <span><strong>수장고 (Sujango)</strong>에서 보낸 인증 링크를 클릭합니다.</span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <span style={{ fontWeight: 700, color: '#0284C7', minWidth: '16px' }}>3.</span>
+                <span>인증 완료 후 아래 [로그인하기] 버튼을 눌러 입장하세요!</span>
+              </div>
+              <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '10px', borderTop: '1px dashed #E2E8F0', paddingTop: '8px' }}>
+                * 공식 발신 주소: <strong>auth@sujango.com</strong><br />
+                * 메일이 보이지 않는다면 스팸함도 확인해 주세요.
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => { setViewMode('login'); setErrorMessage(''); setResendNotice(''); }}
+                className="btn-primary"
+                style={{
+                  ...commonBtnStyle,
+                  background: '#0F172A',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  fontSize: '0.92rem'
+                }}
+              >
+                <span>인증 완료 후 로그인하기</span>
+                <ArrowRight size={16} />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResendConfirmation}
+                disabled={isResending}
+                style={{
+                  ...commonBtnStyle,
+                  background: '#FFFFFF',
+                  color: '#64748B',
+                  border: '1px solid #CBD5E1',
+                  fontSize: '0.82rem',
+                  height: '42px',
+                  opacity: isResending ? 0.7 : 1
+                }}
+              >
+                <span>{isResending ? '인증 메일 발송 중...' : '인증 메일이 오지 않았나요? (재발송)'}</span>
+              </button>
+            </div>
           </div>
         )}
 
