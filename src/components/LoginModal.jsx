@@ -30,6 +30,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
   const [isResending, setIsResending] = useState(false);
   const [resendNotice, setResendNotice] = useState('');
   const [signupSuccessData, setSignupSuccessData] = useState(null);
+  const [existingAccountUser, setExistingAccountUser] = useState(null);
 
   // Google 로그인 진행 상태 & 소셜 사용자 정보
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -62,7 +63,16 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
     onClose();
   };
 
-  // Google 로그인 / 회원가입 실행 (신규 가입 시 환영 화면, 기존 회원은 직행)
+  // 기존 계정 감지 화면에서 대시보드로 입장
+  const handleEnterFromExisting = () => {
+    if (existingAccountUser) {
+      onLoginSuccess(existingAccountUser, { isNewUser: false });
+    }
+    onClose();
+    triggerConfetti();
+  };
+
+  // Google 로그인 / 회원가입 실행 (회원가입 모드에서 기존 회원이면 명확한 중복 안내 화면 노출)
   const handleGoogleAuth = () => {
     setErrorMessage('');
     setIsGoogleLoading(true);
@@ -85,16 +95,25 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           name: candidateName
         });
 
-        // 2. 신규 가입이면 가입 환영 축하 화면, 기존 회원이면 즉시 대시보드 입장!
+        // 2. [회원가입 모드]에서 이미 가입된 Google 계정을 선택한 경우 -> 명확한 계정 확인 화면 노출!
+        if (viewMode === 'signup' && existing) {
+          setExistingAccountUser(finalUser);
+          setViewMode('already_registered');
+          return;
+        }
+
+        // 3. 신규 회원이면 가입 환영 축하 화면 노출!
         if (!existing) {
           setSignupSuccessData(finalUser);
           setViewMode('signup_success');
           triggerConfetti();
-        } else {
-          onLoginSuccess(finalUser, { isNewUser: false });
-          onClose();
-          triggerConfetti();
+          return;
         }
+
+        // 4. [로그인 모드]에서 정상 기존 로그인이면 즉시 대시보드 입장!
+        onLoginSuccess(finalUser, { isNewUser: false });
+        onClose();
+        triggerConfetti();
       },
       (err) => {
         setIsGoogleLoading(false);
@@ -361,13 +380,15 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', color: '#0284C7', padding: '2px 8px', borderRadius: '999px', fontSize: '0.74rem', fontWeight: 700, marginBottom: '0.35rem' }}>
               <Sparkles size={12} />
-              <span>{viewMode === 'signup' ? 'SUJANGO SIGNUP' : viewMode === 'email_sent' ? 'EMAIL VERIFICATION' : viewMode === 'signup_success' ? 'WELCOME TO SUJANGO' : 'SUJANGO LOGIN'}</span>
+              <span>{viewMode === 'signup' ? 'SUJANGO SIGNUP' : viewMode === 'email_sent' ? 'EMAIL VERIFICATION' : viewMode === 'signup_success' ? 'WELCOME TO SUJANGO' : viewMode === 'already_registered' ? 'ACCOUNT FOUND' : 'SUJANGO LOGIN'}</span>
             </div>
             <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
               {viewMode === 'signup' 
                 ? '수장고(Sujango) 회원가입' 
                 : viewMode === 'signup_success'
                 ? '수장고에 오신 것을 환영합니다!'
+                : viewMode === 'already_registered'
+                ? '이미 가입된 계정입니다'
                 : viewMode === 'profile_setup' 
                 ? '수장고 작가 프로필 설정' 
                 : viewMode === 'email_sent'
@@ -379,6 +400,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                 ? '원하는 방식으로 간편하게 회원가입하세요.' 
                 : viewMode === 'signup_success'
                 ? '작가님만의 프라이빗 디지털 아카이브가 개설되었습니다.'
+                : viewMode === 'already_registered'
+                ? '기존에 등록된 계정으로 안전하게 로그인하실 수 있습니다.'
                 : viewMode === 'profile_setup'
                 ? '활동하실 작가 활동명(아이디)을 확인해 주세요.'
                 : viewMode === 'email_sent'
@@ -390,6 +413,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
             onClick={() => {
               if (viewMode === 'signup_success' && signupSuccessData) {
                 onLoginSuccess(signupSuccessData, { isNewUser: true });
+              } else if (viewMode === 'already_registered' && existingAccountUser) {
+                onLoginSuccess(existingAccountUser, { isNewUser: false });
               }
               onClose();
             }} 
@@ -914,6 +939,73 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
               }}
             >
               <span>내 수장고 바로 입장하기</span>
+              <ArrowRight size={18} />
+            </button>
+          </div>
+        )}
+
+        {/* ➏ 회원가입 시 이미 등록된 계정 감지 화면 (누나 피드백 보강) */}
+        {viewMode === 'already_registered' && (
+          <div style={{ textAlign: 'center', padding: '0.6rem 0' }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: '#F0F9FF',
+              border: '2px solid #BAE6FD',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#0284C7',
+              marginBottom: '1rem'
+            }}>
+              <CheckCircle2 size={34} />
+            </div>
+
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', color: '#0284C7', padding: '3px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 700, marginBottom: '0.6rem' }}>
+              <Sparkles size={13} />
+              <span>기존 계정 감지</span>
+            </div>
+
+            <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0F172A', margin: '0 0 0.5rem 0', fontFamily: 'var(--font-serif)' }}>
+              이미 등록된 계정입니다
+            </h3>
+
+            <p style={{ fontSize: '0.86rem', color: '#475569', margin: '0 0 1.25rem 0', lineHeight: 1.5 }}>
+              <strong>{existingAccountUser?.name || '작가'}</strong> 작가님은 이미 수장고에 등록되어 있습니다.<br />
+              기존 계정으로 안전하게 입장하세요.
+            </p>
+
+            <div style={{
+              background: '#F8FAFC',
+              borderRadius: '12px',
+              padding: '1rem 1.1rem',
+              marginBottom: '1.4rem',
+              border: '1px solid #E2E8F0',
+              textAlign: 'left'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '8px' }}>
+                <span style={{ color: '#64748B' }}>활동명 (작가명)</span>
+                <span style={{ fontWeight: 700, color: '#0F172A' }}>{existingAccountUser?.name || '작가'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                <span style={{ color: '#64748B' }}>등록 계정</span>
+                <span style={{ fontWeight: 600, color: '#0284C7' }}>{existingAccountUser?.email || ''}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleEnterFromExisting}
+              style={{
+                ...commonBtnStyle,
+                background: '#0F172A',
+                color: '#FFFFFF',
+                border: 'none',
+                fontSize: '0.96rem'
+              }}
+            >
+              <span>기존 계정으로 수장고 입장하기</span>
               <ArrowRight size={18} />
             </button>
           </div>
