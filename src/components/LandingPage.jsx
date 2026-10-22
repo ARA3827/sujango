@@ -255,9 +255,13 @@ export default function LandingPage({
                       border: `1px solid ${color.border}`,
                       fontSize: '0.74rem',
                       fontWeight: 600,
-                      padding: '3px 10px',
+                      padding: '4px 10px',
                       borderRadius: '999px',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                      margin: 0,
+                      lineHeight: 1,
+                      display: 'inline-flex',
+                      alignItems: 'center'
                     }}
                   >
                     {item.tag}
