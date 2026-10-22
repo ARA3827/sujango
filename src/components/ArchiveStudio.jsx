@@ -22,7 +22,8 @@ import {
   AlertCircle,
   ShieldCheck,
   FileText,
-  GitMerge
+  GitMerge,
+  HardDrive
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import WatermarkSettingsModal from './WatermarkSettingsModal';
@@ -39,6 +40,7 @@ import { generateWatermarkedPreview, generateThumbnail, compressImage } from '..
 import { fetchWatermarkSettings } from '../utils/supabaseClient';
 import { saveOriginalToVault, getOriginalFromVault, deleteOriginalFromVault } from '../utils/rawImageVault';
 import { getArtworkStatusMeta, ARTWORK_STATUS, ARTWORK_STATUS_LABELS } from '../utils/artworkModel';
+import { getUserStoragePlan, calculateUsedStorage, formatBytes, checkStorageOverflow } from '../utils/storageMeter';
 
 // 기능 토글 설정값 (비활성화 상태 보존)
 const SHARE_LINK_ENABLED = false;
@@ -46,6 +48,12 @@ const CLOUD_ENABLED = false; // 클라우드 동기화 완료 후 true 전환
 
 export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateToStatement, onOpenPricing, user, initialArtworkId }) {
   const [artworks, setArtworks] = useState(() => getArtworks(user));
+
+  // 작가별 실시간 저장 용량(1GB/100GB/500GB) 계산
+  const currentStoragePlan = getUserStoragePlan(user);
+  const usedStorageBytes = calculateUsedStorage(artworks);
+  const storageStatus = checkStorageOverflow(usedStorageBytes, 0, currentStoragePlan.limitBytes);
+  const [limitReason, setLimitReason] = useState('count'); // 'count' | 'storage'
   const [selectedId, setSelectedId] = useState(() => {
     const list = getArtworks(user);
     if (initialArtworkId && list.some(a => a.id === initialArtworkId)) {
@@ -376,8 +384,15 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
 
   // 모달 열기 (새 등록)
   const handleOpenAddModal = () => {
-    // 무료 플랜 30점 한도 검증
-    if (!user?.isPro && artworks.length >= 30) {
+    // 1. 무료 플랜 30점 개수 한도 검증
+    if (!user?.isPro && artworks.length >= currentStoragePlan.maxArtworkCount) {
+      setLimitReason('count');
+      setIsLimitModalOpen(true);
+      return;
+    }
+    // 2. 저장 공간 상한 검증 (Free 1GB / Pro 100GB / Studio 500GB)
+    if (usedStorageBytes >= currentStoragePlan.limitBytes) {
+      setLimitReason('storage');
       setIsLimitModalOpen(true);
       return;
     }
@@ -450,6 +465,15 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // 저장 공간 한도 사전 검증
+    const overflowCheck = checkStorageOverflow(usedStorageBytes, file.size, currentStoragePlan.limitBytes);
+    if (overflowCheck.isOverflow) {
+      alert(`선택하신 파일(${formatBytes(file.size)})을 추가하면 현재 저장 공간 한도(${currentStoragePlan.limitLabel})를 초과합니다.\n더 큰 용량이 필요하시면 Pro 멤버십(100GB)을 확인해 주세요.`);
+      setLimitReason('storage');
+      setIsLimitModalOpen(true);
+      return;
+    }
 
     try {
       setIsCompressing(true);
@@ -670,27 +694,27 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       )}
 
       {/* 2. 타이틀 영역 */}
-      <div className="workspace-title-area" style={{ marginBottom: '1.25rem' }}>
+      <div className="workspace-title-area" style={{ marginBottom: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
           <h2>나의 작품 수장고</h2>
           {user?.isPro ? (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', border: '1px solid #BAE6FD', color: '#0369A1', padding: '4px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600 }}>
               <Crown size={13} color="#0284C7" />
-              <span>Sujango Pro: 무제한 등록 & 기기 간 실시간 클라우드 동기화 중</span>
+              <span>Sujango Pro: 100GB 무손실 원본 금고 & 기기 간 실시간 클라우드 동기화 중</span>
             </div>
           ) : (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '0.8rem', color: '#64748B', background: '#F1F5F9', padding: '4px 10px', borderRadius: '999px', fontWeight: 600 }}>
-                📁 무료 수장고: <strong>{artworks.length}</strong> / 30점 (내 PC 저장)
+                📁 무료 기본 수장고 (1GB · 30점 한도)
               </span>
               <button 
                 onClick={onOpenPricing}
                 className="header-pricing-btn"
                 style={{ fontSize: '0.76rem', padding: '0.28rem 0.65rem' }}
-                title="무제한 등록 및 기기 간 자동 동기화 Pro 플랜 안내"
+                title="100GB 무손실 금고 및 기기 간 자동 동기화 Pro 플랜 안내"
               >
                 <Crown size={12} color="#D97706" />
-                <span>{CLOUD_ENABLED ? '무제한 & 클라우드 수장고 Pro' : 'Pro 베타 신청'}</span>
+                <span>100GB 확장</span>
               </button>
             </div>
           )}
@@ -698,6 +722,77 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
         <p>
           작품 사진과 작가노트, 캡션 정보를 작품별로 보관하세요.
         </p>
+      </div>
+
+      {/* 실시간 저장 용량(Storage Meter) 게이지 카드 */}
+      <div style={{
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: '12px',
+        padding: '0.9rem 1.15rem',
+        marginBottom: '1.25rem',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: '#F8FAFC', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0F172A' }}>
+              <HardDrive size={15} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A' }}>
+                저장 공간 사용량:
+              </span>
+              <span style={{ fontSize: '0.9rem', fontWeight: 800, color: storageStatus.percentage >= 90 ? '#DC2626' : (storageStatus.percentage >= 75 ? '#D97706' : '#0F172A') }}>
+                {formatBytes(usedStorageBytes)}
+              </span>
+              <span style={{ fontSize: '0.82rem', color: '#94A3B8', fontWeight: 500 }}>
+                / {currentStoragePlan.limitLabel}
+              </span>
+              <span style={{ fontSize: '0.72rem', background: '#F1F5F9', color: '#475569', padding: '2px 7px', borderRadius: '4px', fontWeight: 600 }}>
+                {currentStoragePlan.name}
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '0.78rem', color: '#64748B' }}>
+              작품 <strong>{artworks.length}</strong>점 보관 · <strong>{storageStatus.percentage}%</strong> 사용
+            </span>
+            {!user?.isPro && (
+              <button
+                type="button"
+                onClick={onOpenPricing}
+                style={{
+                  background: '#0F172A',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 10px',
+                  fontSize: '0.76rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <Crown size={12} color="#FBBF24" />
+                <span>100GB 확장</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* 게이지 바 */}
+        <div style={{ width: '100%', height: '6px', background: '#F1F5F9', borderRadius: '999px', overflow: 'hidden' }}>
+          <div style={{
+            width: `${Math.max(2, storageStatus.percentage)}%`,
+            height: '100%',
+            background: storageStatus.percentage >= 90 ? '#DC2626' : (storageStatus.percentage >= 75 ? '#D97706' : '#0F172A'),
+            borderRadius: '999px',
+            transition: 'width 0.4s ease'
+          }} />
+        </div>
       </div>
 
       {/* 3. 상단 작품 셀렉터 캐러셀 / 탭 스트립 */}
@@ -1329,7 +1424,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
         </div>
       )}
 
-      {/* 7. 무료 30점 한도 도달 안내 모달 */}
+      {/* 7. 저장 용량 또는 개수 한도 도달 안내 모달 */}
       {isLimitModalOpen && (
         <div className="modal-backdrop" onClick={() => setIsLimitModalOpen(false)}>
           <div 
@@ -1342,13 +1437,24 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
             </div>
 
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>
-              무료 보관 한도(30점)에 도달했습니다
+              {limitReason === 'storage' 
+                ? `저장 공간 한도(${currentStoragePlan.limitLabel})에 도달했습니다`
+                : '무료 보관 한도(30점)에 도달했습니다'}
             </h3>
 
             <p style={{ fontSize: '0.88rem', color: '#64748B', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-              무료 플랜은 최대 30점까지 브라우저에 안전하게 보관할 수 있습니다.<br />
-              <strong>작품 무제한 등록</strong>과 <strong>PC • 스마트폰 간 실시간 자동 로그인 동기화</strong>, 
-              <strong>100GB 무손실 원본 금고</strong>를 이용하시려면 Pro 멤버십으로 업그레이드해 보세요!
+              {limitReason === 'storage' ? (
+                <>
+                  현재 플랜의 저장 공간(<strong>{currentStoragePlan.limitLabel}</strong>)이 모두 사용되었습니다.<br />
+                  <strong>100GB 무손실 원본 금고</strong>와 <strong>PC • 스마트폰 간 실시간 자동 로그인 동기화</strong>를 이용하시려면 Pro 멤버십으로 확장해 보세요!
+                </>
+              ) : (
+                <>
+                  무료 플랜은 최대 30점까지 브라우저에 안전하게 보관할 수 있습니다.<br />
+                  <strong>작품 무제한 등록</strong>과 <strong>PC • 스마트폰 간 실시간 자동 로그인 동기화</strong>, 
+                  <strong>100GB 무손실 원본 금고</strong>를 이용하시려면 Pro 멤버십으로 업그레이드해 보세요!
+                </>
+              )}
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1362,7 +1468,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                 style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.92rem' }}
               >
                 <Crown size={16} color="#EAB308" />
-                <span>👑 수장고프로 업그레이드</span>
+                <span>👑 100GB 수장고 Pro 확장</span>
               </button>
               <button
                 type="button"

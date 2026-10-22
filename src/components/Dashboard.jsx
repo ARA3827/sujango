@@ -8,18 +8,22 @@ import {
   FileText,
   Receipt,
   PenTool,
-  Quote
+  Quote,
+  HardDrive,
+  Crown
 } from 'lucide-react';
 import { getArtworks } from '../utils/archiveStorage';
 import { getStoredUser, getUserScopedKey } from '../utils/authStorage';
 import { getArtworkStatusMeta } from '../utils/artworkModel';
 import { TRADITIONAL_COLORS } from '../constants/themeColors';
+import { getUserStoragePlan, calculateUsedStorage, formatBytes, checkStorageOverflow } from '../utils/storageMeter';
 
 export default function Dashboard({ 
   onSelectView, 
   taxSummary = { totalIncome: 0, pendingAmount: 0 },
   captionCount: propCaptionCount = 0,
   onOpenNewToolModal,
+  onOpenPricing,
   user = null
 }) {
   const [artworks, setArtworks] = useState(() => getArtworks(user));
@@ -146,6 +150,11 @@ export default function Dashboard({
     }
   ];
 
+  // 작가별 실시간 저장 용량(1GB/100GB/500GB) 계산
+  const storagePlan = getUserStoragePlan(user);
+  const usedStorageBytes = calculateUsedStorage(artworks);
+  const storageStatus = checkStorageOverflow(usedStorageBytes, 0, storagePlan.limitBytes);
+
   return (
     <div className="dashboard-wrapper">
       {/* 1. 히어로 인트로 */}
@@ -162,13 +171,47 @@ export default function Dashboard({
       <div className="archive-board-section" style={{ marginTop: '1.25rem' }}>
         <div className="archive-board-header">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span className="archive-board-title">
                 {user?.name ? `${user.name} 작가님의 수장고` : '나의 작품 디지털 수장고'}
               </span>
-              <span className="archive-board-count" style={{ whiteSpace: 'nowrap' }}>
-                총 {artworks.length}점 보관 중
+              <span className="archive-board-count" style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <span>총 {artworks.length}점 보관 중</span>
+                <span style={{ color: '#CBD5E1' }}>·</span>
+                <span style={{ 
+                  color: storageStatus.percentage >= 90 ? '#DC2626' : (storageStatus.percentage >= 75 ? '#D97706' : '#64748B'),
+                  fontWeight: 600,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <HardDrive size={12} color={storageStatus.percentage >= 90 ? '#DC2626' : '#64748B'} />
+                  <span>{formatBytes(usedStorageBytes)} / {storagePlan.limitLabel}</span>
+                </span>
               </span>
+              {!user?.isPro && onOpenPricing && (
+                <button
+                  type="button"
+                  onClick={onOpenPricing}
+                  style={{
+                    background: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    color: '#0F172A',
+                    fontSize: '0.72rem',
+                    fontWeight: 600,
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                  title="100GB 무손실 금고 요금제 안내"
+                >
+                  <Crown size={11} color="#D97706" />
+                  <span>100GB 확장</span>
+                </button>
+              )}
             </div>
             <p className="desktop-only" style={{ fontSize: '0.83rem', color: '#64748B', margin: '4px 0 0 0' }}>
               세월이 흘러도 변치 않는 {user?.name || '작가'}님만의 프라이빗 디지털 수장고. 작품을 누르면 작가노트와 캡션을 바로 볼 수 있어요
@@ -193,6 +236,28 @@ export default function Dashboard({
               </button>
             </div>
           )}
+        </div>
+
+        {/* 대시보드 수장고 저장 공간 미니 프로그레스 바 */}
+        <div 
+          style={{ 
+            width: '100%', 
+            height: '4px', 
+            background: '#F1F5F9', 
+            borderRadius: '999px', 
+            overflow: 'hidden',
+            marginTop: '0.65rem',
+            marginBottom: '0.5rem'
+          }}
+          title={`저장 공간: ${formatBytes(usedStorageBytes)} / ${storagePlan.limitLabel} (${storageStatus.percentage}% 사용 중)`}
+        >
+          <div style={{
+            width: `${Math.max(2, storageStatus.percentage)}%`,
+            height: '100%',
+            background: storageStatus.percentage >= 90 ? '#DC2626' : (storageStatus.percentage >= 75 ? '#D97706' : '#0F172A'),
+            borderRadius: '999px',
+            transition: 'width 0.3s ease'
+          }} />
         </div>
 
         {artworks.length > 0 ? (
