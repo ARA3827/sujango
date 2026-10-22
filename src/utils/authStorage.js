@@ -188,3 +188,34 @@ export function loginLocalUser(email, password) {
   saveUser(safeUser);
   return safeUser;
 }
+
+/**
+ * 3. 현재 로그인된 작가 프로필(이름, 역할 등) 수정 및 로컬 DB 영구 동기화
+ */
+export function updateUserProfile(updates = {}) {
+  const currentUser = getStoredUser();
+  if (!currentUser) return null;
+
+  const updatedUser = {
+    ...currentUser,
+    ...updates
+  };
+
+  saveUser(updatedUser);
+
+  // 전체 등록 회원 목록에도 안전하게 반영
+  try {
+    const users = getRegisteredUsers();
+    const cleanEmail = (currentUser.email || '').trim().toLowerCase();
+    const index = users.findIndex(u => (u.email || '').toLowerCase() === cleanEmail);
+    if (index >= 0) {
+      users[index] = { ...users[index], ...updates };
+      saveRegisteredUsers(users);
+    }
+  } catch (e) {
+    console.error('Failed to sync updated user in database:', e);
+  }
+
+  return updatedUser;
+}
+

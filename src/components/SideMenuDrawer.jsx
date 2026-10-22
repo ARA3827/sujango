@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Palette, 
@@ -13,8 +13,11 @@ import {
   LogOut,
   Mail,
   Building,
-  Smartphone
+  Smartphone,
+  Edit2,
+  Check
 } from 'lucide-react';
+import { updateUserProfile } from '../utils/authStorage';
 
 /**
  * 상단 햄버거 메뉴(☰) 클릭 시 우측에서 슬라이드로 열리는 사이드 드로어 메뉴
@@ -25,7 +28,7 @@ export default function SideMenuDrawer({
   user,
   onOpenLogin,
   onLogout,
-  onOpenInfoTab,
+  onUpdateUser,
   onNavigateAbout,
   onNavigateGuide,
   onOpenPricing,
@@ -33,6 +36,26 @@ export default function SideMenuDrawer({
   onOpenPolicy,
   onOpenShortcut
 }) {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
+
+  const handleStartEditName = () => {
+    setNewName(user?.name || '');
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = () => {
+    const trimmed = newName.trim();
+    if (!trimmed) {
+      alert('변경하실 작가명 또는 활동명을 입력해 주세요.');
+      return;
+    }
+    const updated = updateUserProfile({ name: trimmed });
+    if (updated && onUpdateUser) {
+      onUpdateUser(updated);
+    }
+    setIsEditingName(false);
+  };
   // ESC 키로 드로어 닫기
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -95,9 +118,85 @@ export default function SideMenuDrawer({
                     user.name.charAt(0)
                   )}
                 </div>
-                <div>
-                  <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#0F172A' }}>{user.name} 작가님</div>
-                  <div style={{ fontSize: '0.75rem', color: '#0284C7', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {isEditingName ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+                      <input 
+                        type="text" 
+                        value={newName} 
+                        onChange={(e) => setNewName(e.target.value)}
+                        placeholder="새 작가명/활동명"
+                        style={{ 
+                          fontSize: '0.8rem', 
+                          padding: '3px 6px', 
+                          border: '1px solid #0F172A', 
+                          borderRadius: '4px', 
+                          width: '110px',
+                          outline: 'none'
+                        }}
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveName();
+                          if (e.key === 'Escape') setIsEditingName(false);
+                        }}
+                      />
+                      <button 
+                        type="button" 
+                        onClick={handleSaveName}
+                        style={{ 
+                          fontSize: '0.72rem', 
+                          padding: '3px 7px', 
+                          background: '#0F172A', 
+                          color: '#FFFFFF', 
+                          border: 'none', 
+                          borderRadius: '4px', 
+                          cursor: 'pointer',
+                          fontWeight: 600
+                        }}
+                      >
+                        저장
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => setIsEditingName(false)}
+                        style={{ 
+                          fontSize: '0.72rem', 
+                          padding: '3px 6px', 
+                          background: '#FFFFFF', 
+                          color: '#64748B', 
+                          border: '1px solid #CBD5E1', 
+                          borderRadius: '4px', 
+                          cursor: 'pointer' 
+                        }}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '0.92rem', fontWeight: 700, color: '#0F172A' }}>{user.name} 작가님</span>
+                      <button
+                        type="button"
+                        onClick={handleStartEditName}
+                        style={{
+                          border: 'none',
+                          background: 'transparent',
+                          color: '#64748B',
+                          cursor: 'pointer',
+                          padding: '2px 4px',
+                          fontSize: '0.72rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '2px'
+                        }}
+                        title="작가명 / 활동명 변경"
+                      >
+                        <Edit2 size={11} />
+                        <span style={{ textDecoration: 'underline' }}>변경</span>
+                      </button>
+                    </div>
+                  )}
+                  <div style={{ fontSize: '0.75rem', color: '#0284C7', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                     {user.isPro ? <><Crown size={12} color="#EAB308" /> Sujango Pro</> : 'Free 기본 회원'}
                   </div>
                 </div>

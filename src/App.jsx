@@ -345,11 +345,7 @@ export default function App() {
   };
 
   const handleBack = () => {
-    if (window.location.hash) {
-      window.history.back();
-    } else {
-      navigate(user ? 'dashboard' : 'landing');
-    }
+    navigate(user ? 'dashboard' : 'landing');
   };
 
   return (
@@ -609,6 +605,10 @@ export default function App() {
         user={user}
         onOpenLogin={handleOpenLogin}
         onLogout={handleLogout}
+        onUpdateUser={(updated) => {
+          setUser(updated);
+          showToast(`작가명이 '${updated.name}'(으)로 변경되었습니다.`);
+        }}
         onNavigateAbout={() => navigate('about')}
         onNavigateGuide={() => navigate('guide')}
         onOpenInfoTab={handleOpenInfoModal}

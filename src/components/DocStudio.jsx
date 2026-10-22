@@ -248,6 +248,18 @@ export default function DocStudio({ onBack, user = null }) {
     setLectureForm(prev => ({ ...prev, customCurriculum: text }));
   };
 
+  // 우측 미리보기 표에서 셀을 직접 클릭해서 수정했을 때 동기화 핸들러
+  const handleUpdateCurriculumCell = (idx, field, value) => {
+    const updated = [...currentCurriculum];
+    if (!updated[idx]) return;
+    updated[idx] = {
+      ...updated[idx],
+      [field]: value
+    };
+    const newText = updated.map(item => `[${item.week} - ${item.theme}]\n${item.details}`).join('\n\n');
+    setLectureForm(prev => ({ ...prev, customCurriculum: newText }));
+  };
+
   // 2. 이력서(CV) 상태 (회색 placeholder로 안내하고 실제 값은 초기화)
   const [cvForm, setCvForm] = useState({
     nameKo: user?.name || '',
@@ -725,9 +737,14 @@ ${cvForm.collections.trim()}
               {/* 3. 주차별 세부 커리큘럼 (입력 시에만 출력) */}
               {hasCurriculum && currentCurriculum.length > 0 && (
                 <>
-                  <div className="doc-section-title">
-                    <span className="doc-section-num">3</span>
-                    <span>주차별 세부 커리큘럼</span>
+                  <div className="doc-section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <span className="doc-section-num">3</span>
+                      <span>주차별 세부 커리큘럼</span>
+                    </div>
+                    <span className="no-print" style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 400 }}>
+                      (표 안의 내용을 클릭하여 직접 수정할 수 있습니다)
+                    </span>
                   </div>
                   <table className="doc-form-table">
                     <colgroup>
@@ -745,9 +762,32 @@ ${cvForm.collections.trim()}
                     <tbody>
                       {currentCurriculum.map((item, idx) => (
                         <tr key={idx}>
-                          <td className="center" style={{ fontWeight: 700, color: '#334155' }}>{item.week}</td>
-                          <td style={{ fontWeight: 600 }}>{item.theme}</td>
-                          <td style={{ whiteSpace: 'pre-line', fontSize: '0.83rem', lineHeight: 1.55 }}>
+                          <td 
+                            className="center" 
+                            contentEditable 
+                            suppressContentEditableWarning
+                            onBlur={(e) => handleUpdateCurriculumCell(idx, 'week', e.currentTarget.innerText)}
+                            style={{ fontWeight: 700, color: '#334155', cursor: 'text' }}
+                            title="클릭하여 주차/차시를 수정할 수 있습니다"
+                          >
+                            {item.week}
+                          </td>
+                          <td 
+                            contentEditable 
+                            suppressContentEditableWarning
+                            onBlur={(e) => handleUpdateCurriculumCell(idx, 'theme', e.currentTarget.innerText)}
+                            style={{ fontWeight: 600, cursor: 'text' }}
+                            title="클릭하여 강의 주제를 수정할 수 있습니다"
+                          >
+                            {item.theme}
+                          </td>
+                          <td 
+                            contentEditable 
+                            suppressContentEditableWarning
+                            onBlur={(e) => handleUpdateCurriculumCell(idx, 'details', e.currentTarget.innerText)}
+                            style={{ whiteSpace: 'pre-line', fontSize: '0.83rem', lineHeight: 1.55, cursor: 'text' }}
+                            title="클릭하여 세부 실습 내용을 수정할 수 있습니다"
+                          >
                             {item.details}
                           </td>
                         </tr>

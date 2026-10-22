@@ -759,14 +759,22 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
                     color: '#334155'
                   }}
                   onChange={(e) => {
-                    if (!e.target.value) return;
-                    setForm(prev => ({ ...prev, medium: e.target.value }));
+                    const selectedIdx = e.target.value;
+                    if (selectedIdx === "") return;
+                    const preset = MATERIAL_PRESETS[parseInt(selectedIdx, 10)];
+                    if (preset) {
+                      setForm(prev => ({ 
+                        ...prev, 
+                        medium: preset.ko,
+                        mediumEn: preset.en
+                      }));
+                    }
                   }}
                   value=""
                 >
                   <option value="" disabled>자주 쓰는 재료에서 고르기...</option>
                   {MATERIAL_PRESETS.map((p, idx) => (
-                    <option key={idx} value={p.ko}>{p.ko} ({p.en})</option>
+                    <option key={idx} value={idx}>{p.ko} ({p.en})</option>
                   ))}
                 </select>
               </div>
@@ -778,8 +786,8 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
                     key={idx}
                     type="button"
                     className="tag-chip"
-                    onClick={() => setForm(prev => ({ ...prev, medium: p.ko }))}
-                    title={`${p.ko} 자동 입력`}
+                    onClick={() => setForm(prev => ({ ...prev, medium: p.ko, mediumEn: p.en }))}
+                    title={`${p.ko} (${p.en}) 자동 입력`}
                   >
                     + {p.ko.replace('캔버스에 ', '')}
                   </button>
@@ -884,7 +892,7 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
         </div>
 
         {/* 우측: 독립된 테두리 박스가 있는 실물 크기 A4 프리뷰 (다중 페이지 지원) */}
-        <div className="panel-card printable-caption-container" style={{ padding: '1rem' }}>
+        <div className="panel-card printable printable-caption-container" style={{ padding: '1rem' }}>
           <div className="panel-card-title no-print" style={{ marginBottom: '0.85rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
             <span style={{ fontSize: '1rem', fontWeight: 700, color: '#0F172A' }}>
               A4 인쇄 미리보기 (총 {captions.length}점 등록 / A4 {pages.length}장)

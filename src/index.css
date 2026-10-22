@@ -1775,7 +1775,7 @@ input, select, textarea {
   .workspace-top-bar, 
   .workspace-title-area,
   .panel-card.no-print, 
-  .panel-card:not(.printable),
+  .panel-card:not(.printable):not(.printable-caption-container),
   .panel-card-title,
   .btn-primary, 
   .btn-outline, 
