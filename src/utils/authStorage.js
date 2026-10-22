@@ -241,3 +241,48 @@ export function updateUserProfile(updates = {}) {
   return updatedUser;
 }
 
+/**
+ * 4. 회원 탈퇴 (Account Deletion): 사용자 계정 및 개인 스코프 데이터 안전 파기
+ */
+export function deleteUserAccount(email) {
+  const cleanEmail = (email || '').trim().toLowerCase();
+  if (!cleanEmail) return false;
+
+  try {
+    // 1) 전체 등록 회원 목록에서 계정 삭제
+    const users = getRegisteredUsers();
+    const filteredUsers = users.filter(u => (u.email || '').toLowerCase() !== cleanEmail);
+    saveRegisteredUsers(filteredUsers);
+
+    // 2) 해당 작가 계정별 격리된 로컬스토리지 창작 데이터 완전 파기
+    const safeEmail = cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+    const keysToRemove = [
+      `artflow_artworks_${safeEmail}`,
+      `artflow_artworks_raw_vault_${safeEmail}`,
+      `artflow_captions_${safeEmail}`,
+      `artflow_tax_records_${safeEmail}`,
+      `artflow_inspo_notes_${safeEmail}`,
+      `artflow_doc_profile_${safeEmail}`,
+      `artflow_watermark_${cleanEmail}`,
+      `sujango_migrated_v1_${safeEmail}`
+    ];
+
+    keysToRemove.forEach(k => {
+      try {
+        localStorage.removeItem(k);
+      } catch (_) {}
+    });
+
+    // 3) 현재 로그인 세션 삭제
+    const currentUser = getStoredUser();
+    if (currentUser && (currentUser.email || '').toLowerCase() === cleanEmail) {
+      saveUser(null);
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Failed to delete user account:', err);
+    return false;
+  }
+}
+

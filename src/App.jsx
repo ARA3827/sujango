@@ -20,8 +20,9 @@ import ClientPreviewView from './components/ClientPreviewView';
 import SideMenuDrawer from './components/SideMenuDrawer';
 import InfoModal from './components/InfoModal';
 import ShortcutModal from './components/ShortcutModal';
+import DeleteAccountModal from './components/DeleteAccountModal';
 import ErrorBoundary from './components/ErrorBoundary';
-import { getStoredUser, saveUser, DEMO_USER } from './utils/authStorage';
+import { getStoredUser, saveUser, deleteUserAccount, DEMO_USER } from './utils/authStorage';
 import { syncUserProfile } from './utils/supabaseClient';
 import { exportArchiveBackup } from './utils/archiveStorage';
 import { requestPersistentStorage, migrateArtworksToV6 } from './utils/artworkModel';
@@ -119,10 +120,11 @@ export default function App() {
     setIsCheckoutOpen(true);
   };
 
-  // 사이드 메뉴 드로어 및 2-Depth 안내 센터 모달 상태
+  // 사이드 메뉴 드로어 및 2-Depth 안내 센터 / 회원탈퇴 모달 상태
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [infoModalTab, setInfoModalTab] = useState('about');
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
 
   const handleOpenInfoModal = (tab = 'about') => {
     setInfoModalTab(tab);
@@ -325,6 +327,28 @@ export default function App() {
     }
     setCurrentView('landing');
     showToast('안전하게 로그아웃되었습니다.', 'info');
+  };
+
+  // 회원 탈퇴 처리: 모든 창작 자산, 서류, 스코프 데이터 및 로그인 세션 완전 파기 후 랜딩 페이지로 복귀
+  const handleDeleteAccount = () => {
+    if (!user || !user.email) return;
+    const userEmail = user.email;
+    const userName = user.name || '작가';
+
+    const success = deleteUserAccount(userEmail);
+    if (success) {
+      setUser(null);
+      saveUser(null);
+      setSelectedArtworkId(null);
+      if (window.location.hash) {
+        window.history.pushState(null, '', window.location.pathname);
+      }
+      setCurrentView('landing');
+      setIsDeleteAccountModalOpen(false);
+      showToast(`${userName}님의 회원 탈퇴 및 모든 데이터 파기가 안전하게 완료되었습니다. 그동안 수장고를 이용해 주셔서 감사합니다.`, 'info');
+    } else {
+      showToast('회원 탈퇴 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', 'error');
+    }
   };
 
   // 네비게이션 함수 (비로그인 접근 차단 로그인 월 적용 및 특정 작품 ID 연동)
@@ -633,6 +657,7 @@ export default function App() {
         onOpenFeedback={() => setIsNewToolModalOpen(true)}
         onOpenPolicy={handleOpenPolicy}
         onOpenShortcut={() => setIsShortcutModalOpen(true)}
+        onOpenDeleteAccount={() => setIsDeleteAccountModalOpen(true)}
       />
 
       {/* 바탕화면 / 모바일 홈 화면 바로가기 추가 모달 */}
@@ -649,6 +674,14 @@ export default function App() {
         initialTab={infoModalTab}
         onOpenPricing={() => setIsPricingModalOpen(true)}
         onOpenFeedback={() => setIsNewToolModalOpen(true)}
+      />
+
+      {/* 수장고 회원 탈퇴 및 창작 데이터 영구 파기 확인 모달 */}
+      <DeleteAccountModal 
+        isOpen={isDeleteAccountModalOpen}
+        onClose={() => setIsDeleteAccountModalOpen(false)}
+        onConfirm={handleDeleteAccount}
+        user={user}
       />
 
       {/* 공식 미니멀 푸터 (전자상거래법 & 카드사 심사 법적 고지 완비) */}
@@ -691,6 +724,19 @@ export default function App() {
               >
                 구독 및 환불 규정
               </button>
+              {user && (
+                <>
+                  <span style={{ color: '#CBD5E1' }}>•</span>
+                  <button 
+                    onClick={() => setIsDeleteAccountModalOpen(true)}
+                    style={{ background: 'none', border: 'none', color: '#94A3B8', fontWeight: 500, cursor: 'pointer', padding: 0, transition: 'color 0.15s ease' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#DC2626'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#94A3B8'}
+                  >
+                    회원탈퇴
+                  </button>
+                </>
+              )}
             </div>
           </div>
 

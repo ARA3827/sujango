@@ -34,7 +34,8 @@ export default function SideMenuDrawer({
   onOpenPricing,
   onOpenFeedback,
   onOpenPolicy,
-  onOpenShortcut
+  onOpenShortcut,
+  onOpenDeleteAccount
 }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
@@ -201,30 +202,53 @@ export default function SideMenuDrawer({
                   </div>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => { onClose(); onLogout(); }}
-                style={{ 
-                  border: '1px solid #E2E8F0', 
-                  background: '#FFFFFF', 
-                  color: '#64748B', 
-                  cursor: 'pointer', 
-                  fontSize: '0.78rem', 
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  fontWeight: 600,
-                  transition: 'all 0.15s ease'
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.borderColor = '#FECACA'; e.currentTarget.style.background = '#FEF2F2'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.background = '#FFFFFF'; }}
-                title="로그아웃"
-              >
-                <LogOut size={13} />
-                <span>로그아웃</span>
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                <button
+                  type="button"
+                  onClick={() => { onClose(); onLogout(); }}
+                  style={{ 
+                    border: '1px solid #E2E8F0', 
+                    background: '#FFFFFF', 
+                    color: '#64748B', 
+                    cursor: 'pointer', 
+                    fontSize: '0.78rem', 
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    fontWeight: 600,
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = '#EF4444'; e.currentTarget.style.borderColor = '#FECACA'; e.currentTarget.style.background = '#FEF2F2'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.background = '#FFFFFF'; }}
+                  title="로그아웃"
+                >
+                  <LogOut size={13} />
+                  <span>로그아웃</span>
+                </button>
+                {onOpenDeleteAccount && (
+                  <button
+                    type="button"
+                    onClick={() => { onClose(); onOpenDeleteAccount(); }}
+                    style={{
+                      border: 'none',
+                      background: 'transparent',
+                      color: '#94A3B8',
+                      cursor: 'pointer',
+                      fontSize: '0.72rem',
+                      padding: '2px 4px',
+                      textDecoration: 'underline',
+                      transition: 'color 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#DC2626'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#94A3B8'}
+                    title="회원 탈퇴 및 데이터 삭제"
+                  >
+                    회원탈퇴
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             <div>
@@ -350,26 +374,42 @@ export default function SideMenuDrawer({
 
           <div style={{ borderTop: '1px solid #F1F5F9', margin: '0.75rem 1.5rem' }} />
 
-          {/* 6. 이용약관 및 개인정보 처리방침 */}
-          {onOpenPolicy && (
-            <div style={{ padding: '0.85rem 1.5rem 1.5rem 1.5rem', display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <button
-                type="button"
-                onClick={() => { onClose(); onOpenPolicy('terms'); }}
-                style={{ border: 'none', background: 'transparent', color: '#94A3B8', fontSize: '0.78rem', cursor: 'pointer', padding: 0 }}
-              >
-                이용약관
-              </button>
-              <span style={{ color: '#E2E8F0' }}>•</span>
-              <button
-                type="button"
-                onClick={() => { onClose(); onOpenPolicy('privacy'); }}
-                style={{ border: 'none', background: 'transparent', color: '#94A3B8', fontSize: '0.78rem', cursor: 'pointer', padding: 0 }}
-              >
-                개인정보처리방침
-              </button>
-            </div>
-          )}
+          {/* 6. 이용약관 및 개인정보 처리방침 & 회원탈퇴 */}
+          <div style={{ padding: '0.85rem 1.5rem 1.5rem 1.5rem', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {onOpenPolicy && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => { onClose(); onOpenPolicy('terms'); }}
+                  style={{ border: 'none', background: 'transparent', color: '#94A3B8', fontSize: '0.78rem', cursor: 'pointer', padding: 0 }}
+                >
+                  이용약관
+                </button>
+                <span style={{ color: '#E2E8F0' }}>•</span>
+                <button
+                  type="button"
+                  onClick={() => { onClose(); onOpenPolicy('privacy'); }}
+                  style={{ border: 'none', background: 'transparent', color: '#94A3B8', fontSize: '0.78rem', cursor: 'pointer', padding: 0 }}
+                >
+                  개인정보처리방침
+                </button>
+              </>
+            )}
+            {user && onOpenDeleteAccount && (
+              <>
+                <span style={{ color: '#E2E8F0' }}>•</span>
+                <button
+                  type="button"
+                  onClick={() => { onClose(); onOpenDeleteAccount(); }}
+                  style={{ border: 'none', background: 'transparent', color: '#94A3B8', fontSize: '0.78rem', cursor: 'pointer', padding: 0, transition: 'color 0.15s ease' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#DC2626'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#94A3B8'}
+                >
+                  회원탈퇴
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
