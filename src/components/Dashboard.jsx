@@ -199,8 +199,9 @@ export default function Dashboard({
               <button 
                 onClick={() => onSelectView('archive')} 
                 className="archive-board-more-btn"
+                title="보관된 모든 작품과 상세 도록을 확인합니다"
               >
-                전체 수장고 열람 <ArrowRight size={14} />
+                전체보기 <ArrowRight size={14} />
               </button>
             </div>
           )}

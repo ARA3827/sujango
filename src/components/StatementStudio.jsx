@@ -1189,23 +1189,6 @@ ${blogMediumSection}
             );
           })()}
 
-          {/* 새 작품인 경우 수장고 동시 보관 체크박스 (슬림 패딩) */}
-          {!artworkId && (
-            <div className="caption-vault-sync-box" style={{ margin: '0.35rem 0 0 0', padding: '0.45rem 0.75rem' }}>
-              <label className="caption-vault-sync-label" style={{ fontSize: '0.8rem', margin: 0 }}>
-                <input
-                  type="checkbox"
-                  checked={syncWithVaultOnCreate}
-                  onChange={(e) => setSyncWithVaultOnCreate(e.target.checked)}
-                />
-                <span>이 작품을 수장고에도 함께 보관하기</span>
-              </label>
-              <div className="caption-vault-sync-desc" style={{ fontSize: '0.72rem', marginTop: '2px' }}>
-                수장고에 새 작품으로 자동 보관되어 작품 보관함과 전시 캡션 출력기에서도 바로 활용할 수 있습니다.
-              </div>
-            </div>
-          )}
-
           {/* 좌측 액션 버튼: AI 초안 생성 & 내 글 바로 등록 (1:1 나란히 배치) */}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '0.85rem' }}>
