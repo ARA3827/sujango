@@ -32,19 +32,24 @@ export async function syncUserProfile(user) {
   if (!isSupabaseConfigured() || !supabase || !user?.email) return null;
 
   try {
+    // [보안 준수] is_pro, plan_tier, storage_limit_gb는 클라이언트 권한이 회수되었으므로 제외하고 전송
+    const payload = {
+      user_email: user.email,
+      artist_name: user.name || '작가',
+      avatar_url: user.avatarUrl || '',
+      updated_at: new Date().toISOString()
+    };
+    if (user.id && !user.id.startsWith('user-')) {
+      payload.id = user.id;
+    }
+
     const { data, error } = await supabase
       .from('profiles')
-      .upsert({
-        user_email: user.email,
-        artist_name: user.name || '작가',
-        avatar_url: user.avatarUrl || '',
-        is_pro: Boolean(user.isPro),
-        plan_tier: user.planTier || (user.isPro ? 'pro' : 'free'),
-        updated_at: new Date().toISOString()
-      }, {
+      .upsert(payload, {
         onConflict: 'user_email'
       })
-      .select();
+      .select('id, user_email, artist_name, avatar_url, is_pro, plan_tier, storage_limit_gb')
+      .maybeSingle();
 
     if (error) {
       console.warn('[Supabase] Profile sync notice:', error.message);
