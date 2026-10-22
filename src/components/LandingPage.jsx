@@ -402,7 +402,7 @@ export default function LandingPage({
                 <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#64748B' }}>원 / 월</span>
               </div>
               <div style={{ fontSize: '0.76rem', color: '#64748B', marginTop: '6px' }}>
-                평생 무료
+                무료
               </div>
             </div>
 
@@ -494,7 +494,7 @@ export default function LandingPage({
             {/* 6. 기능 목록 */}
             <ul className="plan-features" style={{ flex: 1, margin: '0 0 1.25rem 0' }}>
               <li><CheckCircle2 size={16} color="#0F172A" /> <strong style={{ color: '#0F172A' }}>무료의 모든 기능 +</strong></li>
-              <li><CheckCircle2 size={16} color="#0F172A" /> <span>작품 등록 무제한</span></li>
+              <li><CheckCircle2 size={16} color="#0F172A" /> <span>작품 등록 개수 무제한</span></li>
               <li><CheckCircle2 size={16} color="#0F172A" /> <span>웹 공유용 사본 자동 생성</span></li>
               <li><CheckCircle2 size={16} color="#0F172A" /> <span>AI 작가노트 초안 무제한</span></li>
               <li><CheckCircle2 size={16} color="#0F172A" /> <span>3중 분산 저장으로 안전하게 보관</span>
@@ -577,29 +577,29 @@ export default function LandingPage({
           )}
         </div>
 
-        {/* 3대 법적 신뢰 안심 보증 배너 */}
+        {/* 수장고의 3가지 약속 배너 */}
         <div className="landing-legal-shield-box">
           <div className="legal-shield-header">
             <ShieldCheck size={20} color="#0284C7" />
-            <h4>수장고의 3대 안심 서비스 보증</h4>
+            <h4>수장고가 지키는 3가지 약속</h4>
           </div>
           <div className="legal-shield-grid">
             <div className="shield-item">
-              <div className="shield-item-title">⚖️ 작가 저작권 본인 귀속 원칙</div>
+              <div className="shield-item-title">작가 저작권 100% 귀속</div>
               <p className="shield-item-desc">
-                업로드된 모든 작품 이미지와 작가노트의 지식재산권은 전적으로 작가 본인에게 귀속되며 상업적으로 이용되지 않습니다.
+                등록하신 모든 작품 이미지와 작가노트의 권리는 오롯이 작가님께 있습니다. AI 무단 학습이나 상업적 목적으로 절대 활용하지 않습니다.
               </p>
             </div>
             <div className="shield-item">
-              <div className="shield-item-title">🛡️ 투명한 손해배상 및 약관</div>
+              <div className="shield-item-title">투명하고 정직한 운영</div>
               <p className="shield-item-desc">
-                공정거래위원회 표준 전자상거래 지침을 준수하며, 명확한 손해배상 책임 한도와 자가 백업 권고로 상호 신뢰를 지킵니다.
+                과장 없이 서비스 현황과 운영 정책을 투명하게 안내하며, 정기적인 자가 백업 지원으로 소중한 데이터를 함께 지킵니다.
               </p>
             </div>
             <div className="shield-item">
-              <div className="shield-item-title">🔒 프라이빗 데이터 주권</div>
+              <div className="shield-item-title">완전한 데이터 주권과 통제권</div>
               <p className="shield-item-desc">
-                언제든지 회원 탈퇴 시 보관된 모든 데이터는 즉시 복구 불가능하게 파기되며, 단일 파일로 모든 데이터를 소장할 수 있습니다.
+                작품 데이터는 작가님의 기기에 안전하게 보관됩니다. 원클릭 백업 파일로 언제든 소장할 수 있고, 원하실 때 직접 기기에서 완전히 비울 수 있습니다.
               </p>
             </div>
           </div>

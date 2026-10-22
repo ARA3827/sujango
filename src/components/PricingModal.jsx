@@ -77,7 +77,7 @@ export default function PricingModal({
               당신의 소중한 창작 자산을 위한 요금제
             </h3>
             <p style={{ fontSize: '0.88rem', color: '#64748B', marginTop: '4px', marginBottom: 0 }}>
-              기본 행정 서류와 작품 30점은 평생 무료이며, 보관 용량과 갤러리 보안 협업이 필요할 때 최적의 플랜을 선택하세요.
+              기본 행정 서류와 작품 30점은 무료이며, 보관 용량과 갤러리 보안 협업이 필요할 때 최적의 플랜을 선택하세요.
             </p>
           </div>
           <button onClick={onClose} className="modal-close-btn">
@@ -152,7 +152,7 @@ export default function PricingModal({
                 <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#64748B' }}>원 / 월</span>
               </div>
               <div style={{ fontSize: '0.76rem', color: '#64748B', marginTop: '6px' }}>
-                평생 무료
+                무료
               </div>
             </div>
 
@@ -269,7 +269,7 @@ export default function PricingModal({
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0F172A" />
-                <span>작품 등록 무제한</span>
+                <span>작품 등록 개수 무제한</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0F172A" />
