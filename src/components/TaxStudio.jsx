@@ -353,35 +353,34 @@ export default function TaxStudio({ onBack, onUpdateSummary, user = null }) {
       {/* 3. 상단 4대 요약 통계 스트립 */}
       <div className="dashboard-stats-strip no-print" style={{ marginBottom: '1.5rem' }}>
         <div className="stat-item-box">
-          <div className="stat-label">총 수입 입금액 (누적)</div>
-          <div className="stat-value" style={{ color: '#0F172A' }}>
+          <div className="stat-label" style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: '0.35rem', fontWeight: 500 }}>총 수입 입금액 (누적)</div>
+          <div className="stat-value" style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
             {totalNet.toLocaleString()}원
           </div>
-          <div className="stat-sub">세전 총액 {totalGross.toLocaleString()}원</div>
+          <div className="stat-sub" style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '0.35rem' }}>세전 총액 {totalGross.toLocaleString()}원</div>
         </div>
 
         <div className="stat-item-box">
-          <div className="stat-label">총 재료·활동 지출</div>
-          <div className="stat-value" style={{ color: '#DC2626' }}>
+          <div className="stat-label" style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: '0.35rem', fontWeight: 500 }}>총 재료·활동 지출</div>
+          <div className="stat-value" style={{ fontSize: '1.45rem', fontWeight: 800, color: '#DC2626', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
             {totalExpense.toLocaleString()}원
           </div>
-          <div className="stat-sub">총 {expenses.length}건 집행</div>
+          <div className="stat-sub" style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '0.35rem' }}>총 {expenses.length}건</div>
         </div>
 
         <div className="stat-item-box">
-          <div className="stat-label">순 창작 이익 (수입 - 지출)</div>
-          <div className="stat-value" style={{ color: netProfit >= 0 ? '#059669' : '#DC2626' }}>
+          <div className="stat-label" style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: '0.35rem', fontWeight: 500 }}>순 창작 이익 (수입 - 지출)</div>
+          <div className="stat-value" style={{ fontSize: '1.45rem', fontWeight: 800, color: netProfit >= 0 ? '#059669' : '#DC2626', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
             {netProfit.toLocaleString()}원
           </div>
-          <div className="stat-sub">실질 창작 수익 마진</div>
+          <div className="stat-sub" style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '0.35rem' }}>수입에서 지출을 뺀 금액</div>
         </div>
 
         <div className="stat-item-box">
-          <div className="stat-label">입금 대기중 미수금</div>
-          <div className="stat-value" style={{ color: pendingTotal > 0 ? '#D97706' : '#111827' }}>
+          <div className="stat-label" style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: '0.35rem', fontWeight: 500 }}>입금 대기중 미수금</div>
+          <div className="stat-value" style={{ fontSize: '1.45rem', fontWeight: 800, color: pendingTotal > 0 ? '#D97706' : '#111827', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
             {pendingTotal.toLocaleString()}원
           </div>
-          <div className="stat-sub">상태 뱃지 클릭 시 즉시 변경</div>
         </div>
       </div>
 

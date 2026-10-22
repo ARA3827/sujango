@@ -618,7 +618,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
                   <Edit3 size={16} color="#0284C7" style={{ position: 'absolute', left: '12px', top: '16px' }} />
                 </div>
                 <p style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '6px', lineHeight: 1.4 }}>
-                  💡 작품 보증서, 전시 캡션, 세무 정산 서류에 표기될 작가명입니다. 언제든 변경하실 수 있습니다.
+                  작품 보증서, 전시 캡션, 세무 정산 서류에 표기될 작가명입니다. 언제든 변경하실 수 있습니다.
                 </p>
               </div>
 
@@ -639,11 +639,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess, initialMod
           </div>
         )}
 
-        {/* 하단 보안 보증 문구 */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.74rem', color: '#64748B', marginTop: '1.5rem', borderTop: '1px solid #F1F5F9', paddingTop: '1rem' }}>
+        {/* 하단 보안 보증 문구 (클라우드 정식 암호화 적용 전까지 숨김 처리) */}
+        {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.74rem', color: '#64748B', marginTop: '1.5rem', borderTop: '1px solid #F1F5F9', paddingTop: '1rem' }}>
           <ShieldCheck size={15} color="#059669" />
           <span>공식 암호화 보안 프로토콜로 작가님의 창작 자산을 안전하게 보호합니다.</span>
-        </div>
+        </div> */}
 
       </div>
     </div>

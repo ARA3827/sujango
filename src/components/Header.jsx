@@ -94,7 +94,7 @@ export default function Header({
               className="btn-outline desktop-only"
               style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem', background: '#FFFFFF', borderColor: '#CBD5E1', color: '#0F172A', fontWeight: 600 }}
             >
-              ← {user.name && user.name !== '작가' ? `${user.name}님의 수장고` : '내 수장고'}
+              ← 내 수장고
             </button>
           )}
 

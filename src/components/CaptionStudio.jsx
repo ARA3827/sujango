@@ -173,10 +173,12 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
   // 새 캡션 입력/수정 폼 상태 (수장고 작품 ID 및 수정일시 메타 바인딩)
   const [form, setForm] = useState({
     title: '',
+    titleEn: '',
     artist: user?.name || '김아라',
     year: new Date().getFullYear().toString(),
     size: '',
     medium: '',
+    mediumEn: '',
     price: '',
     isNfs: false,
     artworkId: null,
@@ -197,10 +199,12 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
   const handleSelectArtworkFromVault = (art) => {
     setForm({
       title: art.title || '',
+      titleEn: art.titleEn || '',
       artist: art.artist || user?.name || '작가',
       year: art.year || new Date().getFullYear().toString(),
       size: art.size || '',
       medium: art.medium || '',
+      mediumEn: art.mediumEn || '',
       price: art.isNfs ? '' : (art.price || ''),
       isNfs: Boolean(art.isNfs),
       artworkId: art.id,
@@ -290,12 +294,14 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
             ...c,
             title: titleVal,
             titleKo: titleVal,
+            titleEn: form.titleEn?.trim() || '',
             artist: form.artist || user?.name || '작가',
             artistKo: form.artist || user?.name || '작가',
             year: form.year,
             size: form.size,
             medium: form.medium,
             mediumKo: form.medium,
+            mediumEn: form.mediumEn?.trim() || '',
             price: calculatedPrice,
             isNfs: form.isNfs,
             artworkId: currentArtworkId,
@@ -341,12 +347,14 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
         id: Date.now(),
         title: titleVal,
         titleKo: titleVal,
+        titleEn: form.titleEn?.trim() || '',
         artist: form.artist || user?.name || '작가',
         artistKo: form.artist || user?.name || '작가',
         year: form.year,
         size: form.size,
         medium: form.medium,
         mediumKo: form.medium,
+        mediumEn: form.mediumEn?.trim() || '',
         price: calculatedPrice,
         isNfs: form.isNfs,
         artworkId: newArtworkId || null,
@@ -359,10 +367,12 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
     // 폼 초기화 (작가명은 유지)
     setForm({
       title: '',
+      titleEn: '',
       artist: form.artist || user?.name || '김아라',
       year: new Date().getFullYear().toString(),
       size: '',
       medium: '',
+      mediumEn: '',
       price: '',
       isNfs: false,
       artworkId: null,
@@ -383,10 +393,12 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
 
     setForm({
       title: item.title || item.titleKo || '',
+      titleEn: item.titleEn || '',
       artist: item.artist || item.artistKo || user?.name || '작가',
       year: item.year || new Date().getFullYear().toString(),
       size: item.size || '',
       medium: item.medium || item.mediumKo || '',
+      mediumEn: item.mediumEn || '',
       price: item.isNfs ? '' : (item.price === 'NFS (비매품)' ? '' : item.price || ''),
       isNfs: Boolean(item.isNfs || item.price?.includes('NFS')),
       artworkId: item.artworkId || null,
@@ -571,19 +583,19 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
           className={`tab-btn ${styleMode === 'classic' ? 'active' : ''}`}
           onClick={() => setStyleMode('classic')}
         >
-          🏛️ 국공립 미술관 클래식형 (명조)
+          국공립 미술관 클래식형 (명조)
         </button>
         <button 
           className={`tab-btn ${styleMode === 'modern' ? 'active' : ''}`}
           onClick={() => setStyleMode('modern')}
         >
-          ⬛ 모던 갤러리 미니멀형 (산세리프)
+          모던 갤러리 미니멀형 (산세리프)
         </button>
         <button 
           className={`tab-btn ${styleMode === 'commercial' ? 'active' : ''}`}
           onClick={() => setStyleMode('commercial')}
         >
-          🔴 아트페어 / 상업 화랑형 (가격 표기)
+          아트페어 / 상업 화랑형 (가격 표기)
         </button>
       </div>
 
@@ -670,10 +682,10 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
           )}
 
           <form onSubmit={handleSubmit}>
-            {/* 기본 정보: 제목 & 작가명 (국문/영문 분리 없이 단일 필드) */}
+            {/* 기본 정보: 제목 & 작가명 & 영문 제목 */}
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">작품 제목 (필수)</label>
+                <label className="form-label">작품 제목 (국문 필수)</label>
                 <input 
                   type="text" 
                   className="form-input" 
@@ -684,15 +696,26 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">작가명</label>
+                <label className="form-label">작품 제목 (영문 선택)</label>
                 <input 
                   type="text" 
                   className="form-input" 
-                  placeholder="예: 김아라 또는 Ara Kim"
-                  value={form.artist}
-                  onChange={(e) => setForm({...form, artist: e.target.value})}
+                  placeholder="예: Boundary of Dawn"
+                  value={form.titleEn}
+                  onChange={(e) => setForm({...form, titleEn: e.target.value})}
                 />
               </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">작가명</label>
+              <input 
+                type="text" 
+                className="form-input" 
+                placeholder="예: 김아라 또는 Ara Kim"
+                value={form.artist}
+                onChange={(e) => setForm({...form, artist: e.target.value})}
+              />
             </div>
 
             {/* 연도 & 규격 */}
@@ -763,13 +786,26 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
                 ))}
               </div>
 
-              <input 
-                type="text" 
-                className="form-input" 
-                placeholder="예: 캔버스에 유채, 혼합재료"
-                value={form.medium}
-                onChange={(e) => setForm({...form, medium: e.target.value})}
-              />
+              <div className="form-row">
+                <div style={{ flex: 1 }}>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    placeholder="국문: 캔버스에 유채, 혼합재료"
+                    value={form.medium}
+                    onChange={(e) => setForm({...form, medium: e.target.value})}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    placeholder="영문: Oil and mixed media on canvas"
+                    value={form.mediumEn}
+                    onChange={(e) => setForm({...form, mediumEn: e.target.value})}
+                  />
+                </div>
+              </div>
             </div>
 
             {/* 작품 가격 / 비매품 */}
@@ -795,7 +831,7 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
               />
             </div>
 
-            {/* 수장고 동기화 독립성 보장 체크박스 (Step 6-2-B 핵심) */}
+            {/* 수장고 동기화 체크박스 (수장고에서 이미 불러온 작품이면 중복 방지를 위해 신규 보관 체크박스 숨김) */}
             {editingId ? (
               form.artworkId && (
                 <div className="caption-vault-sync-box">
@@ -813,19 +849,21 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
                 </div>
               )
             ) : (
-              <div className="caption-vault-sync-box">
-                <label className="caption-vault-sync-label">
-                  <input
-                    type="checkbox"
-                    checked={syncWithVaultOnCreate}
-                    onChange={(e) => setSyncWithVaultOnCreate(e.target.checked)}
-                  />
-                  <span>이 작품을 수장고에도 함께 보관하기</span>
-                </label>
-                <div className="caption-vault-sync-desc">
-                  수장고에 새 작품으로 자동 보관되어 포트폴리오와 작품 보관함에서도 바로 활용할 수 있습니다.
+              !form.artworkId && (
+                <div className="caption-vault-sync-box">
+                  <label className="caption-vault-sync-label">
+                    <input
+                      type="checkbox"
+                      checked={syncWithVaultOnCreate}
+                      onChange={(e) => setSyncWithVaultOnCreate(e.target.checked)}
+                    />
+                    <span>이 작품을 수장고에도 함께 보관하기</span>
+                  </label>
+                  <div className="caption-vault-sync-desc">
+                    수장고에 새 작품으로 자동 보관되어 포트폴리오와 작품 보관함에서도 바로 활용할 수 있습니다.
+                  </div>
                 </div>
-              </div>
+              )
             )}
 
             {editingId ? (
@@ -852,7 +890,7 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
               A4 인쇄 미리보기 (총 {captions.length}점 등록 / A4 {pages.length}장)
             </span>
             <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 400 }}>
-              ✂️ 각 작품 테두리 선을 따라 오려 사용하세요 (가로 고정, 세로 자동)
+              각 작품 테두리 선을 따라 오려 사용하세요 (가로 고정, 세로 자동)
             </span>
           </div>
 
@@ -866,7 +904,7 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
               {pages.map((pageItems, pIdx) => (
                 <div key={`page-${pIdx}`} className="a4-sheet-container">
                   <div className="a4-page-header no-print">
-                    <span>📄 A4 {pIdx + 1}페이지 ({pageItems.length}점)</span>
+                    <span>A4 {pIdx + 1}페이지 ({pageItems.length}점)</span>
                     <span style={{ fontSize: '0.75rem', color: '#64748B' }}>전체 {pages.length}장 중 {pIdx + 1}번째 장</span>
                   </div>
 
@@ -908,7 +946,7 @@ export default function CaptionStudio({ onBack, user = null, initialArtworkId = 
                               {/* 상단: 작가 정보 및 작품 제목 */}
                               <div>
                                 {item.artworkId && (
-                                  <div className="caption-vault-linked-badge no-print" title="수장고에 원본이 보관된 작품입니다">
+                                  <div className="caption-vault-linked-badge no-print" data-html2canvas-ignore="true" title="수장고에 원본이 보관된 작품입니다">
                                     <LinkIcon size={10} />
                                     수장고 보관 작품
                                   </div>

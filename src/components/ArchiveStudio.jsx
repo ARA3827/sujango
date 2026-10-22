@@ -42,6 +42,7 @@ import { getArtworkStatusMeta, ARTWORK_STATUS, ARTWORK_STATUS_LABELS } from '../
 
 // 기능 토글 설정값 (비활성화 상태 보존)
 const SHARE_LINK_ENABLED = false;
+const CLOUD_ENABLED = false; // 클라우드 동기화 완료 후 true 전환
 
 export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateToStatement, onOpenPricing, user, initialArtworkId }) {
   const [artworks, setArtworks] = useState(() => getArtworks(user));
@@ -609,14 +610,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
             onChange={handleImportBackup} 
           />
 
-          <button 
-            onClick={() => setIsWatermarkModalOpen(true)} 
-            className="btn-outline" 
-            title="클라이언트 시안용 워터마크 문구 및 서명 로고 설정"
-            style={{ fontSize: '0.82rem', padding: '0.4rem 0.75rem', borderColor: '#0284C7', color: '#0369A1', background: '#F0F9FF' }}
-          >
-            <ShieldCheck size={14} color="#0284C7" /> 워터마크 설정
-          </button>
+          {/* 미완성 워터마크 설정 버튼 숨김 처리 */}
 
           <button 
             onClick={() => onNavigateToStatement ? onNavigateToStatement() : handleOpenAddModal()} 
@@ -678,7 +672,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
       {/* 2. 타이틀 영역 */}
       <div className="workspace-title-area" style={{ marginBottom: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-          <h2>나의 작품 디지털 수장고</h2>
+          <h2>나의 작품 수장고</h2>
           {user?.isPro ? (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#F0F9FF', border: '1px solid #BAE6FD', color: '#0369A1', padding: '4px 10px', borderRadius: '999px', fontSize: '0.78rem', fontWeight: 600 }}>
               <Crown size={13} color="#0284C7" />
@@ -696,14 +690,13 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                 title="무제한 등록 및 기기 간 자동 동기화 Pro 플랜 안내"
               >
                 <Crown size={12} color="#D97706" />
-                <span>무제한 & 클라우드 수장고 Pro</span>
+                <span>{CLOUD_ENABLED ? '무제한 & 클라우드 수장고 Pro' : 'Pro 베타 신청'}</span>
               </button>
             </div>
           )}
         </div>
         <p>
-          창작자를 위한 프라이빗 디지털 수장고(Sujango). 
-          작품 사진, 도록용 작가노트, 캡션 명패 규격을 세월이 흘러도 변치 않게 안전하게 보관하세요.
+          작품 사진과 작가노트, 캡션 정보를 작품별로 보관하세요.
         </p>
       </div>
 
@@ -748,7 +741,7 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
           {/* 좌측: 시각적 자산 (작품 사진 프레임 & 미술관 표준 캡션 명패) */}
           <div className="panel-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div className="panel-card-title">
-              <span>작품 시각 자산</span>
+              <span>작품 이미지</span>
               <div style={{ display: 'flex', gap: '6px' }}>
                 <button 
                   onClick={() => handleOpenEditModal(currentArt)}
@@ -884,21 +877,21 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
                 onClick={() => setActiveTab('statement')}
               >
                 <BookOpen size={15} style={{ display: 'inline', marginRight: '5px' }} />
-                도록용 작가노트
+                작가노트
               </button>
               <button 
                 className={`tab-btn ${activeTab === 'insta' ? 'active' : ''}`}
                 onClick={() => setActiveTab('insta')}
               >
                 <Camera size={15} style={{ display: 'inline', marginRight: '5px' }} />
-                인스타 캡션 & 해시태그
+                인스타그램 캡션
               </button>
               <button 
                 className={`tab-btn ${activeTab === 'blog' ? 'active' : ''}`}
                 onClick={() => setActiveTab('blog')}
               >
                 <Share2 size={15} style={{ display: 'inline', marginRight: '5px' }} />
-                블로그 비하인드
+                블로그 글
               </button>
             </div>
 
@@ -906,9 +899,9 @@ export default function ArchiveStudio({ onBack, onNavigateToCaption, onNavigateT
             <div className="panel-card-title" style={{ flexWrap: 'wrap', gap: '8px' }}>
               <div>
                 <span>
-                  {activeTab === 'statement' && '미술평론풍 작가노트'}
-                  {activeTab === 'insta' && '인스타그램 감성 피드 & 태그'}
-                  {activeTab === 'blog' && '블로그 작업실 비하인드 스토리'}
+                  {activeTab === 'statement' && '작가노트'}
+                  {activeTab === 'insta' && '인스타그램 캡션'}
+                  {activeTab === 'blog' && '블로그 글'}
                 </span>
                 {editedText && (
                   <span className="char-counter-badge" style={{ marginLeft: '8px' }}>

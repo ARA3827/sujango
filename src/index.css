@@ -239,6 +239,27 @@ input, select, textarea {
   box-shadow: var(--shadow-subtle);
 }
 
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748B;
+  margin-bottom: 0.35rem;
+}
+
+.stat-value {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.stat-sub {
+  font-size: 0.75rem;
+  color: #94A3B8;
+  margin-top: 0.35rem;
+}
+
+
 .stat-item-box.slim {
   display: flex;
   align-items: center;
@@ -2523,7 +2544,7 @@ input, select, textarea {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  background: #0F172A;
+  background: #F1F5F9;
   transition: transform 0.25s ease;
 }
 
@@ -3786,6 +3807,17 @@ input, select, textarea {
   transform: rotate(-10deg);
   line-height: 1;
 }
+
+/* 인쇄 및 PDF 출력 시 화면 전용 인디케이터 완전 배제 */
+@media print {
+  .no-print,
+  .caption-vault-linked-badge,
+  .caption-card-delete-btn,
+  .caption-editing-badge {
+    display: none !important;
+  }
+}
+
 
 
 

@@ -338,15 +338,37 @@ export default function StatementStudio({ onBack, user = null, onNavigateToArchi
     return [];
   };
 
-  // AI 글 3종 텍스트 생성 헬퍼 (7단계: 작가 고유 문체 및 영감 노트 문장 반영)
+  // 재료 및 기법에 따른 정확한 텍스처/물성 표현 헬퍼 (재료 날조 원천 방지)
+  const getMediumPhrase = (med) => {
+    if (!med) return '화면 위에 응축된 시각적 결';
+    const lower = med.toLowerCase();
+    if (lower.includes('지본') || lower.includes('한지') || lower.includes('화선지') || lower.includes('종이')) {
+      return '종이 바탕 위에 은은하게 스며든 채색의 결';
+    }
+    if (lower.includes('유화') || lower.includes('유채') || lower.includes('캔버스') || lower.includes('아크릴')) {
+      return '화폭 위에 중첩된 안료의 층위와 붓질';
+    }
+    if (lower.includes('수채') || lower.includes('과슈')) {
+      return '종이 위로 맑게 번지는 물성과 색채의 결';
+    }
+    if (lower.includes('도예') || lower.includes('도자') || lower.includes('점토') || lower.includes('조각') || lower.includes('금속') || lower.includes('나무')) {
+      return '물성의 질감과 입체적 조형의 궤적';
+    }
+    if (lower.includes('사진') || lower.includes('디지털') || lower.includes('미디어')) {
+      return '빛과 시선이 포착한 시각적 층위';
+    }
+    return `${med}의 고유한 물성과 조형적 호흡`;
+  };
+
+  // AI 글 3종 텍스트 생성 헬퍼 (입력된 재료와 기법을 정확히 반영)
   const createGeneratedTexts = () => {
     const { title, year, medium, size, keywords, inspiration } = artwork;
     const authorName = artwork.artist || user?.name || '작가';
     const displayTitle = title.trim() || '무제 (Untitled)';
-    const displayMedium = medium.trim() || '캔버스에 혼합재료 (Mixed media on canvas)';
-    const displaySize = size.trim() || '가변 크기';
-    const displayKeywords = keywords.trim() || '빛과 어둠의 경계, 시간의 퇴적, 고요한 울림';
-    const displayInspiration = inspiration.trim() || '작업실 창가에 드리운 빛의 경계와 깊은 새벽의 공기에서 시작되었습니다.';
+    const cleanMedium = medium.trim();
+    const cleanSize = size.trim();
+    const cleanKeywords = keywords.trim();
+    const cleanInspiration = inspiration.trim();
 
     // 1) 작가 고유 문체 분석 결과 반영
     const styleAnalysis = getAuthorStyleAnalysis();
@@ -361,70 +383,92 @@ export default function StatementStudio({ onBack, user = null, onNavigateToArchi
       ? styleAnalysis.frequentWords.slice(0, 3).join(', ')
       : '호흡과 시간의 결';
 
-    // 1. 미술평론풍 작가노트 (Statement)
+    // 재료별 정밀 표현 문구
+    const mediumPhrase = getMediumPhrase(cleanMedium);
+    const surfaceWord = (cleanMedium.includes('지본') || cleanMedium.includes('한지') || cleanMedium.includes('종이'))
+      ? '화선지(한지)'
+      : (cleanMedium.includes('캔버스') || cleanMedium.includes('유화') || cleanMedium.includes('아크릴'))
+      ? '캔버스'
+      : (cleanMedium.includes('도자') || cleanMedium.includes('조각'))
+      ? '형상'
+      : '화면';
+
+    // 메타데이터 헤더 문자열 (비어있는 항목은 억지로 표시하지 않음)
+    const metaParts = [];
+    if (cleanMedium) metaParts.push(cleanMedium);
+    if (cleanSize) metaParts.push(cleanSize);
+    const metaLine = metaParts.length > 0 ? `\n${metaParts.join(', ')}` : '';
+
+    // 키워드 및 영감 서술 구절
+    const keywordsPhrase = cleanKeywords 
+      ? `화면에 새겨진 '${cleanKeywords}'의 조형 언어는 ` 
+      : '화면에 응축된 시각적 형태는 ';
+    const inspirationClause = cleanInspiration
+      ? `이번 작업 《${displayTitle}》은 ${cleanInspiration}`
+      : `이번 작업 《${displayTitle}》은 조형적 탐구와 내면의 시선을 담아내는 과정에서 비롯되었습니다.`;
+
+    // 1. 작가노트 (Statement)
     let statementText = '';
     if (selectedInspoQuotes.length > 0) {
       // 영감 문장이 있을 때의 유기적 사유 결합
       const mainQuote = selectedInspoQuotes[0];
       statementText = `[작가노트 (Artist Statement)]
-《${displayTitle}》 (${year})
-${displayMedium}, ${displaySize}
+《${displayTitle}》 (${year})${metaLine}
 
 “${mainQuote.text.trim()}”
 — ${mainQuote.workTitle || mainQuote.creator || '영감의 기록'} 중에서
 
 우리의 시선이 닿지 않는 어둠의 끝자락에는 언제나 형언할 수 없는 고요한 찰나가 존재한다.
-이번 작업 《${displayTitle}》은 ${displayInspiration}
+${inspirationClause}
 
-화면에 새겨진 '${displayKeywords}'의 조형 언어는 단순히 형태의 재현을 넘어, 내면의 사유와 ${styleWordsClause}을 시각화하는 과정이다. 캔버스 위에 중첩된 안료의 층위와 붓질의 궤적은 관람자에게 눈앞의 사물을 넘어 비가시적인 감정의 심연을 마주하게 한다.
+${keywordsPhrase}단순히 대상의 재현을 넘어, 내면의 사유와 ${styleWordsClause}을 시각화하는 과정이다. ${mediumPhrase}은 관람자에게 눈앞의 사물을 넘어 비가시적인 감정의 심연을 마주하게 한다.
 
-경계란 단절이 아니라 새로운 상태로의 이행이자 연결이다. 화면에 응축된 시간과 침묵이 누군가의 내면에 가만히 말을 건네기를 바란다.`;
+경계란 단절이 아니라 새로운 상태로의 이행이자 연결이다. ${surfaceWord} 위에 응축된 시간과 침묵이 누군가의 내면에 가만히 말을 건네기를 바란다.`;
     } else if (styleAnalysis.hasStyle) {
       // 이전 작가노트 문체가 있을 때의 반영 템플릿
       statementText = `[작가노트 (Artist Statement)]
-《${displayTitle}》 (${year})
-${displayMedium}, ${displaySize}
+《${displayTitle}》 (${year})${metaLine}
 
 우리의 시선이 닿지 않는 어둠의 끝자락에는 언제나 형언할 수 없는 고요한 찰나가 존재한다.
-이번 작업 《${displayTitle}》은 ${displayInspiration}
+${inspirationClause}
 
-캔버스 위에 중첩된 안료의 층위는 단순히 색채의 배열을 넘어, ${styleWordsClause}을 화면 위에 은은하게 정착시키는 과정이다. 화면을 채우는 ‘${displayKeywords}’의 감각은 구체적인 형태를 벗어나 화면 전체에 묵직한 긴장감과 울림을 형성한다. 붓질의 호흡과 물성의 번짐이 교차하는 지점에서, 관람자는 비가시적인 감정의 심연을 마주하게 된다.
+${mediumPhrase}은 단순히 색채의 배열을 넘어, ${styleWordsClause}을 화면 위에 은은하게 정착시키는 과정이다. ${cleanKeywords ? `화면을 채우는 ‘${cleanKeywords}’의 감각은 ` : '화면을 채우는 감각은 '}구체적인 형태를 벗어나 화면 전체에 묵직한 긴장감과 울림을 형성한다. 붓질의 호흡과 물성의 번짐이 교차하는 지점에서, 관람자는 비가시적인 감정의 심연을 마주하게 된다.
 
-경계란 단절이 아니라 새로운 상태로의 이행이자 연결이다. 어둠이 흩어지고 빛이 스며드는 그 찰나의 순간, 캔버스에 응축된 시간들이 누군가의 내면에 가만히 말을 건네기를 바란다.`;
+경계란 단절이 아니라 새로운 상태로의 이행이자 연결이다. 어둠이 흩어지고 빛이 스며드는 그 찰나의 순간, 작품에 응축된 시간들이 누군가의 내면에 가만히 말을 건네기를 바란다.`;
     } else {
       // 기본 표준 템플릿
       statementText = `[작가노트 (Artist Statement)]
-《${displayTitle}》 (${year})
-${displayMedium}, ${displaySize}
+《${displayTitle}》 (${year})${metaLine}
 
 우리의 시선이 닿지 않는 어둠의 끝자락에는 언제나 형언할 수 없는 고요한 찰나가 존재한다.
-이번 작업 《${displayTitle}》은 ${displayInspiration}
+${inspirationClause}
 
-캔버스 위에 중첩된 안료의 층위는 단순히 색채의 배열을 넘어, 시간의 퇴적과 내면의 심상을 시각화하는 과정이다. 화면을 채우는 ‘${displayKeywords}’의 감각은 구체적인 형태를 벗어나 화면 전체에 은은한 긴장감과 울림을 형성한다. 붓질의 호흡과 물성의 번짐이 교차하는 지점에서, 관람자는 대상의 재현이 아닌 비가시적인 감정의 심연을 마주하게 된다.
+${mediumPhrase}은 단순히 색채나 형상의 배열을 넘어, 시간의 퇴적과 내면의 심상을 시각화하는 과정이다. ${cleanKeywords ? `화면을 채우는 ‘${cleanKeywords}’의 감각은 ` : '화면을 채우는 조형적 감각은 '}구체적인 형태를 벗어나 전체에 은은한 긴장감과 울림을 형성한다. 물성의 호흡과 번짐이 교차하는 지점에서, 관람자는 대상의 단순한 재현이 아닌 비가시적인 감정의 심연을 마주하게 된다.
 
-경계란 단절이 아니라 새로운 상태로의 이행이자 연결이다. 어둠이 흩어지고 빛이 스며드는 그 찰나의 순간, 캔버스에 응축된 시간들이 누군가의 내면에 가만히 말을 건네기를 바란다.`;
+경계란 단절이 아니라 새로운 상태로의 이행이자 연결이다. 어둠이 흩어지고 빛이 스며드는 그 찰나의 순간, 작품에 응축된 시간들이 누군가의 내면에 가만히 말을 건네기를 바란다.`;
     }
 
     // 2. 인스타그램 감성 캡션
-    const hashtags = `#현대미술 #작업실 #회화 #${authorName.replace(/\s+/g, '')}작가 #아트컬렉터 #아티스트 #캔버스 #미술관 #전시회 #ContemporaryArt #OilPainting #StudioLife #ArtCollector #KoreanArt #ArtistStudio #Canvas #Artwork`;
+    const baseTags = [`#현대미술`, `#작업실`, `#회화`, `#${authorName.replace(/\s+/g, '')}작가`, `#아트컬렉터`, `#아티스트`, `#미술관`, `#전시회`, `#ContemporaryArt`, `#StudioLife`, `#ArtCollector`, `#KoreanArt`, `#ArtistStudio`, `#Artwork`];
+    if (cleanMedium.includes('캔버스') || cleanMedium.includes('유화')) baseTags.push('#캔버스', '#OilPainting');
+    if (cleanMedium.includes('지본') || cleanMedium.includes('한지') || cleanMedium.includes('채색화') || cleanMedium.includes('한국화')) baseTags.push('#지본채색', '#동양화', '#한국화');
+    const hashtags = baseTags.join(' ');
     
     let instaQuoteSection = '';
     if (selectedInspoQuotes.length > 0) {
       instaQuoteSection = `\n“${selectedInspoQuotes[0].text.trim()}”\n`;
     }
 
+    const instaKeywordsLine = cleanKeywords ? `\n“${cleanKeywords}”` : '';
+    const instaInspirationLine = cleanInspiration ? `\n${cleanInspiration}\n` : '\n';
+
     const instaText = `어둠이 완전히 걷히기 전,
 작업실 창가에 머물던 푸른 공기와 미세한 빛.
 ${instaQuoteSection}
 《${displayTitle}》
-${year}
-${displayMedium}
-${displaySize}
-
-“${displayKeywords}”
-${displayInspiration}
-
-물감이 마르고 또 덧칠해지는 시간 동안
+${year}${cleanMedium ? `\n${cleanMedium}` : ''}${cleanSize ? `\n${cleanSize}` : ''}
+${instaKeywordsLine}${instaInspirationLine}
+손끝으로 호흡을 고르고 또 덧칠해지는 시간 동안
 가만히 내 안의 소리에 귀를 기울였습니다.
 여러분의 하루는 어떤 빛을 품고 있나요? 🕊️
 
@@ -433,11 +477,15 @@ ${displayInspiration}
 .
 ${hashtags}`;
 
-    // 3. 블로그/뉴스레터 작업실 비하인드
+    // 3. 블로그 작업실 일기
     let blogQuoteSection = '';
     if (selectedInspoQuotes.length > 0) {
       blogQuoteSection = `\n마음에 품고 있던 문장이 하나 있습니다.\n${inspoQuotesText}\n이 문장이 주는 울림이 이번 화폭에 고스란히 담겼습니다.\n`;
     }
+
+    const blogMediumSection = cleanMedium
+      ? `이번 작업에서는 ${cleanMedium}을 주재료로 사용했습니다. ${cleanKeywords ? `${cleanKeywords}의 느낌을 살리기 위해 ` : ''}안료와 재료의 물성을 겹쳐 올리는 기법을 택했는데요, 깊은 공간감을 낼 때까지 며칠 동안 정성을 다하는 인내의 시간을 보냈습니다.`
+      : `이번 작업에서는 물성의 결을 살리기 위해 안료를 여러 번 겹쳐 올리는 기법을 택했습니다. 깊은 공간감이 올라올 때까지 며칠 동안 정성을 다하는 인내의 시간을 보냈습니다.`;
 
     const blogText = `[작업실 비하인드 스토리]
 《${displayTitle}》이 태어나기까지의 기록
@@ -447,9 +495,9 @@ ${hashtags}`;
 이번에 새롭게 완성한 작업 《${displayTitle}》에 대해 조금 더 편안하고 솔직한 이야기를 들려드리려 합니다.
 
 1. 어디서 시작된 작업인가요?
-${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머릿속을 떠나지 않았고, 결국 이 감각을 화폭에 옮기지 않고는 견딜 수 없었습니다.${blogQuoteSection}
+${cleanInspiration ? cleanInspiration : `작업실에서 마주하는 일상의 빛과 생각의 편린들에서 출발했습니다.`}${blogQuoteSection}
 2. 물성과 붓질의 고민
-이번 작업에서는 ${displayMedium}을 주재료로 사용했습니다. ${displayKeywords}의 느낌을 살리기 위해 안료를 묽게 여러 번 겹쳐 올리는 기법을 택했는데요, 밑칠이 비쳐 나오며 깊은 공간감을 낼 때까지 며칠 동안 말리고 올리는 인내의 시간을 보냈습니다.
+${blogMediumSection}
 
 3. 작업을 마치며
 그림은 제 손을 떠나는 순간부터 관람객 여러분의 것이 된다고 믿습니다. 
@@ -678,11 +726,10 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
 
       <div className="workspace-title-area" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-          <span style={{ fontSize: '1.25rem' }}>✍️</span>
           <h2 style={{ margin: 0 }}>작가노트 & SNS 스튜디오</h2>
         </div>
         <p>
-          작품 사진과 키워드 3개만 넣으세요. AI가 미술평론 작가노트, 전시 벽면 캡션, 인스타그램 피드 글을 동시에 생성하여 {user?.name || '작가'}님의 프라이빗 수장고에 완벽한 작품 상세로 등록해 드립니다.
+          작품 정보와 키워드 3개를 넣으면 AI가 작가노트, 인스타그램 캡션, 블로그 글 초안을 함께 잡아드려요.
         </p>
       </div>
 
@@ -796,7 +843,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                   <img 
                     src={artworkImage} 
                     alt="선택된 작품" 
-                    style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#0F172A' }} 
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#F1F5F9' }} 
                   />
                 ) : (
                   <>
@@ -1191,21 +1238,21 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
               onClick={() => setActiveTab('statement')}
             >
               <BookOpen size={15} style={{ display: 'inline', marginRight: '5px' }} />
-              미술평론풍 작가노트
+              작가노트
             </button>
             <button 
               className={`tab-btn ${activeTab === 'insta' ? 'active' : ''}`}
               onClick={() => setActiveTab('insta')}
             >
               <Camera size={15} style={{ display: 'inline', marginRight: '5px' }} />
-              인스타 감성 캡션
+              인스타그램 캡션
             </button>
             <button 
               className={`tab-btn ${activeTab === 'blog' ? 'active' : ''}`}
               onClick={() => setActiveTab('blog')}
             >
               <Share2 size={15} style={{ display: 'inline', marginRight: '5px' }} />
-              블로그 제작 후기
+              블로그 글
             </button>
           </div>
 
@@ -1213,9 +1260,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
           <div className="panel-card-title" style={{ flexWrap: 'wrap', gap: '8px', marginBottom: '0.75rem' }}>
             <div>
               <span>
-                {activeTab === 'statement' && '미술평론풍 작가노트'}
-                {activeTab === 'insta' && '인스타그램 감성 캡션 & 해시태그'}
-                {activeTab === 'blog' && '블로그 / 뉴스레터 작업실 일기'}
+                {activeTab === 'statement' && '작가노트'}
+                {activeTab === 'insta' && '인스타그램 캡션'}
+                {activeTab === 'blog' && '블로그 글'}
               </span>
               {currentText && (
                 <span className="char-counter-badge" style={{ marginLeft: '8px' }}>
@@ -1271,7 +1318,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                     </>
                   ) : (
                     <>
-                      <Edit3 size={13} /> ✍️ 직접 수정하기
+                      <Edit3 size={13} /> 직접 수정하기
                     </>
                   )}
                 </button>
@@ -1341,8 +1388,8 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                 }}>
                   <span>
                     {isEditMode 
-                      ? '✨ 수정이 끝나면 상단의 [보기 모드로 전환] 또는 하단의 [내 수장고에 등록]을 누르세요.' 
-                      : '💡 더블클릭하거나 [✍️ 직접 수정하기]를 눌러 글을 자유롭게 보완할 수 있습니다.'}
+                      ? '수정이 끝나면 상단의 [보기 모드로 전환] 또는 하단의 [내 수장고에 등록]을 누르세요.' 
+                      : '더블클릭하거나 [직접 수정하기]를 눌러 글을 자유롭게 보완할 수 있습니다.'}
                   </span>
                   {isModified && (
                     <span style={{ color: '#D97706', fontWeight: 600 }}>● 수정된 내용 반영됨</span>
@@ -1361,7 +1408,7 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                     }}
                   >
                     <Archive size={18} />
-                    <span>{isSaving ? '수장고에 저장 중...' : '📁 수장고에 저장하기 →'}</span>
+                    <span>{isSaving ? '수장고에 저장 중...' : '수장고에 저장하기'}</span>
                   </button>
                   {savedNotice && (
                     <p style={{ textAlign: 'center', fontSize: '0.84rem', color: '#059669', fontWeight: 600, marginTop: '8px', margin: '8px 0 0 0' }}>
@@ -1378,9 +1425,9 @@ ${displayInspiration} 그 낯선 빛깔이 너무 강렬해서 며칠 동안 머
                 </h4>
                 <p style={{ fontSize: '0.88rem', color: '#64748B', maxWidth: '420px', lineHeight: 1.6, margin: 0 }}>
                   좌측에 작품 정보를 입력한 후<br />
-                  <strong style={{ color: '#0284C7' }}>[✨ AI 초안 생성]</strong>을 누르시면 미술평론풍 작가노트, 인스타 캡션, 블로그 글이 함께 완성됩니다.<br />
+                  <strong style={{ color: '#0284C7' }}>[AI 초안 생성]</strong>을 누르시면 작가노트, 인스타그램 캡션, 블로그 글이 함께 완성됩니다.<br />
                   <span style={{ display: 'inline-block', marginTop: '8px', fontSize: '0.82rem', color: '#94A3B8' }}>
-                    (직접 작성하신 글이 있다면 <strong style={{ color: '#0F172A' }}>[📁 내 글 바로 등록]</strong>으로 수장고에 즉시 보관하실 수 있습니다.)
+                    (직접 작성하신 글이 있다면 <strong style={{ color: '#0F172A' }}>[내 글 바로 등록]</strong>으로 수장고에 즉시 보관하실 수 있습니다.)
                   </span>
                 </p>
               </div>

@@ -156,6 +156,65 @@ function parseCustomCurriculum(text, defaultDuration) {
   return getCurriculumList(defaultDuration);
 }
 
+// 장르별 기본 강의 환경 및 준비물 헬퍼 (장르 미입력 시 빈칸 유지)
+function getDefaultGenreMaterials(genre) {
+  if (!genre || !genre.trim()) {
+    return {
+      instructor: '',
+      student: '',
+      safety: ''
+    };
+  }
+  const g = genre.trim().toLowerCase();
+  if (g.includes('한국화') || g.includes('동양화') || g.includes('민화') || g.includes('채색화') || g.includes('서예') || g.includes('지본')) {
+    return {
+      instructor: '시연용 붓·먹·벼루, 교안 유인물, 배접지 및 아교포수 보조제',
+      student: '화선지/순지, 동양화 붓, 모포, 먹물, 한국화 분채/봉채 물감, 앞치마',
+      safety: '먹물 및 아교액 의류 오염 주의, 화선지 훼손 방지를 위한 습기 및 통풍 관리'
+    };
+  }
+  if (g.includes('수채화') || g.includes('과슈') || g.includes('일러스트')) {
+    return {
+      instructor: '수채화 전용지 샘플, 시연용 팔레트, 교안 유인물, 마스킹액',
+      student: '수채화지(300g 이상), 수채화 물감, 붓 세트, 물통, 파레트, 휴지, 앞치마',
+      safety: '세척수 음용 주의, 실내 환기 유지 및 바닥 미끄럼 방지'
+    };
+  }
+  if (g.includes('드로잉') || g.includes('소묘') || g.includes('크로키') || g.includes('펜화') || g.includes('스케치')) {
+    return {
+      instructor: '드로잉 시연 도구, 명화 도판 자료, 픽사티브(정착액)',
+      student: '스케치북, 연필(4B~2B)/콘테/목탄/펜, 지우개, 찰필, 깍지',
+      safety: '정착액(픽사티브) 분사 시 반드시 실외 또는 환기 가능한 공간에서 작업'
+    };
+  }
+  if (g.includes('공예') || g.includes('도예') || g.includes('도자') || g.includes('가죽') || g.includes('목공')) {
+    return {
+      instructor: '공예 전문 성형/가공 도구, 교안 및 제작 매뉴얼, 시연 샘플',
+      student: '공예 재료 키트, 기본 조형 도구, 보호 장갑, 앞치마',
+      safety: '칼/조각도 등 날카로운 도구 취급 시 안전장갑 착용, 분진 흡입 방지 마스크 착용'
+    };
+  }
+  if (g.includes('유화') || g.includes('유채')) {
+    return {
+      instructor: '시연용 캔버스, 전문 브러시, 교안 유인물, 보조제(테레핀/뽀삐유/페트롤)',
+      student: '캔버스, 유화 물감, 유화 붓 세트, 기름통, 나이프, 페이퍼타올, 앞치마',
+      safety: '유화 테레핀/페트롤 사용 시 상시 환기 시설 점검, 폐유포 화기 엄금 및 밀폐 수거'
+    };
+  }
+  if (g.includes('서양화') || g.includes('아크릴')) {
+    return {
+      instructor: '시연용 캔버스, 젯소, 아크릴 미디엄/보조제, 교안 유인물',
+      student: '캔버스, 아크릴 물감 세트, 아크릴 전용 붓, 종이팔레트, 물통, 앞치마',
+      safety: '물감 건조 전 붓 세척, 작업실 환기 유지'
+    };
+  }
+  return {
+    instructor: '시연용 전문 도구, 교안 유인물, 제작 샘플',
+    student: '실습 기본 재료 세트, 작업용 도구, 앞치마',
+    safety: '작업실 환기 시설 점검 및 작업 도구 안전 사용 수칙 준수'
+  };
+}
+
 export default function DocStudio({ onBack, user = null }) {
   const [activeTab, setActiveTab] = useState('lecture'); // 'lecture' | 'cv' | 'invoice'
   const [copied, setCopied] = useState(false);
@@ -173,6 +232,7 @@ export default function DocStudio({ onBack, user = null }) {
     goal: '',
     customCurriculum: '' // 선택사항: 비워두면 계획서에서 커리큘럼 표가 완전히 제외됨 (1회성 강의 등)
   });
+  const [customMaterials, setCustomMaterials] = useState(null); // 사용자가 미리보기에서 직접 수정한 준비물
   const [lectureResult, setLectureResult] = useState('');
 
   // 현재 커리큘럼: 작가가 직접 입력하거나 템플릿을 불러왔을 때만 파싱하고, 비어있으면 빈 배열 (출력 제외)
@@ -647,7 +707,7 @@ ${cvForm.collections.trim()}
                     <th>담당 강사</th>
                     <td>
                       <span style={{ fontWeight: 600 }}>{lectureForm.instructorName || '강사'}</span>
-                      <span className="doc-stamp-circle" style={{ marginLeft: '8px' }}>인</span>
+                      <span style={{ marginLeft: '6px', color: '#64748B', fontWeight: 500 }}>(인)</span>
                     </td>
                   </tr>
                 </tbody>
@@ -697,33 +757,67 @@ ${cvForm.collections.trim()}
                 </>
               )}
 
-              {/* 4. 강의실 환경 및 준비물 (커리큘럼 유무에 따라 번호 자동 조정) */}
-              <div className="doc-section-title">
-                <span className="doc-section-num">{hasCurriculum ? 4 : 3}</span>
-                <span>강의 환경 및 준비물</span>
+              {/* 4. 강의실 환경 및 준비물 (장르에 따라 자동 분기, 미입력 시 빈칸, 클릭하여 직접 수정 가능) */}
+              <div className="doc-section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <span className="doc-section-num">{hasCurriculum ? 4 : 3}</span>
+                  <span>강의 환경 및 준비물</span>
+                </div>
+                <span className="no-print" style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: 400 }}>
+                  (표 안의 내용을 클릭하여 직접 수정할 수 있습니다)
+                </span>
               </div>
-              <table className="doc-form-table">
-                <colgroup>
-                  <col style={{ width: '22%' }} />
-                  <col style={{ width: '78%' }} />
-                </colgroup>
-                <tbody>
-                  <tr>
-                    <th>강사 준비물</th>
-                    <td>시연용 도구, 교안 유인물, 특수 보조제</td>
-                  </tr>
-                  <tr>
-                    <th>기관 / 수강생 준비</th>
-                    <td>캔버스, 기본 붓 세트, 물통, 앞치마</td>
-                  </tr>
-                  <tr>
-                    <th>안전 및 관리 수칙</th>
-                    <td style={{ color: '#475569', fontSize: '0.82rem' }}>
-                      환기 시설 확보 필수, 유화 테레핀/페트롤 사용 시 폐액 밀폐 보관 및 전용 용기 수거 준수
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              {(() => {
+                const defaultMat = getDefaultGenreMaterials(lectureForm.genre);
+                const currentMat = {
+                  instructor: customMaterials?.instructor !== undefined ? customMaterials.instructor : defaultMat.instructor,
+                  student: customMaterials?.student !== undefined ? customMaterials.student : defaultMat.student,
+                  safety: customMaterials?.safety !== undefined ? customMaterials.safety : defaultMat.safety
+                };
+                return (
+                  <table className="doc-form-table">
+                    <colgroup>
+                      <col style={{ width: '22%' }} />
+                      <col style={{ width: '78%' }} />
+                    </colgroup>
+                    <tbody>
+                      <tr>
+                        <th>강사 준비물</th>
+                        <td 
+                          contentEditable 
+                          suppressContentEditableWarning
+                          onBlur={(e) => setCustomMaterials(prev => ({ ...(prev || defaultMat), instructor: e.currentTarget.innerText }))}
+                          style={{ cursor: 'text', minHeight: '24px' }}
+                        >
+                          {currentMat.instructor}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>기관 / 수강생 준비</th>
+                        <td 
+                          contentEditable 
+                          suppressContentEditableWarning
+                          onBlur={(e) => setCustomMaterials(prev => ({ ...(prev || defaultMat), student: e.currentTarget.innerText }))}
+                          style={{ cursor: 'text', minHeight: '24px' }}
+                        >
+                          {currentMat.student}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th>안전 및 관리 수칙</th>
+                        <td 
+                          contentEditable 
+                          suppressContentEditableWarning
+                          onBlur={(e) => setCustomMaterials(prev => ({ ...(prev || defaultMat), safety: e.currentTarget.innerText }))}
+                          style={{ color: '#475569', fontSize: '0.82rem', cursor: 'text', minHeight: '24px' }}
+                        >
+                          {currentMat.safety}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                );
+              })()}
 
               {/* 하단 서명부 */}
               <div className="doc-sign-area">
