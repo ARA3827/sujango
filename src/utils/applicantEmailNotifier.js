@@ -13,7 +13,7 @@ export async function sendApplicationEmailNotification(applicantData) {
       _captcha: 'false',
       email: applicantData.email,
       _replyto: applicantData.email,
-      _autoresponse: '수장고 1기 파운딩 아티스트 지원서가 접수되었습니다. 11월 9일(월)에 이메일로 결과를 안내드릴게요. 문의: auth@sujango.com',
+      _autoresponse: '수장고 1기 파운딩 아티스트 지원서가 접수되었습니다. 작가님의 소중한 지원서를 꼼꼼히 살펴본 뒤, 이메일로 개별 안내를 드릴게요. 문의: auth@sujango.com',
       '신청 접수 코드': applicantData.id || `FA-${Date.now()}`,
       '작가 활동명': applicantData.name || '',
       '작가 이메일': applicantData.email || '',

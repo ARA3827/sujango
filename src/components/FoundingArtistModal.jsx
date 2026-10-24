@@ -123,7 +123,7 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
       const localList = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       const localDuplicate = localList.find(item => (item.email || '').trim().toLowerCase() === trimmedEmail);
       if (localDuplicate) {
-        const errorMsg = `이미 '${formData.email}' 주소로 접수된 지원서가 존재합니다. 선정 결과는 11월 9일(월)에 등록해 주신 메일로 안내해 드립니다.`;
+        const errorMsg = `이미 '${formData.email}' 주소로 접수된 지원서가 존재합니다. 작가님의 소중한 지원서를 꼼꼼히 살펴본 뒤, 등록해 주신 메일로 개별 안내해 드립니다.`;
         setFormError(errorMsg);
         alert(errorMsg);
         return;
@@ -259,7 +259,7 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
                   </div>
                 </div>
                 <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '8px' }}>
-                  • 모집: 10월 25일(일) ~ 11월 7일(토) · 발표: 11월 9일(월) 이메일 안내<br />
+                  • 모집: 10월 25일(일)부터 순차 모집 · 접수 확인 후 이메일 개별 안내<br />
                   • 활동 기간은 각 그룹 시작일로부터 8주간 동일하게 보장됩니다.
                 </div>
               </div>
@@ -722,7 +722,7 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
               </h3>
               <p style={{ color: '#475569', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
                 수장고를 함께 빚어갈 소중한 이야기를 들려주셔서 감사드립니다.<br />
-                선정 결과 및 그룹 배정 안내는 <strong>11월 9일(월)</strong> 등록해 주신 이메일로 정성껏 전해드리겠습니다.
+                작가님의 소중한 지원서를 꼼꼼히 살펴본 뒤, 등록해 주신 이메일로 개별 안내를 정성껏 전해드리겠습니다.
               </p>
               
               <div style={{ background: '#F8FAFC', padding: '14px 18px', borderRadius: '10px', border: '1px solid #E2E8F0', display: 'inline-flex', flexDirection: 'column', gap: '6px', fontSize: '0.84rem', color: '#64748B', marginBottom: '1.5rem', textAlign: 'left' }}>
