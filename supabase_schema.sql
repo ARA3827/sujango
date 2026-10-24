@@ -22,6 +22,10 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   watermark_image_url TEXT,                      -- 사용자 투명 로고/서명 PNG URL
   watermark_opacity NUMERIC DEFAULT 0.35,        -- 투명도 (0.1 ~ 1.0)
   watermark_position TEXT DEFAULT 'center_diagonal', -- 'center_diagonal', 'bottom_right', 'grid'
+  terms_agreed_at TIMESTAMPTZ,                  -- 이용약관 필수 동의 일시
+  privacy_agreed_at TIMESTAMPTZ,                -- 개인정보 수집/이용 필수 동의 일시
+  policy_version TEXT DEFAULT '2026-10-31',      -- 동의한 약관 버전
+  is_over_fourteen BOOLEAN DEFAULT TRUE,         -- 만 14세 이상 확인
   created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -34,6 +38,10 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS watermark_text TEXT DEFAULT
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS watermark_image_url TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS watermark_opacity NUMERIC DEFAULT 0.35;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS watermark_position TEXT DEFAULT 'center_diagonal';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS terms_agreed_at TIMESTAMPTZ;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS privacy_agreed_at TIMESTAMPTZ;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS policy_version TEXT DEFAULT '2026-10-31';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_over_fourteen BOOLEAN DEFAULT TRUE;
 
 -- 2. 작품 아카이브 보관함 (Artworks)
 CREATE TABLE IF NOT EXISTS public.artworks (

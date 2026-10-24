@@ -9,11 +9,13 @@ const isValidSupabaseUrl = (url) => {
     url && 
     url.startsWith('https://') && 
     url.includes('.supabase.co') && 
-    !url.includes('tkzacvmcqpytludkdpm')
+    !url.includes('tkzacvmcqpytludkdpm') && // 이전 임시 더미 URL 제외
+    !url.includes('placeholder') &&
+    !url.includes('your-project')
   );
 };
 
-// Supabase 클라이언트 인스턴스 (유효한 키와 URL이 있을 때만 생성)
+// Supabase 클라이언트 인스턴스 (유효한 키와 URL이 있을 때만 안전하게 생성)
 export const supabase = (isValidSupabaseUrl(supabaseUrl) && supabaseAnonKey && !supabaseAnonKey.includes('publishable_ciRA'))
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
@@ -37,6 +39,10 @@ export async function syncUserProfile(user) {
       user_email: user.email,
       artist_name: user.name || '작가',
       avatar_url: user.avatarUrl || '',
+      terms_agreed_at: user.termsAgreedAt || new Date().toISOString(),
+      privacy_agreed_at: user.privacyAgreedAt || new Date().toISOString(),
+      policy_version: user.policyVersion || '2026-10-31',
+      is_over_fourteen: user.isOverFourteen ?? true,
       updated_at: new Date().toISOString()
     };
     if (user.id && !user.id.startsWith('user-')) {
@@ -48,7 +54,7 @@ export async function syncUserProfile(user) {
       .upsert(payload, {
         onConflict: 'user_email'
       })
-      .select('id, user_email, artist_name, avatar_url, is_pro, plan_tier, storage_limit_gb')
+      .select('id, user_email, artist_name, avatar_url, is_pro, plan_tier, storage_limit_gb, terms_agreed_at, privacy_agreed_at, policy_version')
       .maybeSingle();
 
     if (error) {

@@ -235,6 +235,24 @@ graph TD
 - 가입일시와 별개로 이용약관/개인정보 동의 일시 및 약관 버전 컬럼 신설
 - Column-Level 보안 및 RLS(Row Level Security)를 통한 동의 기록 위변조 방어
 
+---
 
+## 10. Supabase 클라우드 실연동 1단계 인프라 & 약관 동의 DDL 고도화 (2026-10-24)
 
+### 10-1. 클라우드 연결 진단 및 환경변수 안전 가드 확인
+- **현황 진단:**
+  - 기존 `.env`에 설정된 `https://tkzacvmcqpytludkdpm.supabase.co` 도메인은 예시용 더미 URL(DNS 미존재)로, 코드 내 안전 가드(`!url.includes('tkzacvmcqpytludkdpm')`)를 통해 로컬스토리지 모드로 자동 안전 격리 유지 중이었음.
+- **조치:**
+  - 사용자가 실제 Supabase 프로젝트 URL 및 Anon Key를 등록하면 즉시 정상 작동하도록 `isValidSupabaseUrl` 및 클라이언트 생성 로직을 정돈.
 
+### 10-2. 데이터베이스 스키마 약관 동의 4대 컬럼 반영 (`supabase_schema.sql`)
+- **반영 컬럼:**
+  1. `terms_agreed_at TIMESTAMPTZ`: 이용약관 동의 일시
+  2. `privacy_agreed_at TIMESTAMPTZ`: 개인정보 수집/이용 동의 일시
+  3. `policy_version TEXT DEFAULT '2026-10-31'`: 동의 당시 적용 약관 버전
+  4. `is_over_fourteen BOOLEAN DEFAULT TRUE`: 만 14세 이상 확인 여부
+- **안전 마이그레이션:**
+  - 신규 생성뿐만 아니라 이미 `profiles` 테이블이 존재하는 경우를 대비해 `ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS ...` 구문 완비.
+
+### 10-3. 작가 프로필 동기화 파이프라인 연동 (`syncUserProfile`)
+- 회원가입 시 클라이언트에서 수집된 약관 동의 메타데이터(`user.termsAgreedAt`, `user.privacyAgreedAt`, `user.policyVersion`, `user.isOverFourteen`)를 Supabase `profiles` 테이블로 함께 upsert하도록 파이프라인 연결 완료.
