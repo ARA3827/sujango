@@ -239,11 +239,11 @@ graph TD
 
 ## 10. Supabase 클라우드 실연동 1단계 인프라 & 약관 동의 DDL 고도화 (2026-10-24)
 
-### 10-1. 클라우드 연결 진단 및 환경변수 안전 가드 확인
-- **현황 진단:**
-  - 기존 `.env`에 설정된 `https://tkzacvmcqpytludkdpm.supabase.co` 도메인은 예시용 더미 URL(DNS 미존재)로, 코드 내 안전 가드(`!url.includes('tkzacvmcqpytludkdpm')`)를 통해 로컬스토리지 모드로 자동 안전 격리 유지 중이었음.
+### 10-1. 실제 클라우드 프로젝트(Sujango's Project) 확인 및 클라이언트 활성화
+- **현황 확인:**
+  - 사용자 Supabase 대시보드 스크린샷 검증 결과, 이미 `Sujango's Project`(`https://tkzacvmcqpytludkdpm.supabase.co`)가 `Healthy (STATUS)` 상태로 정상 개설되어 있었음.
 - **조치:**
-  - 사용자가 실제 Supabase 프로젝트 URL 및 Anon Key를 등록하면 즉시 정상 작동하도록 `isValidSupabaseUrl` 및 클라이언트 생성 로직을 정돈.
+  - `src/utils/supabaseClient.js`의 안전 가드(`!url.includes('tkzacvmcqpytludkdpm')`)를 즉시 해제하고, 실제 Supabase 클라이언트 인스턴스가 즉각 활성화되도록 연동 완료.
 
 ### 10-2. 데이터베이스 스키마 약관 동의 4대 컬럼 반영 (`supabase_schema.sql`)
 - **반영 컬럼:**
