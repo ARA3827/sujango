@@ -9,14 +9,13 @@ const isValidSupabaseUrl = (url) => {
     url && 
     url.startsWith('https://') && 
     url.includes('.supabase.co') && 
-    !url.includes('tkzacvmcqpytludkdpm') && // 이전 임시 더미 URL 제외
     !url.includes('placeholder') &&
     !url.includes('your-project')
   );
 };
 
 // Supabase 클라이언트 인스턴스 (유효한 키와 URL이 있을 때만 안전하게 생성)
-export const supabase = (isValidSupabaseUrl(supabaseUrl) && supabaseAnonKey && !supabaseAnonKey.includes('publishable_ciRA'))
+export const supabase = (isValidSupabaseUrl(supabaseUrl) && supabaseAnonKey)
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
