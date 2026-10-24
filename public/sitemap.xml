@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://sujango.com/</loc>
-    <lastmod>2026-10-22</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://www.sujango.com/</loc>
+    <lastmod>2026-10-24</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://sujango.com/#about</loc>
-    <lastmod>2026-10-22</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://www.sujango.com/about</loc>
+    <lastmod>2026-10-24</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sujango.com/#guide</loc>
-    <lastmod>2026-10-22</lastmod>
+    <loc>https://www.sujango.com/guide</loc>
+    <lastmod>2026-10-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sujango.com/</loc>
+    <lastmod>2026-10-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
   </url>
 </urlset>
