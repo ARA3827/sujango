@@ -256,3 +256,17 @@ graph TD
 
 ### 10-3. 작가 프로필 동기화 파이프라인 연동 (`syncUserProfile`)
 - 회원가입 시 클라이언트에서 수집된 약관 동의 메타데이터(`user.termsAgreedAt`, `user.privacyAgreedAt`, `user.policyVersion`, `user.isOverFourteen`)를 Supabase `profiles` 테이블로 함께 upsert하도록 파이프라인 연결 완료.
+
+---
+
+## 11. 구글 서치콘솔 & 네이버 서치어드바이저 SEO 소유권 인증 및 등록 (2026-10-24)
+
+### 11-1. Google Search Console 공식 출생신고 완료
+- **도메인:** `https://www.sujango.com`
+- **인증 방식:** HTML 태그(`jIlCzXHgiFYjOcNzsagNbPQXqNKaB7jmy98cEVkcf4Q`) 및 HTML 파일(`googled561e23561b3c186.html`) 듀얼 탑재.
+- **결과:** 구글 공식 소유권 확인 성공(`✔ 소유권이 확인됨`) 및 최신 사이트맵(`sitemap.xml`) 제출 연동.
+
+### 11-2. Naver Search Advisor (네이버 서치어드바이저) 웹마스터 도구 등록
+- **도메인:** `https://www.sujango.com`
+- **인증 방식:** HTML 메타태그(`298724568f51af81409c76cb8b38c442b50a878d`) 및 파일(`naver2c381ebb36379a52557425bd00c1a94e.html`) 반영.
+- **robots.txt & sitemap.xml:** 네이버/구글 봇 동시 대응을 위한 표준 XML 사이트맵 및 크롤링 허용 규칙 최신화.
