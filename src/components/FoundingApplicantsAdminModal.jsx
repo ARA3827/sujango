@@ -29,10 +29,13 @@ export default function FoundingApplicantsAdminModal({ isOpen, onClose }) {
     setLoading(true);
     let list = [];
 
-    // 1. Supabase 클라우드 조회
+    // 1. Supabase 클라우드 조회 (최대 2초 타임아웃)
     try {
-      const res = await fetchFoundingApplicants();
-      if (res.success && res.data && res.data.length > 0) {
+      const fetchPromise = fetchFoundingApplicants();
+      const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ success: false, data: [] }), 2000));
+      const res = await Promise.race([fetchPromise, timeoutPromise]);
+
+      if (res && res.success && res.data && res.data.length > 0) {
         list = res.data.map(item => ({
           id: item.applicant_code || item.id,
           name: item.name,

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { submitFoundingApplication } from '../utils/supabaseClient';
+import { sendApplicationEmailNotification } from '../utils/applicantEmailNotifier';
 
 const STORAGE_KEY = 'sujango_founding_applicants';
 const HIDE_UNTIL_KEY = 'sujango_hide_founding_modal_until';
@@ -120,7 +121,9 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
       const localList = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       const localDuplicate = localList.find(item => (item.email || '').trim().toLowerCase() === trimmedEmail);
       if (localDuplicate) {
-        setFormError(`이미 '${formData.email}' 주소로 접수된 지원서가 존재합니다. 선정 결과는 11월 9일(월)에 등록해 주신 메일로 안내해 드립니다.`);
+        const errorMsg = `이미 '${formData.email}' 주소로 접수된 지원서가 존재합니다. 선정 결과는 11월 9일(월)에 등록해 주신 메일로 안내해 드립니다.`;
+        setFormError(errorMsg);
+        alert(errorMsg);
         return;
       }
     } catch (e) {}
@@ -140,17 +143,24 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
       if (cloudRes && cloudRes.isDuplicate) {
         setIsSubmitting(false);
         setFormError(cloudRes.message);
+        alert(cloudRes.message);
         return;
       }
 
-      // 3. 로컬스토리지 백업 보관
+      // 3. 관리자(auth@sujango.com) 메일함으로 실시간 신청 알림 메일 전송
+      try {
+        sendApplicationEmailNotification(applicantRecord);
+      } catch (mailErr) {
+        console.warn('[Notifier] Email notification trigger notice:', mailErr);
+      }
+
+      // 4. 로컬스토리지 백업 보관
       const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      // 기존에 혹시 동일 이메일이 있으면 최신 데이터로 교체, 없으면 추가
       const filteredExisting = existing.filter(item => (item.email || '').trim().toLowerCase() !== trimmedEmail);
       filteredExisting.unshift(applicantRecord);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredExisting));
 
-      // 4. 축하 폭죽 발사
+      // 5. 축하 폭죽 발사
       try {
         confetti({
           particleCount: 40,
@@ -588,6 +598,14 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
                   </label>
                 </div>
               </div>
+
+              {/* 하단 에러 메시지 (스크롤 내려도 즉각 인지) */}
+              {formError && (
+                <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#B91C1C', padding: '10px 14px', borderRadius: '8px', fontSize: '0.86rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <X size={16} style={{ flexShrink: 0 }} />
+                  <span>{formError}</span>
+                </div>
+              )}
 
               {/* 제출 버튼 */}
               <button

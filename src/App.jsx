@@ -25,6 +25,7 @@ import FoundingArtistModal from './components/FoundingArtistModal';
 import FoundingApplicantsAdminModal from './components/FoundingApplicantsAdminModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import { getStoredUser, saveUser, deleteUserAccount, DEMO_USER } from './utils/authStorage';
+import { isAdminUser, checkAdminPin } from './utils/adminAuth';
 import { syncUserProfile } from './utils/supabaseClient';
 import { exportArchiveBackup } from './utils/archiveStorage';
 import { requestPersistentStorage, migrateArtworksToV6 } from './utils/artworkModel';
@@ -54,6 +55,24 @@ export default function App() {
   const [isFoundingModalOpen, setIsFoundingModalOpen] = useState(false);
   const [isApplicantsAdminOpen, setIsApplicantsAdminOpen] = useState(false);
   const [showAnnouncementBar, setShowAnnouncementBar] = useState(true);
+  const [adminTapCount, setAdminTapCount] = useState(0);
+
+  // 푸터 저작권 문구 3회 클릭 시 시크릿 관리자 모달 진입
+  const handleSecretAdminTap = () => {
+    const next = adminTapCount + 1;
+    if (next >= 3) {
+      setAdminTapCount(0);
+      const pin = window.prompt('수장고 관리자 인증 핀코드를 입력하세요:');
+      if (checkAdminPin(pin)) {
+        setIsApplicantsAdminOpen(true);
+      } else if (pin) {
+        alert('관리자 핀코드가 올바르지 않습니다.');
+      }
+    } else {
+      setAdminTapCount(next);
+      setTimeout(() => setAdminTapCount(0), 1800);
+    }
+  };
 
   // 첫 방문 시 1기 파운딩 아티스트 모집 팝업 자동 오픈 (오늘 하루 보지 않기 여부 체크)
   useEffect(() => {
@@ -467,33 +486,34 @@ export default function App() {
             >
               공지 및 혜택 보기 →
             </button>
-            <button
-              onClick={() => setIsApplicantsAdminOpen(true)}
-              title="1기 파운딩 아티스트 신청자 명단 조회 (관리자)"
-              style={{
-                background: 'rgba(255, 255, 255, 0.12)',
-                border: '1px solid rgba(255, 255, 255, 0.25)',
-                color: '#E2E8F0',
-                borderRadius: '4px',
-                padding: '2px 7px',
-                fontSize: '0.72rem',
-                cursor: 'pointer',
-                fontWeight: 600,
-                transition: 'all 0.15s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#0284C7';
-                e.currentTarget.style.color = '#FFFFFF';
-                e.currentTarget.style.borderColor = '#38BDF8';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
-                e.currentTarget.style.color = '#E2E8F0';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
-              }}
-            >
-              신청자 명단
-            </button>
+            {/* 관리자(대표님) 전용 실시간 신청자 명단 확인 버튼 */}
+            {isAdminUser(user) && (
+              <button
+                onClick={() => setIsApplicantsAdminOpen(true)}
+                title="1기 파운딩 아티스트 신청자 명단 조회 (관리자 전용)"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.35)',
+                  color: '#FFFFFF',
+                  borderRadius: '4px',
+                  padding: '2px 8px',
+                  fontSize: '0.72rem',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#0284C7';
+                  e.currentTarget.style.borderColor = '#38BDF8';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.35)';
+                }}
+              >
+                👑 신청자 명단
+              </button>
+            )}
           </div>
           <button
             onClick={() => setShowAnnouncementBar(false)}
@@ -899,9 +919,15 @@ export default function App() {
             </div>
           </div>
 
-          {/* 하단 3행: 카피라이트 */}
+          {/* 하단 3행: 카피라이트 (관리자 3회 탭 시크릿 게이트 탑재) */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', fontSize: '0.72rem', color: '#94A3B8', paddingTop: '0.5rem' }}>
-            <span>Ara Agent Lab © {new Date().getFullYear()} Sujango (sujango.com) • All Rights Reserved.</span>
+            <span 
+              onClick={handleSecretAdminTap} 
+              style={{ cursor: 'default', userSelect: 'none' }}
+              title="Ara Agent Lab"
+            >
+              Ara Agent Lab © {new Date().getFullYear()} Sujango (sujango.com) • All Rights Reserved.
+            </span>
             <span>수장고는 1인 창작 예술가의 안전한 작품 보관과 행정 업무를 지원합니다.</span>
           </div>
 

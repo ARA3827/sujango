@@ -19,6 +19,7 @@ import {
   Users
 } from 'lucide-react';
 import { updateUserProfile } from '../utils/authStorage';
+import { isAdminUser } from '../utils/adminAuth';
 
 /**
  * 상단 햄버거 메뉴(☰) 클릭 시 우측에서 슬라이드로 열리는 사이드 드로어 메뉴
@@ -351,23 +352,25 @@ export default function SideMenuDrawer({
             <ChevronRight size={16} color="#CBD5E1" />
           </button>
 
-          {/* 7. 1기 파운딩 아티스트 신청자 관리 (관리자) */}
-          <button
-            type="button"
-            onClick={() => { onClose(); if (onOpenFoundingApplicantsAdmin) onOpenFoundingApplicantsAdmin(); }}
-            style={{ width: '100%', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: 'none', background: '#F8FAFC', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
-            onMouseEnter={(e) => e.currentTarget.style.background = '#F1F5F9'}
-            onMouseLeave={(e) => e.currentTarget.style.background = '#F8FAFC'}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Users size={18} color="#0F172A" />
-              <div>
-                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A' }}>파운딩 신청자 명단</span>
-                <span style={{ fontSize: '0.68rem', color: '#FFFFFF', background: '#0F172A', padding: '1px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 700 }}>관리자</span>
+          {/* 7. 1기 파운딩 아티스트 신청자 관리 (관리자 전용) */}
+          {isAdminUser(user) && (
+            <button
+              type="button"
+              onClick={() => { onClose(); if (onOpenFoundingApplicantsAdmin) onOpenFoundingApplicantsAdmin(); }}
+              style={{ width: '100%', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: 'none', background: '#F8FAFC', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#F1F5F9'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#F8FAFC'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Users size={18} color="#0F172A" />
+                <div>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A' }}>파운딩 신청자 명단</span>
+                  <span style={{ fontSize: '0.68rem', color: '#FFFFFF', background: '#0F172A', padding: '1px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 700 }}>관리자</span>
+                </div>
               </div>
-            </div>
-            <ChevronRight size={16} color="#CBD5E1" />
-          </button>
+              <ChevronRight size={16} color="#CBD5E1" />
+            </button>
+          )}
 
           <div style={{ borderTop: '1px solid #F1F5F9', margin: '0.75rem 1.5rem' }} />
 
