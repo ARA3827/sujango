@@ -54,21 +54,28 @@ export default function FoundingApplicantsAdminModal({ isOpen, onClose }) {
       console.warn('Cloud fetch failed, using local backup:', e);
     }
 
-    // 2. 로컬스토리지 백업 데이터와 병합 (중복 이메일 제거)
+    // 2. 로컬스토리지 백업 데이터와 병합
     try {
       const local = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      const emailMap = new Set(list.map(a => a.email));
       for (const item of local) {
-        if (!emailMap.has(item.email)) {
-          list.push(item);
-          emailMap.add(item.email);
-        }
+        list.push(item);
       }
     } catch (e) {}
 
-    // 최신 순 정렬
+    // 3. 최신 신청일시 기준 정렬 후, 동일 이메일 중복 제거 (가장 최신 1건만 유지)
     list.sort((a, b) => new Date(b.appliedAt || 0) - new Date(a.appliedAt || 0));
-    setApplicants(list);
+
+    const uniqueList = [];
+    const seenEmails = new Set();
+    for (const applicant of list) {
+      const normalizedEmail = (applicant.email || '').trim().toLowerCase();
+      if (normalizedEmail && !seenEmails.has(normalizedEmail)) {
+        seenEmails.add(normalizedEmail);
+        uniqueList.push(applicant);
+      }
+    }
+
+    setApplicants(uniqueList);
     setLoading(false);
   };
 

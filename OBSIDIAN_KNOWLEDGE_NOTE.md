@@ -359,9 +359,28 @@ graph TD
 - **조치 사항:**
   1. **푸터 사업자 정보 (`App.jsx`):** 고객센터 연락처를 `auth@sujango.com`으로 전면 교체.
   2. **피드백/새 도구 제안 모달 (`NewToolModal.jsx`):** 직접 메일 보내기 링크 대상을 `mailto:auth@sujango.com`으로 교체.
-  3. **파운딩 아티스트 신청 완료 화면 (`FoundingArtistModal.jsx`):**
+3. **파운딩 아티스트 신청 완료 화면 (`FoundingArtistModal.jsx`):**
      - 오해의 소지가 있던 "접수 이메일" 라벨을 **"결과 안내받으실 이메일"**로 명확화.
      - 공식 접수 및 문의 창구로 **"공식 접수·문의처: auth@sujango.com"**을 명시하여 지원 작가와 관리자 모두에게 신뢰감 부여.
+
+---
+
+## 15. 파운딩 아티스트 동일 이메일 중복 신청 방어 3중 가드 체계 (2026-10-24)
+
+### 15-1. 중복 신청 취약점 진단 및 해결
+- **문제점:** 동일한 이메일로 여러 차례 지원서를 제출할 경우, 중복 데이터가 계속 삽입되어 신청자 통계 왜곡 및 선발 혼란을 야기할 수 있음.
+- **3중 방어 가드 구축:**
+  1. **1차 가드 (클라이언트 즉시 검증):**
+     - 로컬 스토리지에 이미 등록된 이메일인 경우 즉시 `setFormError`로 "이미 해당 주소로 접수된 지원서가 존재합니다" 안내 노출 및 제출 차단.
+  2. **2차 가드 (Supabase API 사전 조회 및 에러 처리):**
+     - `submitFoundingApplication` 실행 시 `founding_applicants` 테이블을 먼저 `ilike('email', trimmedEmail)`로 조회.
+     - 이미 존재하는 이메일이면 `{ isDuplicate: true, message: '이미 신청이 접수되어 있습니다.' }` 반환.
+     - PostgreSQL UNIQUE constraint 위반(23505) 에러 발생 시에도 안전하게 중복 안내 반환.
+  3. **3차 가드 (PostgreSQL DB 스키마 UNIQUE 제약조건):**
+     - `founding_applicants.email TEXT UNIQUE NOT NULL` 및 `idx_founding_applicants_lower_email` 고유 인덱스 반영.
+  4. **관리자 모달(`FoundingApplicantsAdminModal.jsx`) 최신순 단일화:**
+     - 과거 혹시라도 발생한 중복 데이터가 있더라도, 동일 이메일에 대해 가장 최근에 접수된 1건만 남기고 자동으로 deduplication 정제하여 관리자에게 제공.
+
 
 
 

@@ -113,28 +113,44 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
       return;
     }
 
+    const trimmedEmail = formData.email.trim().toLowerCase();
+
+    // 1. 로컬 스토리지 중복 이메일 우선 검증
+    try {
+      const localList = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const localDuplicate = localList.find(item => (item.email || '').trim().toLowerCase() === trimmedEmail);
+      if (localDuplicate) {
+        setFormError(`이미 '${formData.email}' 주소로 접수된 지원서가 존재합니다. 선정 결과는 11월 9일(월)에 등록해 주신 메일로 안내해 드립니다.`);
+        return;
+      }
+    } catch (e) {}
+
     setIsSubmitting(true);
 
     try {
       const applicantRecord = {
         ...formData,
+        email: trimmedEmail,
         id: `applicant-${Date.now()}`,
         appliedAt: new Date().toISOString()
       };
 
-      // 1. Supabase 클라우드 데이터베이스 실시간 저장 시도
-      try {
-        await submitFoundingApplication(applicantRecord);
-      } catch (cloudErr) {
-        console.warn('[Founding] Cloud sync notice:', cloudErr);
+      // 2. Supabase 클라우드 데이터베이스 실시간 저장 & 중복 검증
+      const cloudRes = await submitFoundingApplication(applicantRecord);
+      if (cloudRes && cloudRes.isDuplicate) {
+        setIsSubmitting(false);
+        setFormError(cloudRes.message);
+        return;
       }
 
-      // 2. 로컬스토리지 백업 보관
+      // 3. 로컬스토리지 백업 보관
       const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      existing.unshift(applicantRecord);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+      // 기존에 혹시 동일 이메일이 있으면 최신 데이터로 교체, 없으면 추가
+      const filteredExisting = existing.filter(item => (item.email || '').trim().toLowerCase() !== trimmedEmail);
+      filteredExisting.unshift(applicantRecord);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredExisting));
 
-      // 3. 축하 폭죽 발사
+      // 4. 축하 폭죽 발사
       try {
         confetti({
           particleCount: 40,

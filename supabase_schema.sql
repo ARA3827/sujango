@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS public.founding_applicants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   applicant_code TEXT UNIQUE,                   -- 고유 접수번호 (예: FA-1730000000000)
   name TEXT NOT NULL,                           -- 작가 활동명 / 본명
-  email TEXT NOT NULL,                          -- 통보용 이메일
+  email TEXT UNIQUE NOT NULL,                   -- 통보용 이메일 (중복 신청 방지)
   phone TEXT,                                   -- 연락처
   genres JSONB DEFAULT '[]'::jsonb,             -- 주 활동 분야 배열 (서양화, 동양화 등)
   genre_other TEXT,                             -- 기타 분야 직접 입력
@@ -185,6 +185,10 @@ CREATE TABLE IF NOT EXISTS public.founding_applicants (
   notes TEXT,                                   -- 관리자 메모
   created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- 이메일 대소문자 무시 고유 인덱스 (중복 신청 원천 방지)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_founding_applicants_lower_email 
+ON public.founding_applicants (lower(email));
 
 -- RLS 활성화 및 익명/로그인 사용자 쓰기/읽기 허용
 ALTER TABLE public.founding_applicants ENABLE ROW LEVEL SECURITY;

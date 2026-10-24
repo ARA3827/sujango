@@ -249,10 +249,30 @@ export async function submitFoundingApplication(applicationData) {
   }
 
   try {
+    const trimmedEmail = (applicationData.email || '').trim().toLowerCase();
+
+    // 1. 이미 동일한 이메일로 접수된 지원서가 있는지 확인
+    const { data: existingApplicant, error: checkError } = await supabase
+      .from('founding_applicants')
+      .select('id, name, email, created_at')
+      .ilike('email', trimmedEmail)
+      .maybeSingle();
+
+    if (existingApplicant) {
+      const appliedDateStr = existingApplicant.created_at 
+        ? new Date(existingApplicant.created_at).toLocaleDateString('ko-KR')
+        : '';
+      return {
+        success: false,
+        isDuplicate: true,
+        message: `이미 '${existingApplicant.email}' 주소로 신청이 접수되어 있습니다. (접수일: ${appliedDateStr})`
+      };
+    }
+
     const payload = {
       applicant_code: applicationData.id || `FA-${Date.now()}`,
       name: applicationData.name,
-      email: applicationData.email,
+      email: trimmedEmail,
       phone: applicationData.phone || '',
       genres: applicationData.genres || [],
       genre_other: applicationData.genreOther || '',
@@ -279,6 +299,14 @@ export async function submitFoundingApplication(applicationData) {
       .select();
 
     if (error) {
+      // Postgres UNIQUE constraint 에러 감지 (23505)
+      if (error.code === '23505' || error.message.includes('unique')) {
+        return {
+          success: false,
+          isDuplicate: true,
+          message: `이미 '${trimmedEmail}' 주소로 접수된 지원서가 존재합니다.`
+        };
+      }
       console.warn('[Supabase] Failed to insert founding application:', error.message);
       return { success: false, error: error.message };
     }
