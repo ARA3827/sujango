@@ -105,8 +105,10 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
       setFormError('주 활동 분야를 최소 하나 이상 선택해 주세요.');
       return;
     }
-    if (!formData.painPoint.trim()) {
-      setFormError('창작 외 번거로웠던 업무 고민을 1줄 이상 적어주세요.');
+    if (!formData.painPoint.trim() || formData.painPoint.trim().length < 10) {
+      const errorMsg = '창작 외 번거로웠던 업무나 고민을 최소 10자 이상 구체적으로 적어주세요. (현재 ' + formData.painPoint.trim().length + '자)';
+      setFormError(errorMsg);
+      alert(errorMsg);
       return;
     }
     if (!formData.privacyConsent || !formData.overFourteen) {
@@ -417,7 +419,7 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
                     주 활동 분야 (복수 선택 가능) <span style={{ color: '#EF4444' }}>*</span>
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '6px', fontSize: '0.82rem' }}>
-                    {['서양화', '한국화', '수채화·드로잉', '판화', '조각·입체·설치', '공예', '사진', '디지털·일러스트'].map(genre => (
+                    {['서양화', '한국화', '수채화·드로잉', '판화', '조각·입체·설치', '공예', '사진', '디지털·일러스트', '기타'].map(genre => (
                       <label key={genre} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', background: formData.genres.includes(genre) ? '#EFF6FF' : '#F8FAFC', padding: '6px 8px', borderRadius: '6px', border: '1px solid', borderColor: formData.genres.includes(genre) ? '#3B82F6' : '#E2E8F0' }}>
                         <input
                           type="checkbox"
@@ -428,11 +430,24 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
                       </label>
                     ))}
                   </div>
+
+                  {/* 기타 분야 직접 입력 */}
+                  {formData.genres.includes('기타') && (
+                    <div style={{ marginTop: '8px' }}>
+                      <input
+                        type="text"
+                        placeholder="기타 활동 분야를 직접 입력해 주세요 (예: 미디어아트, 도예, 융복합 등)"
+                        value={formData.genreOther}
+                        onChange={(e) => setFormData({ ...formData, genreOther: e.target.value })}
+                        style={{ width: '100%', padding: '7px 12px', border: '1px solid #93C5FD', borderRadius: '6px', fontSize: '0.84rem', boxSizing: 'border-box', background: '#F0F9FF' }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ marginBottom: '12px' }}>
                   <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
-                    활동 기간 (필수) <span style={{ color: '#EF4444' }}>*</span>
+                    활동 기간 (경력) <span style={{ color: '#EF4444' }}>*</span>
                   </label>
                   <select
                     value={formData.experience}
@@ -445,6 +460,33 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
                     <option value="3~10년">3년 ~ 10년</option>
                     <option value="10년 이상">10년 이상</option>
                   </select>
+                </div>
+
+                {/* 2-1. 주요 활동 형태 (복수 선택) */}
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                    주요 활동 (복수 선택 가능)
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '6px', fontSize: '0.82rem' }}>
+                    {[
+                      '개인전·단체전',
+                      '아트페어',
+                      '공모전·지원사업',
+                      '출강·강의',
+                      '작품 판매',
+                      '외주·커미션',
+                      '전업 창작 준비 중'
+                    ].map(act => (
+                      <label key={act} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', background: formData.activities.includes(act) ? '#EFF6FF' : '#F8FAFC', padding: '6px 8px', borderRadius: '6px', border: '1px solid', borderColor: formData.activities.includes(act) ? '#3B82F6' : '#E2E8F0' }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.activities.includes(act)}
+                          onChange={() => handleCheckboxToggle('activities', act)}
+                        />
+                        <span>{act}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 <div>
@@ -470,20 +512,52 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
                   3. 작업실의 고민 (가장 중요한 질문)
                 </div>
 
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
-                    창작 외 업무 중 가장 번거롭거나 막막했던 일은 무엇인가요? <span style={{ color: '#EF4444' }}>*</span>
-                  </label>
+                <div style={{ marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <label style={{ fontSize: '0.84rem', fontWeight: 600, color: '#334155' }}>
+                      창작 외 업무 중 가장 번거롭거나 막막했던 일은 무엇인가요? <span style={{ color: '#EF4444' }}>*</span>
+                    </label>
+                    <span style={{ fontSize: '0.74rem', color: formData.painPoint.trim().length >= 10 ? '#059669' : '#EF4444', fontWeight: 600 }}>
+                      {formData.painPoint.trim().length}/10자 이상
+                    </span>
+                  </div>
                   <textarea
                     required
                     rows={3}
-                    placeholder="예: 캡션 규격 맞추기, 작가노트 글쓰기 막막함, 예전 작품 사진 찾기, 계산서나 강의계획서 서식 작성 등"
+                    placeholder="예: 캡션 규격 맞추기, 작가노트 글쓰기 막막함, 예전 작품 사진 찾기, 계산서나 강의계획서 서식 작성 등 (최소 10자 이상)"
                     value={formData.painPoint}
                     onChange={(e) => setFormData({ ...formData, painPoint: e.target.value })}
                     style={{ width: '100%', padding: '8px 12px', border: '1px solid #CBD5E1', borderRadius: '8px', fontSize: '0.88rem', boxSizing: 'border-box', resize: 'vertical' }}
                   />
                   <div style={{ fontSize: '0.74rem', color: '#64748B', marginTop: '2px' }}>
                     이 답변을 토대로 작가님들이 가장 필요로 하시는 기능부터 우선 개발합니다.
+                  </div>
+                </div>
+
+                {/* 3-1. 현재 작품 보관 방식 (복수 선택) */}
+                <div style={{ marginBottom: '14px' }}>
+                  <label style={{ display: 'block', fontSize: '0.84rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                    현재 작품 보관 방식 (복수 선택 가능)
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '6px', fontSize: '0.82rem' }}>
+                    {[
+                      '컴퓨터 폴더',
+                      '스마트폰 사진첩',
+                      '외장하드·USB',
+                      '클라우드',
+                      '문서 파일',
+                      '노션',
+                      '따로 정리 못 함'
+                    ].map(storage => (
+                      <label key={storage} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', background: formData.currentStorage.includes(storage) ? '#EFF6FF' : '#F8FAFC', padding: '6px 8px', borderRadius: '6px', border: '1px solid', borderColor: formData.currentStorage.includes(storage) ? '#3B82F6' : '#E2E8F0' }}>
+                        <input
+                          type="checkbox"
+                          checked={formData.currentStorage.includes(storage)}
+                          onChange={() => handleCheckboxToggle('currentStorage', storage)}
+                        />
+                        <span>{storage}</span>
+                      </label>
+                    ))}
                   </div>
                 </div>
 
@@ -566,8 +640,9 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
                       </tr>
                     </tbody>
                   </table>
-                  <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '4px' }}>
-                    동의를 거부하실 권리가 있으며, 거부 시 1기 베타 작가 신청이 제한됩니다.
+                  <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '5px', lineHeight: 1.5 }}>
+                    • 동의를 거부하실 권리가 있으며, 거부 시 1기 베타 작가 신청이 제한됩니다.<br />
+                    • 신청서는 FormSubmit(미국) 서비스를 통해 운영자 이메일로 전달됩니다.
                   </div>
                 </div>
 
