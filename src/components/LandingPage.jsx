@@ -29,6 +29,7 @@ export default function LandingPage({
   onNavigateToGuide, 
   onNavigateToAbout, 
   onOpenPricing,
+  onOpenFoundingModal,
   onGoDashboard,
   onSelectView
 }) {
@@ -499,9 +500,9 @@ export default function LandingPage({
             {/* 6. 기능 목록 */}
             <ul className="plan-features" style={{ flex: 1, margin: '0 0 1.25rem 0' }}>
               <li><CheckCircle2 size={16} color="#0F172A" /> <strong style={{ color: '#0F172A' }}>무료의 모든 기능 +</strong></li>
-              <li><CheckCircle2 size={16} color="#0F172A" /> <span>작품 등록 개수 무제한</span></li>
+              <li><CheckCircle2 size={16} color="#0F172A" /> <span>작품 수 제한 해제 (5GB 클라우드)</span></li>
               <li><CheckCircle2 size={16} color="#0F172A" /> <span>웹 공유용 사본 자동 생성</span></li>
-              <li><CheckCircle2 size={16} color="#0F172A" /> <span>AI 작가노트 초안 무제한</span></li>
+              <li><CheckCircle2 size={16} color="#0F172A" /> <span>AI 작가노트 초안 넉넉하게 (일 20회)</span></li>
               <li><CheckCircle2 size={16} color="#0F172A" /> <span>3중 분산 저장으로 안전하게 보관</span>
                 {!CLOUD_ENABLED && (
                   <span style={{ fontSize: '0.68rem', background: '#E2E8F0', color: '#475569', padding: '1px 6px', borderRadius: '4px', fontWeight: 600, marginLeft: '4px' }}>
@@ -514,8 +515,12 @@ export default function LandingPage({
             {/* 버튼 정렬용 여백 (무료 카드 안내문 높이와 동일) */}
             <div style={{ minHeight: '36px', marginBottom: '0.75rem' }} />
 
-            <button onClick={() => alert('베타 작가 모집을 곧 시작해요')} className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', background: '#0F172A', color: '#FFFFFF', fontWeight: 600 }}>
-              <span>베타 작가 신청하기</span>
+            <button 
+              onClick={onOpenFoundingModal} 
+              className="btn-primary" 
+              style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', background: '#0F172A', color: '#FFFFFF', fontWeight: 600 }}
+            >
+              <span>1기 파운딩 작가 신청하기</span>
             </button>
           </div>
 

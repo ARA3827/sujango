@@ -18,6 +18,7 @@ export default function PricingModal({
   user, 
   onUpgradeSuccess, 
   onOpenPolicy,
+  onOpenFoundingModal,
   onSelectPlanForCheckout 
 }) {
   const [billingCycle, setBillingCycle] = useState('yearly'); // 'monthly' | 'yearly'
@@ -269,7 +270,7 @@ export default function PricingModal({
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0F172A" />
-                <span>작품 등록 개수 무제한</span>
+                <span>작품 수 제한 해제 (5GB 클라우드)</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0F172A" />
@@ -277,7 +278,7 @@ export default function PricingModal({
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0F172A" />
-                <span>AI 작가노트 초안 무제한</span>
+                <span>AI 작가노트 초안 넉넉하게 (일 20회)</span>
               </li>
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0F172A" />
@@ -295,11 +296,11 @@ export default function PricingModal({
 
             <button 
               type="button" 
-              onClick={() => alert('베타 작가 모집을 곧 시작해요')}
+              onClick={onOpenFoundingModal}
               className="btn-primary" 
               style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', fontSize: '0.9rem', background: '#0F172A', color: '#FFFFFF', fontWeight: 600 }}
             >
-              <span>베타 작가 신청하기</span>
+              <span>1기 파운딩 작가 신청하기</span>
             </button>
           </div>
 

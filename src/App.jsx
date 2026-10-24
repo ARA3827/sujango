@@ -21,13 +21,14 @@ import SideMenuDrawer from './components/SideMenuDrawer';
 import InfoModal from './components/InfoModal';
 import ShortcutModal from './components/ShortcutModal';
 import DeleteAccountModal from './components/DeleteAccountModal';
+import FoundingArtistModal from './components/FoundingArtistModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import { getStoredUser, saveUser, deleteUserAccount, DEMO_USER } from './utils/authStorage';
 import { syncUserProfile } from './utils/supabaseClient';
 import { exportArchiveBackup } from './utils/archiveStorage';
 import { requestPersistentStorage, migrateArtworksToV6 } from './utils/artworkModel';
 import { migrateLegacyLocalData } from './utils/dataMigration';
-import { UserCheck, UserX, Sparkles, Crown, AlertCircle, Download, CheckCircle2 } from 'lucide-react';
+import { UserCheck, UserX, Sparkles, Crown, AlertCircle, Download, CheckCircle2, X as CloseIcon } from 'lucide-react';
 
 export default function App() {
   // 인증 상태 관리 (기본값: getStoredUser() 또는 null)
@@ -47,6 +48,23 @@ export default function App() {
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
   const [policyTab, setPolicyTab] = useState('terms');
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+
+  // 1기 파운딩 아티스트 모집 모달 및 상단 슬림 알림 바 상태
+  const [isFoundingModalOpen, setIsFoundingModalOpen] = useState(false);
+  const [showAnnouncementBar, setShowAnnouncementBar] = useState(true);
+
+  // 첫 방문 시 1기 파운딩 아티스트 모집 팝업 자동 오픈 (오늘 하루 보지 않기 여부 체크)
+  useEffect(() => {
+    try {
+      const hideUntil = localStorage.getItem('sujango_hide_founding_modal_until');
+      if (!hideUntil || Date.now() > parseInt(hideUntil, 10)) {
+        const timer = setTimeout(() => {
+          setIsFoundingModalOpen(true);
+        }, 600);
+        return () => clearTimeout(timer);
+      }
+    } catch (e) {}
+  }, []);
 
   // 토스페이먼츠 결제 모달 및 결제 결과 모달 상태
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -391,6 +409,84 @@ export default function App() {
 
   return (
     <div className="artflow-app">
+      {/* 📢 1기 파운딩 아티스트 50인 모집 상단 슬림 알림 바 */}
+      {showAnnouncementBar && (
+        <div 
+          style={{
+            background: '#0F172A',
+            color: '#F8FAFC',
+            padding: '0.55rem 1rem',
+            fontSize: '0.82rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            position: 'relative',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            zIndex: 100
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <span style={{ 
+              background: 'rgba(2, 132, 199, 0.25)', 
+              color: '#38BDF8', 
+              fontSize: '0.7rem', 
+              fontWeight: 700, 
+              padding: '2px 7px', 
+              borderRadius: '999px',
+              border: '1px solid rgba(56, 189, 248, 0.4)'
+            }}>
+              파운딩 아티스트 50인
+            </span>
+            <span style={{ color: '#E2E8F0', fontWeight: 500 }}>
+              수장고를 함께 빚어갈 1기 작가님을 모십니다 (1차 25명 / 2차 25명 순차 모집)
+            </span>
+            <button
+              onClick={() => setIsFoundingModalOpen(true)}
+              style={{
+                background: 'transparent',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                color: '#FFFFFF',
+                borderRadius: '4px',
+                padding: '2px 8px',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                fontWeight: 600,
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#FFFFFF';
+                e.currentTarget.style.color = '#0F172A';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
+            >
+              공지 및 혜택 보기 →
+            </button>
+          </div>
+          <button
+            onClick={() => setShowAnnouncementBar(false)}
+            aria-label="알림 바 닫기"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#94A3B8',
+              cursor: 'pointer',
+              padding: '2px',
+              display: 'flex',
+              alignItems: 'center',
+              position: 'absolute',
+              right: '12px'
+            }}
+            title="닫기"
+          >
+            <CloseIcon size={14} />
+          </button>
+        </div>
+      )}
+
       {/* 글로벌 헤더 (로고 클릭 시 항상 메인 페이지 이동) */}
       <Header 
         currentView={currentView} 
@@ -517,6 +613,7 @@ export default function App() {
             onNavigateToGuide={() => navigate('guide')}
             onNavigateToAbout={() => navigate('about')}
             onOpenPricing={() => setIsPricingModalOpen(true)}
+            onOpenFoundingModal={() => setIsFoundingModalOpen(true)}
             onGoDashboard={() => navigate('dashboard')}
             onSelectView={(viewId) => navigate(viewId)}
           />
@@ -600,6 +697,10 @@ export default function App() {
           saveUser(upgradedUser);
         }}
         onOpenPolicy={handleOpenPolicy}
+        onOpenFoundingModal={() => {
+          setIsPricingModalOpen(false);
+          setIsFoundingModalOpen(true);
+        }}
         onSelectPlanForCheckout={handleOpenCheckout}
       />
 
@@ -683,6 +784,12 @@ export default function App() {
         onClose={() => setIsDeleteAccountModalOpen(false)}
         onConfirm={handleDeleteAccount}
         user={user}
+      />
+
+      {/* 수장고 1기 파운딩 아티스트 50인 모집 공지 & 지원서 모달 */}
+      <FoundingArtistModal 
+        isOpen={isFoundingModalOpen}
+        onClose={() => setIsFoundingModalOpen(false)}
       />
 
       {/* 공식 미니멀 푸터 (전자상거래법 & 카드사 심사 법적 고지 완비) */}
