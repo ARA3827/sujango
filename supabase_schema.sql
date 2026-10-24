@@ -155,3 +155,41 @@ DROP POLICY IF EXISTS "Allow public read exhibitions" ON public.exhibitions;
 DROP POLICY IF EXISTS "Allow public write exhibitions" ON public.exhibitions;
 CREATE POLICY "Allow public read exhibitions" ON public.exhibitions FOR SELECT USING (true);
 CREATE POLICY "Allow public write exhibitions" ON public.exhibitions FOR ALL USING (true);
+
+-- ==========================================================
+-- 6. 수장고 1기 파운딩 아티스트 지원서 테이블 (Founding Applicants)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.founding_applicants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  applicant_code TEXT UNIQUE,                   -- 고유 접수번호 (예: FA-1730000000000)
+  name TEXT NOT NULL,                           -- 작가 활동명 / 본명
+  email TEXT NOT NULL,                          -- 통보용 이메일
+  phone TEXT,                                   -- 연락처
+  genres JSONB DEFAULT '[]'::jsonb,             -- 주 활동 분야 배열 (서양화, 동양화 등)
+  genre_other TEXT,                             -- 기타 분야 직접 입력
+  experience TEXT,                              -- 활동 경력 (1년 미만, 1~3년, 4~7년, 8년 이상)
+  activities JSONB DEFAULT '[]'::jsonb,         -- 주요 활동 형태 (개인전, 단체전, 아트페어 등)
+  portfolio_url TEXT,                           -- 인스타그램/웹사이트/포트폴리오 링크
+  pain_point TEXT NOT NULL,                     -- 창작 외 번거로웠던 업무/고민
+  current_storage JSONB DEFAULT '[]'::jsonb,    -- 현재 작품사진/자료 보관 방식
+  wanted_features JSONB DEFAULT '[]'::jsonb,    -- 먼저 써보고 싶은 기능 (최대 3개)
+  primary_device TEXT,                          -- 주 사용 기기 (PC, 스마트폰/태블릿, 둘 다)
+  can_commit TEXT,                              -- 2개월 참여 및 설문 동의
+  promo_consent TEXT,                           -- 공식 채널 작품 소개 희망 여부
+  referral_source TEXT,                         -- 유입 경로
+  referral_other TEXT,
+  privacy_consent BOOLEAN DEFAULT TRUE,         -- 개인정보 수집 및 이용 동의
+  over_fourteen BOOLEAN DEFAULT TRUE,           -- 만 14세 이상 확인
+  marketing_consent BOOLEAN DEFAULT FALSE,      -- 소식 수신 동의
+  status TEXT DEFAULT '접수완료',                -- '접수완료', '1차선정', '2차선정', '보류'
+  notes TEXT,                                   -- 관리자 메모
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- RLS 활성화 및 익명/로그인 사용자 쓰기/읽기 허용
+ALTER TABLE public.founding_applicants ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public insert founding_applicants" ON public.founding_applicants;
+DROP POLICY IF EXISTS "Allow public read founding_applicants" ON public.founding_applicants;
+CREATE POLICY "Allow public insert founding_applicants" ON public.founding_applicants FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public read founding_applicants" ON public.founding_applicants FOR SELECT USING (true);
+

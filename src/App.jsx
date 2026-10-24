@@ -22,6 +22,7 @@ import InfoModal from './components/InfoModal';
 import ShortcutModal from './components/ShortcutModal';
 import DeleteAccountModal from './components/DeleteAccountModal';
 import FoundingArtistModal from './components/FoundingArtistModal';
+import FoundingApplicantsAdminModal from './components/FoundingApplicantsAdminModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import { getStoredUser, saveUser, deleteUserAccount, DEMO_USER } from './utils/authStorage';
 import { syncUserProfile } from './utils/supabaseClient';
@@ -51,6 +52,7 @@ export default function App() {
 
   // 1기 파운딩 아티스트 모집 모달 및 상단 슬림 알림 바 상태
   const [isFoundingModalOpen, setIsFoundingModalOpen] = useState(false);
+  const [isApplicantsAdminOpen, setIsApplicantsAdminOpen] = useState(false);
   const [showAnnouncementBar, setShowAnnouncementBar] = useState(true);
 
   // 첫 방문 시 1기 파운딩 아티스트 모집 팝업 자동 오픈 (오늘 하루 보지 않기 여부 체크)
@@ -465,6 +467,33 @@ export default function App() {
             >
               공지 및 혜택 보기 →
             </button>
+            <button
+              onClick={() => setIsApplicantsAdminOpen(true)}
+              title="1기 파운딩 아티스트 신청자 명단 조회 (관리자)"
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                color: '#E2E8F0',
+                borderRadius: '4px',
+                padding: '2px 7px',
+                fontSize: '0.72rem',
+                cursor: 'pointer',
+                fontWeight: 600,
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#0284C7';
+                e.currentTarget.style.color = '#FFFFFF';
+                e.currentTarget.style.borderColor = '#38BDF8';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
+                e.currentTarget.style.color = '#E2E8F0';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+              }}
+            >
+              신청자 명단
+            </button>
           </div>
           <button
             onClick={() => setShowAnnouncementBar(false)}
@@ -760,6 +789,7 @@ export default function App() {
         onOpenPolicy={handleOpenPolicy}
         onOpenShortcut={() => setIsShortcutModalOpen(true)}
         onOpenDeleteAccount={() => setIsDeleteAccountModalOpen(true)}
+        onOpenFoundingApplicantsAdmin={() => setIsApplicantsAdminOpen(true)}
       />
 
       {/* 바탕화면 / 모바일 홈 화면 바로가기 추가 모달 */}
@@ -790,6 +820,12 @@ export default function App() {
       <FoundingArtistModal 
         isOpen={isFoundingModalOpen}
         onClose={() => setIsFoundingModalOpen(false)}
+      />
+
+      {/* 👑 수장고 1기 파운딩 아티스트 신청자 관리 센터 (관리자 전용 모달) */}
+      <FoundingApplicantsAdminModal 
+        isOpen={isApplicantsAdminOpen}
+        onClose={() => setIsApplicantsAdminOpen(false)}
       />
 
       {/* 공식 미니멀 푸터 (전자상거래법 & 카드사 심사 법적 고지 완비) */}

@@ -15,6 +15,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { submitFoundingApplication } from '../utils/supabaseClient';
 
 const STORAGE_KEY = 'sujango_founding_applicants';
 const HIDE_UNTIL_KEY = 'sujango_hide_founding_modal_until';
@@ -86,7 +87,7 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
   };
 
   // 신청서 제출
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
 
@@ -118,15 +119,22 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
       const applicantRecord = {
         ...formData,
         id: `applicant-${Date.now()}`,
-        submittedAt: new Date().toISOString()
+        appliedAt: new Date().toISOString()
       };
 
-      // 1. 로컬스토리지 안전 보관
+      // 1. Supabase 클라우드 데이터베이스 실시간 저장 시도
+      try {
+        await submitFoundingApplication(applicantRecord);
+      } catch (cloudErr) {
+        console.warn('[Founding] Cloud sync notice:', cloudErr);
+      }
+
+      // 2. 로컬스토리지 백업 보관
       const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       existing.unshift(applicantRecord);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
 
-      // 2. 축하 폭죽 발사
+      // 3. 축하 폭죽 발사
       try {
         confetti({
           particleCount: 40,

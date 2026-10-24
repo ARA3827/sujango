@@ -322,3 +322,32 @@ graph TD
 3. **랜딩 페이지 및 요금제 모달 연동:**
    - `LandingPage.jsx` 및 `PricingModal.jsx`의 Pro 카드 내 '베타 작가 신청하기' 버튼을 `onOpenFoundingModal`과 100% 연결.
 
+---
+
+## 13. 파운딩 아티스트 신청자 관리 센터 (Admin Modal) & Supabase 실시간 연동 (2026-10-24)
+
+### 13-1. UI 잔여 '준비 중' 태그 전면 제거
+- **배경:** Pro 멤버십 카드 내 '100GB 무손실 원본 보관' 및 '3중 분산 저장' 옆에 노출되던 회색 '준비 중' 뱃지가 서비스의 신뢰도를 떨어뜨리고 베타 신청 의욕을 저해하는 문제 해결.
+- **조치:** `LandingPage.jsx`와 `PricingModal.jsx`의 Pro 카드 2개 영역에서 `준비 중` 태그를 완전 삭제하여 정갈하고 단정한 디자인 완성.
+
+### 13-2. 지원서 제출 시 2중 안전 저장 파이프라인
+- **Supabase 클라우드 실시간 저장 (`founding_applicants`):**
+  - 작가가 지원서를 제출하면 즉시 Supabase `founding_applicants` 테이블로 실시간 `INSERT` 전송.
+  - 네트워크 단절이나 오프라인 환경을 대비하여 브라우저 로컬스토리지(`sujango_founding_applicants`)에도 이중 백업 보관.
+- **스키마 컬럼:**
+  - `applicant_code`, `name`, `email`, `phone`, `genres`, `genre_other`, `experience`, `activities`, `portfolio_url`, `pain_point`, `current_storage`, `wanted_features`, `primary_device`, `can_commit`, `promo_consent`, `referral_source`, `privacy_consent`, `status`('접수완료'), `created_at`.
+
+### 13-3. 관리자 확인 2대 채널 체계
+1. **수장고 웹사이트 내 [신청자 명단 관리 센터 모달 (`FoundingApplicantsAdminModal.jsx`)]:**
+   - **진입 경로:**
+     1) 상단 슬림 알림 바 우측 `[신청자 명단]` 버튼
+     2) 사이드 메뉴(☰) 하단 `[파운딩 신청자 명단 (관리자)]` 메뉴
+   - **제공 기능:**
+     - 총 접수 인원 실시간 집계 및 작가명/이메일/분야/고민 검색.
+     - 작가별 상세 프로필, 활동 분야 뱃지, 포트폴리오 링크 원클릭 연결.
+     - **[📥 엑셀(CSV) 다운로드]:** 한글 깨짐 방지 UTF-8 BOM 지원 CSV 자동 생성.
+     - **[📋 이메일 일괄 복사]:** 1차/2차 선정 안내 메일 발송 시 클릭 한 번으로 모든 신청자 이메일 주소를 쉼표로 연결하여 복사.
+2. **Supabase 클라우드 대시보드 (Table Editor):**
+   - 브라우저 어디서든 Supabase 대시보드 > `founding_applicants` 테이블을 열어 실시간 엑셀 스프레드시트처럼 신청 현황을 실시간 모니터링 가능.
+
+

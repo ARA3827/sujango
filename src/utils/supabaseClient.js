@@ -239,3 +239,80 @@ export async function signOutSupabase() {
   }
 }
 
+/**
+ * 1기 파운딩 아티스트 지원서 Supabase 클라우드 실시간 저장
+ */
+export async function submitFoundingApplication(applicationData) {
+  if (!isSupabaseConfigured() || !supabase) {
+    console.warn('[Supabase] Client not configured. Stored locally only.');
+    return { success: false, mode: 'local' };
+  }
+
+  try {
+    const payload = {
+      applicant_code: applicationData.id || `FA-${Date.now()}`,
+      name: applicationData.name,
+      email: applicationData.email,
+      phone: applicationData.phone || '',
+      genres: applicationData.genres || [],
+      genre_other: applicationData.genreOther || '',
+      experience: applicationData.experience || '',
+      activities: applicationData.activities || [],
+      portfolio_url: applicationData.portfolioUrl || '',
+      pain_point: applicationData.painPoint || '',
+      current_storage: applicationData.currentStorage || [],
+      wanted_features: applicationData.wantedFeatures || [],
+      primary_device: applicationData.primaryDevice || '',
+      can_commit: applicationData.canCommit || '',
+      promo_consent: applicationData.promoConsent || '',
+      referral_source: applicationData.referralSource || '',
+      referral_other: applicationData.referralOther || '',
+      privacy_consent: applicationData.privacyConsent ?? true,
+      over_fourteen: applicationData.overFourteen ?? true,
+      marketing_consent: applicationData.marketingConsent ?? false,
+      created_at: applicationData.appliedAt || new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('founding_applicants')
+      .insert([payload])
+      .select();
+
+    if (error) {
+      console.warn('[Supabase] Failed to insert founding application:', error.message);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.warn('[Supabase] Application submission error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * 1기 파운딩 아티스트 신청자 전체 명단 조회 (관리자 전용)
+ */
+export async function fetchFoundingApplicants() {
+  if (!isSupabaseConfigured() || !supabase) {
+    return { success: false, data: [] };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('founding_applicants')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('[Supabase] fetchFoundingApplicants error:', error.message);
+      return { success: false, data: [] };
+    }
+
+    return { success: true, data: data || [] };
+  } catch (err) {
+    console.warn('[Supabase] fetch error:', err);
+    return { success: false, data: [] };
+  }
+}
+

@@ -15,7 +15,8 @@ import {
   Building,
   Smartphone,
   Edit2,
-  Check
+  Check,
+  Users
 } from 'lucide-react';
 import { updateUserProfile } from '../utils/authStorage';
 
@@ -35,7 +36,8 @@ export default function SideMenuDrawer({
   onOpenFeedback,
   onOpenPolicy,
   onOpenShortcut,
-  onOpenDeleteAccount
+  onOpenDeleteAccount,
+  onOpenFoundingApplicantsAdmin
 }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
@@ -344,6 +346,24 @@ export default function SideMenuDrawer({
               <div>
                 <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0F172A' }}>바로가기 아이콘 추가</span>
                 <span style={{ fontSize: '0.68rem', color: '#0284C7', background: '#E0F2FE', padding: '1px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 700 }}>바탕화면·모바일</span>
+              </div>
+            </div>
+            <ChevronRight size={16} color="#CBD5E1" />
+          </button>
+
+          {/* 7. 1기 파운딩 아티스트 신청자 관리 (관리자) */}
+          <button
+            type="button"
+            onClick={() => { onClose(); if (onOpenFoundingApplicantsAdmin) onOpenFoundingApplicantsAdmin(); }}
+            style={{ width: '100%', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: 'none', background: '#F8FAFC', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#F1F5F9'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#F8FAFC'}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Users size={18} color="#0F172A" />
+              <div>
+                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0F172A' }}>파운딩 신청자 명단</span>
+                <span style={{ fontSize: '0.68rem', color: '#FFFFFF', background: '#0F172A', padding: '1px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 700 }}>관리자</span>
               </div>
             </div>
             <ChevronRight size={16} color="#CBD5E1" />

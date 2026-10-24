@@ -251,11 +251,6 @@ export default function PricingModal({
               </div>
               <div style={{ fontSize: '0.76rem', color: '#64748B', marginTop: '3px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
                 <span>고화질 사진 약 5,000장 · PC와 스마트폰 자동 동기화</span>
-                {!CLOUD_ENABLED && (
-                  <span style={{ fontSize: '0.68rem', background: '#E2E8F0', color: '#475569', padding: '1px 6px', borderRadius: '4px', fontWeight: 600 }}>
-                    준비 중
-                  </span>
-                )}
               </div>
             </div>
 
@@ -283,11 +278,6 @@ export default function PricingModal({
               <li style={{ fontSize: '0.83rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} color="#0F172A" />
                 <span>3중 분산 저장으로 안전하게 보관</span>
-                {!CLOUD_ENABLED && (
-                  <span style={{ fontSize: '0.68rem', background: '#E2E8F0', color: '#475569', padding: '1px 6px', borderRadius: '4px', fontWeight: 600, marginLeft: '4px' }}>
-                    준비 중
-                  </span>
-                )}
               </li>
             </ul>
 
