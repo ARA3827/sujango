@@ -616,9 +616,10 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
                 선정 결과 및 그룹 배정 안내는 <strong>11월 9일(월)</strong> 등록해 주신 이메일로 정성껏 전해드리겠습니다.
               </p>
               
-              <div style={{ background: '#F8FAFC', padding: '12px 16px', borderRadius: '10px', border: '1px solid #E2E8F0', display: 'inline-block', fontSize: '0.84rem', color: '#64748B', marginBottom: '1.5rem', textAlign: 'left' }}>
-                • <strong>신청 작가명:</strong> {formData.name}<br />
-                • <strong>접수 이메일:</strong> {formData.email}
+              <div style={{ background: '#F8FAFC', padding: '14px 18px', borderRadius: '10px', border: '1px solid #E2E8F0', display: 'inline-flex', flexDirection: 'column', gap: '6px', fontSize: '0.84rem', color: '#64748B', marginBottom: '1.5rem', textAlign: 'left' }}>
+                <div>• <strong>신청 작가명:</strong> <span style={{ color: '#0F172A', fontWeight: 600 }}>{formData.name}</span></div>
+                <div>• <strong>결과 안내받으실 이메일:</strong> <span style={{ color: '#0284C7', fontWeight: 600 }}>{formData.email}</span></div>
+                <div>• <strong>공식 접수·문의처:</strong> <span style={{ color: '#0F172A', fontWeight: 600 }}>auth@sujango.com</span></div>
               </div>
 
               <div>

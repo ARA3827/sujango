@@ -70,7 +70,7 @@ export default function NewToolModal({ isOpen, onClose, user }) {
     const body = encodeURIComponent(
       `안녕하세요, 수장고 관리자님.\n\n작성자: ${authorName || '작가'}\n유형: ${activeTab === 'idea' ? '새 기능 아이디어 제안' : '이용 소감 및 후기'}\n\n내용:\n${content || '(모달에 작성된 내용)'}\n\n---\nSujango 워크스페이스에서 전송됨`
     );
-    window.open(`mailto:ara.agent.lab@gmail.com?subject=${subject}&body=${body}`, '_blank');
+    window.open(`mailto:auth@sujango.com?subject=${subject}&body=${body}`, '_blank');
   };
 
   return (

@@ -350,4 +350,18 @@ graph TD
 2. **Supabase 클라우드 대시보드 (Table Editor):**
    - 브라우저 어디서든 Supabase 대시보드 > `founding_applicants` 테이블을 열어 실시간 엑셀 스프레드시트처럼 신청 현황을 실시간 모니터링 가능.
 
+---
+
+## 14. 고객센터 및 대외 소통 이메일 공식 도메인(`auth@sujango.com`) 전면 통일 (2026-10-24)
+
+### 14-1. 개인 Gmail 노출 차단 및 브랜드 신뢰도 구축
+- **배경:** 푸터 및 피드백 모달 등에 개인 계정 이메일(`digitalnote38@gmail.com`, `ara.agent.lab@gmail.com`)이 남아 있어 브랜드 통일성과 전문성을 저해하던 문제 해결.
+- **조치 사항:**
+  1. **푸터 사업자 정보 (`App.jsx`):** 고객센터 연락처를 `auth@sujango.com`으로 전면 교체.
+  2. **피드백/새 도구 제안 모달 (`NewToolModal.jsx`):** 직접 메일 보내기 링크 대상을 `mailto:auth@sujango.com`으로 교체.
+  3. **파운딩 아티스트 신청 완료 화면 (`FoundingArtistModal.jsx`):**
+     - 오해의 소지가 있던 "접수 이메일" 라벨을 **"결과 안내받으실 이메일"**로 명확화.
+     - 공식 접수 및 문의 창구로 **"공식 접수·문의처: auth@sujango.com"**을 명시하여 지원 작가와 관리자 모두에게 신뢰감 부여.
+
+
 

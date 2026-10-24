@@ -894,7 +894,7 @@ export default function App() {
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
               <span><strong>사업장 소재지:</strong> 경기도 화성시 병점구 효행로(진안동,메디피아) 1069. 601-P215호</span>
-              <span><strong>고객센터:</strong> <a href="mailto:digitalnote38@gmail.com" style={{ color: '#0284C7', textDecoration: 'none' }}>digitalnote38@gmail.com</a></span>
+              <span><strong>고객센터:</strong> <a href="mailto:auth@sujango.com" style={{ color: '#0284C7', textDecoration: 'none' }}>auth@sujango.com</a></span>
               <span><strong>호스팅 서비스:</strong> Vercel Inc.</span>
             </div>
           </div>
