@@ -98,7 +98,7 @@ export default function WatermarkSettingsModal({ isOpen, onClose, user }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div 
         className="modal-dialog" 
-        style={{ maxWidth: '820px', maxHeight: '90vh', overflowY: 'auto', padding: '1.75rem' }} 
+        style={{ maxWidth: '820px', maxHeight: 'min(92vh, 92dvh)', overflowY: 'auto' }} 
         onClick={(e) => e.stopPropagation()}
       >
         {/* 상단 헤더 */}
@@ -108,20 +108,20 @@ export default function WatermarkSettingsModal({ isOpen, onClose, user }) {
               <ShieldCheck size={14} />
               <span>DIGITAL ASSET PROTECTION</span>
             </div>
-            <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
+            <h3 style={{ fontSize: 'clamp(1.15rem, 3.8vw, 1.35rem)', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)', wordBreak: 'keep-all' }}>
               나만의 작품 워터마크 보안 설정
             </h3>
-            <p style={{ fontSize: '0.84rem', color: '#64748B', marginTop: '4px', marginBottom: 0 }}>
+            <p style={{ fontSize: '0.84rem', color: '#64748B', marginTop: '4px', marginBottom: 0, wordBreak: 'keep-all' }}>
               수장고의 원본 금고는 안전하게 지키고, 클라이언트에게 시안을 보낼 때만 <strong>1080px 웹용 이미지</strong>에 투명 워터마크를 자동으로 입혀 저작권을 보호합니다.
             </p>
           </div>
-          <button onClick={onClose} className="modal-close-btn">
+          <button onClick={onClose} className="modal-close-btn" aria-label="닫기">
             <X size={20} />
           </button>
         </div>
 
         {/* 2단 그리드 (좌측: 설정 컨트롤 / 우측: 실시간 라이브 프리뷰) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
           
           {/* 좌측: 설정 입력 영역 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>

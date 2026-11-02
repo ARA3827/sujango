@@ -63,8 +63,8 @@ export default function PricingModal({
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div 
-        className="modal-dialog" 
-        style={{ maxWidth: '980px', maxHeight: '92vh', overflowY: 'auto', padding: '2rem 1.75rem' }} 
+        className="modal-dialog pricing-modal-dialog" 
+        style={{ maxWidth: '980px', maxHeight: 'min(92vh, 92dvh)', overflowY: 'auto' }} 
         onClick={(e) => e.stopPropagation()}
       >
         {/* 헤더 */}
@@ -74,14 +74,14 @@ export default function PricingModal({
               <Crown size={14} />
               <span>SUJANGO MEMBERSHIP TIERS</span>
             </div>
-            <h3 style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
+            <h3 style={{ fontSize: 'clamp(1.15rem, 3.8vw, 1.45rem)', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)', wordBreak: 'keep-all' }}>
               당신의 소중한 창작 자산을 위한 요금제
             </h3>
-            <p style={{ fontSize: '0.88rem', color: '#64748B', marginTop: '4px', marginBottom: 0 }}>
+            <p style={{ fontSize: '0.88rem', color: '#64748B', marginTop: '4px', marginBottom: 0, wordBreak: 'keep-all' }}>
               기본 행정 서류와 작품 30점은 무료이며, 보관 용량과 갤러리 보안 협업이 필요할 때 최적의 플랜을 선택하세요.
             </p>
           </div>
-          <button onClick={onClose} className="modal-close-btn">
+          <button onClick={onClose} className="modal-close-btn" aria-label="닫기">
             <X size={20} />
           </button>
         </div>

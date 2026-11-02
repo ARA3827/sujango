@@ -16,7 +16,8 @@ import {
   Smartphone,
   Edit2,
   Check,
-  Users
+  Users,
+  Sparkles
 } from 'lucide-react';
 import { updateUserProfile } from '../utils/authStorage';
 import { isAdminUser } from '../utils/adminAuth';
@@ -38,7 +39,8 @@ export default function SideMenuDrawer({
   onOpenPolicy,
   onOpenShortcut,
   onOpenDeleteAccount,
-  onOpenFoundingApplicantsAdmin
+  onOpenFoundingApplicantsAdmin,
+  onOpenFoundingArtist
 }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
@@ -286,7 +288,25 @@ export default function SideMenuDrawer({
             <ChevronRight size={16} color="#CBD5E1" />
           </button>
 
-          {/* 3. 멤버십 요금제 안내 */}
+          {/* 3. 1기 파운딩 아티스트 50인 모집 안내 & 혜택 */}
+          <button
+            type="button"
+            onClick={() => { onClose(); if (onOpenFoundingArtist) onOpenFoundingArtist(); }}
+            style={{ width: '100%', padding: '0.85rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: 'none', background: '#F0F9FF', cursor: 'pointer', textAlign: 'left', transition: 'background 0.15s' }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#E0F2FE'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#F0F9FF'}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Sparkles size={18} color="#0284C7" />
+              <div>
+                <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0369A1' }}>1기 파운딩 아티스트</span>
+                <span style={{ fontSize: '0.7rem', color: '#0284C7', background: '#BAE6FD', padding: '1px 6px', borderRadius: '4px', marginLeft: '6px', fontWeight: 700 }}>50인 모집</span>
+              </div>
+            </div>
+            <ChevronRight size={16} color="#0284C7" />
+          </button>
+
+          {/* 4. 멤버십 요금제 안내 */}
           <button
             type="button"
             onClick={() => { onClose(); onOpenPricing(); }}

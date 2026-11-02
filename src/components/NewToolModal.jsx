@@ -77,7 +77,7 @@ export default function NewToolModal({ isOpen, onClose, user }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div 
         className="modal-dialog" 
-        style={{ maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', padding: '1.75rem' }} 
+        style={{ maxWidth: '600px', maxHeight: 'min(92vh, 92dvh)', overflowY: 'auto' }} 
         onClick={(e) => e.stopPropagation()}
       >
         {/* 상단 헤더 */}
@@ -87,14 +87,14 @@ export default function NewToolModal({ isOpen, onClose, user }) {
               <Lightbulb size={14} />
               <span>COMMUNITY & FEEDBACK</span>
             </div>
-            <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
+            <h3 style={{ fontSize: 'clamp(1.15rem, 3.8vw, 1.35rem)', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)', wordBreak: 'keep-all' }}>
               새 도구 제안 & 작가 생생 후기
             </h3>
-            <p style={{ fontSize: '0.84rem', color: '#64748B', marginTop: '4px', marginBottom: 0 }}>
+            <p style={{ fontSize: '0.84rem', color: '#64748B', marginTop: '4px', marginBottom: 0, wordBreak: 'keep-all' }}>
               작가님의 소중한 아이디어는 제품 로드맵에 우선 반영되며, 따뜻한 후기는 소개 페이지에 명예롭게 전시됩니다.
             </p>
           </div>
-          <button onClick={onClose} className="modal-close-btn">
+          <button onClick={onClose} className="modal-close-btn" aria-label="닫기">
             <X size={20} />
           </button>
         </div>

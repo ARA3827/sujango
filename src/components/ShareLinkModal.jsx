@@ -77,7 +77,7 @@ export default function ShareLinkModal({ isOpen, onClose, artwork, user }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div 
         className="modal-dialog" 
-        style={{ maxWidth: '580px', maxHeight: '90vh', overflowY: 'auto', padding: '1.75rem' }} 
+        style={{ maxWidth: '580px', maxHeight: 'min(92vh, 92dvh)', overflowY: 'auto' }} 
         onClick={(e) => e.stopPropagation()}
       >
         {/* 상단 헤더 */}
@@ -87,10 +87,10 @@ export default function ShareLinkModal({ isOpen, onClose, artwork, user }) {
               <ShieldCheck size={14} />
               <span>SIGNED URL SECURITY</span>
             </div>
-            <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
+            <h3 style={{ fontSize: 'clamp(1.15rem, 3.8vw, 1.35rem)', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)', wordBreak: 'keep-all' }}>
               클라이언트 전용 보안 공유 링크 생성
             </h3>
-            <p style={{ fontSize: '0.84rem', color: '#64748B', marginTop: '4px', marginBottom: 0 }}>
+            <p style={{ fontSize: '0.84rem', color: '#64748B', marginTop: '4px', marginBottom: 0, wordBreak: 'keep-all' }}>
               고화질 원본은 외부에 노출되지 않으며, <strong>워터마크가 합성된 1080px 안전 시안</strong>만 일정 기간 열람할 수 있는 프라이빗 링크를 발급합니다.
             </p>
           </div>

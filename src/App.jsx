@@ -430,112 +430,6 @@ export default function App() {
 
   return (
     <div className="artflow-app">
-      {/* 📢 1기 파운딩 아티스트 50인 모집 상단 슬림 알림 바 */}
-      {showAnnouncementBar && (
-        <div 
-          style={{
-            background: '#0F172A',
-            color: '#F8FAFC',
-            padding: '0.55rem 1rem',
-            fontSize: '0.82rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px',
-            position: 'relative',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-            zIndex: 100
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <span style={{ 
-              background: 'rgba(2, 132, 199, 0.25)', 
-              color: '#38BDF8', 
-              fontSize: '0.7rem', 
-              fontWeight: 700, 
-              padding: '2px 7px', 
-              borderRadius: '999px',
-              border: '1px solid rgba(56, 189, 248, 0.4)'
-            }}>
-              파운딩 아티스트 50인
-            </span>
-            <span style={{ color: '#E2E8F0', fontWeight: 500 }}>
-              수장고를 함께 빚어갈 1기 작가님을 모십니다 (1차 25명 / 2차 25명 순차 모집)
-            </span>
-            <button
-              onClick={() => setIsFoundingModalOpen(true)}
-              style={{
-                background: 'transparent',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                color: '#FFFFFF',
-                borderRadius: '4px',
-                padding: '2px 8px',
-                fontSize: '0.75rem',
-                cursor: 'pointer',
-                fontWeight: 600,
-                transition: 'all 0.15s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#FFFFFF';
-                e.currentTarget.style.color = '#0F172A';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = '#FFFFFF';
-              }}
-            >
-              공지 및 혜택 보기 →
-            </button>
-            {/* 관리자(대표님) 전용 실시간 신청자 명단 확인 버튼 */}
-            {isAdminUser(user) && (
-              <button
-                onClick={() => setIsApplicantsAdminOpen(true)}
-                title="1기 파운딩 아티스트 신청자 명단 조회 (관리자 전용)"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  border: '1px solid rgba(255, 255, 255, 0.35)',
-                  color: '#FFFFFF',
-                  borderRadius: '4px',
-                  padding: '2px 8px',
-                  fontSize: '0.72rem',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  transition: 'all 0.15s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#0284C7';
-                  e.currentTarget.style.borderColor = '#38BDF8';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.35)';
-                }}
-              >
-                👑 신청자 명단
-              </button>
-            )}
-          </div>
-          <button
-            onClick={() => setShowAnnouncementBar(false)}
-            aria-label="알림 바 닫기"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#94A3B8',
-              cursor: 'pointer',
-              padding: '2px',
-              display: 'flex',
-              alignItems: 'center',
-              position: 'absolute',
-              right: '12px'
-            }}
-            title="닫기"
-          >
-            <CloseIcon size={14} />
-          </button>
-        </div>
-      )}
-
       {/* 글로벌 헤더 (로고 클릭 시 항상 메인 페이지 이동) */}
       <Header 
         currentView={currentView} 
@@ -810,6 +704,7 @@ export default function App() {
         onOpenShortcut={() => setIsShortcutModalOpen(true)}
         onOpenDeleteAccount={() => setIsDeleteAccountModalOpen(true)}
         onOpenFoundingApplicantsAdmin={() => setIsApplicantsAdminOpen(true)}
+        onOpenFoundingArtist={() => setIsFoundingModalOpen(true)}
       />
 
       {/* 바탕화면 / 모바일 홈 화면 바로가기 추가 모달 */}

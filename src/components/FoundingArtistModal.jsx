@@ -182,14 +182,14 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={handleClose} style={{ zIndex: 99999, padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="modal-backdrop founding-modal-backdrop" onClick={handleClose} style={{ zIndex: 99999 }}>
       <div 
-        className="modal-dialog" 
+        className="modal-dialog founding-modal-dialog" 
         onClick={(e) => e.stopPropagation()} 
         style={{ 
           maxWidth: step === 'apply' ? '680px' : '620px', 
           width: '100%', 
-          maxHeight: '90vh',
+          maxHeight: 'min(92vh, 92dvh)',
           background: '#FFFFFF', 
           borderRadius: '18px', 
           boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.3)',
@@ -201,12 +201,12 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
         }}
       >
         {/* 모달 상단 헤더 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.1rem 1.5rem', borderBottom: '1px solid #F1F5F9', background: '#FAFAFA' }}>
+        <div className="modal-header founding-modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FAFAFA' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '0.72rem', background: '#0F172A', color: '#FFFFFF', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
               공식 모집
             </span>
-            <h3 style={{ fontSize: '1.08rem', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
+            <h3 style={{ fontSize: 'clamp(0.98rem, 3.2vw, 1.1rem)', fontWeight: 700, color: '#0F172A', margin: 0, fontFamily: 'var(--font-serif)' }}>
               수장고 1기 파운딩 아티스트
             </h3>
           </div>
@@ -215,14 +215,14 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
             onClick={handleClose} 
             className="modal-close-btn" 
             aria-label="닫기"
-            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', color: '#64748B' }}
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '6px', color: '#64748B' }}
           >
             <X size={20} />
           </button>
         </div>
 
         {/* 모달 본문 영역 (스크롤 지원) */}
-        <div style={{ overflowY: 'auto', padding: '1.5rem', flex: 1, fontSize: '0.92rem', color: '#334155', lineHeight: 1.65 }}>
+        <div className="modal-body founding-modal-body" style={{ overflowY: 'auto', flex: 1, fontSize: '0.92rem', color: '#334155', lineHeight: 1.65 }}>
           
           {/* ========================================================
               [STEP 1] 공지사항 상세 뷰 (notice)
@@ -230,23 +230,23 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
           {step === 'notice' && (
             <div>
               {/* 메인 타이틀 */}
-              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.5rem 0', fontFamily: 'var(--font-serif)' }}>
+              <div style={{ textAlign: 'center', marginBottom: '1.35rem' }}>
+                <h2 style={{ fontSize: 'clamp(1.15rem, 4vw, 1.35rem)', fontWeight: 800, color: '#0F172A', margin: '0 0 0.5rem 0', fontFamily: 'var(--font-serif)', wordBreak: 'keep-all' }}>
                   "더 편리한 창작 환경을 함께 빚어갈 50분의 작가님을 모십니다."
                 </h2>
-                <p style={{ color: '#64748B', fontSize: '0.88rem', margin: 0 }}>
+                <p style={{ color: '#64748B', fontSize: 'clamp(0.82rem, 2.8vw, 0.88rem)', margin: 0, wordBreak: 'keep-all' }}>
                   수장고(Sujango)는 홀로 창작과 행정을 도맡는 예술가를 위한 디지털 작업실입니다.<br />
                   세심한 소통을 위해 <strong>총 50분의 작가님을 1차와 2차로 나누어 순차적으로 맞이합니다.</strong>
                 </p>
               </div>
 
               {/* 1차 / 2차 순차 시작 배너 */}
-              <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.1rem', marginBottom: '1.5rem' }}>
+              <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1rem', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: '#0F172A', marginBottom: '8px' }}>
                   <Calendar size={17} color="#2563EB" />
                   <span>모집 및 2단계 순차 시작 일정</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.84rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', fontSize: '0.84rem' }}>
                   <div style={{ background: '#FFFFFF', padding: '10px 12px', borderRadius: '8px', border: '1px solid #CBD5E1' }}>
                     <div style={{ fontWeight: 700, color: '#0F172A', marginBottom: '2px' }}>[1차 그룹] 25명</div>
                     <div style={{ color: '#2563EB', fontWeight: 600 }}>11월 10일(화) 시작</div>
@@ -258,7 +258,7 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
                     <div style={{ color: '#64748B', fontSize: '0.78rem', marginTop: '3px' }}>1차 피드백을 반영해 안정화된 그룹</div>
                   </div>
                 </div>
-                <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '8px' }}>
+                <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '8px', lineHeight: 1.5 }}>
                   • 모집: 10월 25일(일)부터 순차 모집 · 접수 확인 후 이메일 개별 안내<br />
                   • 활동 기간은 각 그룹 시작일로부터 8주간 동일하게 보장됩니다.
                 </div>
@@ -755,7 +755,7 @@ export default function FoundingArtistModal({ isOpen, onClose }) {
 
         {/* 모달 하단 푸터 (오늘 하루 보지 않기 / 문의처) */}
         {step !== 'success' && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.8rem 1.5rem', borderTop: '1px solid #F1F5F9', background: '#FAFAFA', fontSize: '0.78rem', color: '#64748B' }}>
+          <div className="modal-footer founding-modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FAFAFA', fontSize: '0.78rem', color: '#64748B', flexWrap: 'wrap', gap: '8px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
               <input
                 type="checkbox"

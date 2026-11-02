@@ -1065,18 +1065,96 @@ input, select, textarea {
     font-size: 0.8rem !important;
   }
 
-  /* 모달 모바일 패딩 및 여백 최적화 */
-  .modal-backdrop {
+  /* 모달 모바일 패딩 및 여백 완벽 최적화 */
+  .modal-backdrop, .modal-overlay {
     padding: 0.5rem !important;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom)) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   .modal-dialog {
-    max-height: 96vh !important;
-    padding: 1.25rem 1rem !important;
-    border-radius: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100dvh - 20px) !important;
+    padding: 1.25rem 0.95rem !important;
+    border-radius: 16px !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
-  .modal-header, .modal-body, .modal-footer {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+  .modal-header {
+    padding: 0.9rem 0.95rem !important;
+  }
+  .modal-body {
+    padding: 1rem 0.95rem !important;
+  }
+  .modal-footer {
+    padding: 0.75rem 0.95rem !important;
+  }
+  .modal-close-btn {
+    min-height: 40px !important;
+    min-width: 40px !important;
+    padding: 8px !important;
+  }
+
+  /* 모바일 전용 6대 핵심 도구 퀵 런처 그리드 (첫 화면 즉시 실행) */
+  .mobile-quick-launcher-section {
+    margin-top: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .mobile-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .mobile-quick-card {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.12s ease, background 0.15s ease;
+    min-height: 52px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .mobile-quick-card:active {
+    transform: scale(0.97);
+  }
+  .mobile-quick-icon-wrapper {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .mobile-quick-text-col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .mobile-quick-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #0F172A;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+  }
+  .mobile-quick-tag {
+    font-size: 0.68rem;
+    font-weight: 600;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* 요금제 카드 모바일 1열 스택 보장 */

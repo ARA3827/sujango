@@ -167,6 +167,84 @@ export default function Dashboard({
         </p>
       </section>
 
+      {/* 📱 모바일 전용 6대 핵심 도구 퀵 런처 (스크롤 없이 첫 화면에서 전체 기능 즉시 인지 및 원클릭 실행) */}
+      <div className="mobile-only mobile-quick-launcher-section">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem', padding: '0 2px' }}>
+          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.01em' }}>
+            핵심 도구 바로가기
+          </span>
+          <span style={{ fontSize: '0.72rem', color: '#64748B' }}>
+            원클릭 실행
+          </span>
+        </div>
+        <div className="mobile-quick-grid">
+          {tools.map((tool) => {
+            const color = TRADITIONAL_COLORS[tool.id];
+            const IconComponent = tool.icon;
+            return (
+              <button
+                key={tool.id}
+                type="button"
+                onClick={() => onSelectView(tool.id)}
+                className="mobile-quick-card"
+                style={{
+                  background: color.bg,
+                  border: `1px solid ${color.border}`,
+                }}
+              >
+                <div 
+                  className="mobile-quick-icon-wrapper"
+                  style={{
+                    background: color.iconBg,
+                    color: color.iconColor,
+                    border: `1px solid ${color.border}`
+                  }}
+                >
+                  <IconComponent size={17} />
+                </div>
+                <div className="mobile-quick-text-col">
+                  <div className="mobile-quick-title">
+                    {tool.title}
+                  </div>
+                  <div className="mobile-quick-tag" style={{ color: color.accent }}>
+                    {tool.badge || tool.tag}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+          {/* 6번째 카드: 나의 작품 전체 수장고 */}
+          <button
+            type="button"
+            onClick={() => onSelectView('archive')}
+            className="mobile-quick-card"
+            style={{
+              background: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+            }}
+          >
+            <div 
+              className="mobile-quick-icon-wrapper"
+              style={{
+                background: '#FFFFFF',
+                color: '#0F172A',
+                border: '1px solid #CBD5E1'
+              }}
+            >
+              <ImageIcon size={17} />
+            </div>
+            <div className="mobile-quick-text-col">
+              <div className="mobile-quick-title">
+                작품 수장고
+              </div>
+              <div className="mobile-quick-tag" style={{ color: '#0284C7' }}>
+                {artworks.length}점 보관 중
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+
       {/* 2. [메인 무대 최상단 전진 배치] 나의 작품 디지털 수장고 */}
       <div className="archive-board-section" style={{ marginTop: '1.25rem' }}>
         <div className="archive-board-header">
