@@ -332,8 +332,7 @@ export default function Dashboard({
             <Plus size={18} />
           </div>
           <div className="action-text">
-            <strong>새 작품 등록 & 작가노트 쓰기</strong>
-            <span>사진과 키워드로 AI 글 3종 즉시 생성</span>
+            <strong>작품등록&작가노트</strong>
           </div>
           <ArrowRight size={16} className="action-arrow" />
         </button>
@@ -348,7 +347,6 @@ export default function Dashboard({
           </div>
           <div className="action-text">
             <strong>영감 한 줄 기록하기</strong>
-            <span>창작의 불씨가 되는 문장과 사유 메모</span>
           </div>
           <ChevronRight size={16} className="action-arrow" />
         </button>

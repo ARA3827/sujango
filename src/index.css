@@ -4277,7 +4277,7 @@ input, select, textarea {
   color: #FFFFFF;
   border: none;
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 11px 14px;
   cursor: pointer;
   text-align: left;
   box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
@@ -4290,8 +4290,8 @@ input, select, textarea {
   background: #1E293B;
 }
 .action-icon-circle.primary {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.16);
   display: flex;
@@ -4307,9 +4307,10 @@ input, select, textarea {
   min-width: 0;
 }
 .action-text strong {
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-weight: 700;
   line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 .action-text span {
   font-size: 0.73rem;

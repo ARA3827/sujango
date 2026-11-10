@@ -197,3 +197,25 @@ DROP POLICY IF EXISTS "Allow public read founding_applicants" ON public.founding
 CREATE POLICY "Allow public insert founding_applicants" ON public.founding_applicants FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow public read founding_applicants" ON public.founding_applicants FOR SELECT USING (true);
 
+-- ==========================================================
+-- 7. 작가 피드백 및 새 도구 제안 테이블 (Feedbacks)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.feedbacks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_email TEXT NOT NULL,
+  author TEXT NOT NULL,
+  type TEXT DEFAULT 'review',                   -- 'review' (이용 후기), 'idea' (새 도구 제안)
+  text TEXT NOT NULL,
+  rating INT DEFAULT 5,
+  status TEXT DEFAULT '전시중',                  -- '전시중', '검토중', '반영완료'
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- RLS 활성화 및 익명/로그인 사용자 쓰기/읽기 허용
+ALTER TABLE public.feedbacks ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public insert feedbacks" ON public.feedbacks;
+DROP POLICY IF EXISTS "Allow public read feedbacks" ON public.feedbacks;
+CREATE POLICY "Allow public insert feedbacks" ON public.feedbacks FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow public read feedbacks" ON public.feedbacks FOR SELECT USING (true);
+
+
