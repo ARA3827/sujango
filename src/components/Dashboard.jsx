@@ -507,15 +507,15 @@ export default function Dashboard({
         )}
       </div>
 
-      {/* 3. [하단 지원군] 창작 행정 & 비즈니스 비서 툴킷 */}
-      <div className="section-headline" style={{ marginTop: '2.5rem' }}>
+      {/* 3. [하단 지원군] 창작 행정 & 비즈니스 비서 툴킷 (PC 전용 노출, 모바일은 상단 퀵 런처로 중복 제거) */}
+      <div className="section-headline desktop-only" style={{ marginTop: '2.5rem' }}>
         <span>창작 행정 & 비즈니스 비서 도구</span>
-        <span className="desktop-only" style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'none', fontWeight: 400 }}>
+        <span style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'none', fontWeight: 400 }}>
           카드를 눌러 바로 시작하세요
         </span>
       </div>
 
-      <div className="tool-grid">
+      <div className="tool-grid desktop-only">
         {tools.map((tool) => {
           const color = TRADITIONAL_COLORS[tool.id];
           const IconComponent = tool.icon;

@@ -23,6 +23,7 @@ import ShortcutModal from './components/ShortcutModal';
 import DeleteAccountModal from './components/DeleteAccountModal';
 import FoundingArtistModal from './components/FoundingArtistModal';
 import FoundingApplicantsAdminModal from './components/FoundingApplicantsAdminModal';
+import BottomNavBar from './components/BottomNavBar';
 import ErrorBoundary from './components/ErrorBoundary';
 import { getStoredUser, saveUser, deleteUserAccount, DEMO_USER } from './utils/authStorage';
 import { isAdminUser, checkAdminPin } from './utils/adminAuth';
@@ -828,6 +829,14 @@ export default function App() {
 
         </div>
       </footer>
+
+      {/* 📱 모바일 전용 6대 아이콘 하단 고정 내비게이션 바 */}
+      <BottomNavBar 
+        currentView={currentView}
+        onNavigate={navigate}
+        onOpenSideMenu={() => setIsSideMenuOpen(true)}
+        user={user}
+      />
     </div>
   );
 }

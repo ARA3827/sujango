@@ -1033,21 +1033,47 @@ input, select, textarea {
     flex-shrink: 0;
   }
 
-  /* 폼 요소: iOS 포커스 줌 방지 (16px) 및 1열 배치 */
+  /* 폼 요소: iOS 포커스 줌 방지 (16px) 및 모바일 1열 자동 스택 (잘림 방지) */
   .form-row {
-    grid-template-columns: 1fr !important;
-    gap: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .form-row > .form-group {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+    box-sizing: border-box !important;
   }
   .form-input, .form-select, .form-textarea, .output-editor {
     font-size: 16px !important; /* iOS Safari 자동 줌인 방지 */
+    box-sizing: border-box !important;
+    max-width: 100% !important;
   }
   .panel-card {
-    padding: 1.15rem;
+    padding: 1.15rem 0.85rem !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
   }
   .panel-card-title {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.65rem;
+    gap: 0.45rem;
+  }
+  .workspace-wrapper, .workspace-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+  .artflow-main {
+    padding: 0.85rem 0.75rem calc(72px + env(safe-area-inset-bottom, 16px)) !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
   }
 
   /* 모바일 장부 테이블 가로 스크롤 및 찌그러짐 방지 */
@@ -1172,6 +1198,101 @@ input, select, textarea {
 
   .timer-clock-display {
     font-size: 3.2rem !important;
+  }
+
+  /* 📱 모바일 전용 6대 아이콘 하단 고정 내비게이션 바 (BottomNavBar) */
+  .mobile-bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border-top: 1px solid rgba(226, 232, 240, 0.85) !important;
+    box-shadow: 0 -2px 14px rgba(15, 23, 42, 0.05) !important;
+  }
+  .mobile-bottom-nav-inner {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+    max-width: 520px !important;
+    margin: 0 auto !important;
+    height: 58px !important;
+    padding: 0 4px !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    box-sizing: border-box !important;
+  }
+  .bottom-nav-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    background: none !important;
+    border: none !important;
+    padding: 4px 2px !important;
+    color: #64748B !important;
+    cursor: pointer !important;
+    position: relative !important;
+    text-decoration: none !important;
+    transition: color 0.15s ease, transform 0.1s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+    box-sizing: border-box !important;
+  }
+  .bottom-nav-item:active {
+    transform: scale(0.93) !important;
+  }
+  .bottom-nav-item.active {
+    color: #0F172A !important;
+    font-weight: 700 !important;
+  }
+  .bottom-nav-icon-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 24px !important;
+    width: 24px !important;
+    transition: all 0.15s ease !important;
+  }
+  .bottom-nav-label {
+    font-size: 0.65rem !important;
+    line-height: 1 !important;
+    margin-top: 3px !important;
+    letter-spacing: -0.02em !important;
+    white-space: nowrap !important;
+  }
+  .bottom-nav-active-dot {
+    width: 3.5px !important;
+    height: 3.5px !important;
+    background-color: #0F172A !important;
+    border-radius: 50% !important;
+    position: absolute !important;
+    bottom: 3px !important;
+  }
+  /* 중앙 등록(+) 액션 버튼 특수 플로팅 디자인 */
+  .bottom-nav-item.center-action {
+    color: #0F172A !important;
+  }
+  .bottom-nav-item.center-action .bottom-nav-icon-wrapper {
+    width: 34px !important;
+    height: 34px !important;
+    background: #0F172A !important;
+    color: #FFFFFF !important;
+    border-radius: 50% !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.28) !important;
+    margin-top: -6px !important;
+  }
+  .bottom-nav-item.center-action:active .bottom-nav-icon-wrapper {
+    transform: scale(0.92) !important;
+  }
+  .bottom-nav-item.center-action .bottom-nav-label {
+    font-weight: 700 !important;
+    color: #0F172A !important;
+    margin-top: 1px !important;
   }
 }
 
