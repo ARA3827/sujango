@@ -1189,7 +1189,10 @@ input, select, textarea {
     gap: 1.15rem !important;
   }
 
-  /* 푸터 세로 정렬 */
+  /* 푸터 세로 정렬 및 하단 고정 바 가림 방지 여백 */
+  .artflow-footer {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 16px)) !important;
+  }
   .footer-inner {
     flex-direction: column;
     gap: 0.5rem;
