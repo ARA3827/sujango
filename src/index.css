@@ -4404,9 +4404,9 @@ input, select, textarea {
   transform: scale(0.98);
 }
 .latest-artwork-thumb {
-  width: 96px;
-  min-width: 96px;
-  height: 96px;
+  width: 84px;
+  min-width: 84px;
+  height: 84px;
   background: #F1F5F9;
   position: relative;
   overflow: hidden;
@@ -4430,10 +4430,11 @@ input, select, textarea {
 }
 .latest-artwork-body {
   flex: 1;
-  padding: 9px 12px;
+  padding: 10px 14px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 5px;
   min-width: 0;
 }
 .latest-title-row {
@@ -4458,9 +4459,9 @@ input, select, textarea {
   flex-shrink: 0;
 }
 .latest-meta {
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   color: #64748B;
-  margin: 2px 0 0;
+  margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

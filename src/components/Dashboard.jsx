@@ -382,10 +382,6 @@ export default function Dashboard({
                 {latestArtwork.medium && <span>{latestArtwork.medium}</span>}
                 {latestArtwork.size && <span> · {latestArtwork.size?.split('(')[0]?.trim() || latestArtwork.size}</span>}
               </p>
-              <div className="latest-card-foot">
-                <span className="latest-tap-hint">터치하여 도록 및 캡션 열람</span>
-                <ChevronRight size={15} />
-              </div>
             </div>
           </div>
         ) : (
