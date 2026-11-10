@@ -10,7 +10,12 @@ import {
   PenTool,
   Quote,
   HardDrive,
-  Crown
+  Crown,
+  Sparkles,
+  Layers,
+  DollarSign,
+  Lightbulb,
+  CheckCircle2
 } from 'lucide-react';
 import { getArtworks } from '../utils/archiveStorage';
 import { getStoredUser, getUserScopedKey } from '../utils/authStorage';
@@ -18,6 +23,11 @@ import { getArtworkStatusMeta } from '../utils/artworkModel';
 import { TRADITIONAL_COLORS } from '../constants/themeColors';
 import { getUserStoragePlan, calculateUsedStorage, formatBytes, checkStorageOverflow } from '../utils/storageMeter';
 
+/**
+ * 📱 모바일 퍼스트 수장고 대시보드 (Mobile-First App Dashboard)
+ * - 디자인 철학: 화이트 바탕 텍스트 위주의 심플한 메인 + 클릭 시 2-Depth 세부 화면 진입 (AGENTS.md 준수)
+ * - 스크롤 0회로 한눈에 파악하는 4대 현황 요약 카드 + 빠른 창작 액션 + 최근 보관작 1점 스포트라이트
+ */
 export default function Dashboard({ 
   onSelectView, 
   taxSummary = { totalIncome: 0, pendingAmount: 0 },
@@ -95,7 +105,6 @@ export default function Dashboard({
 
   useEffect(() => {
     refreshVault();
-    // 윈도우 포커스 시 및 저장소 변경 시 실시간 동기화
     window.addEventListener('focus', refreshVault);
     window.addEventListener('storage', refreshVault);
     return () => {
@@ -104,516 +113,392 @@ export default function Dashboard({
     };
   }, [user]);
 
-  // 한국 전통색 5대 도구 카드 정의
+  // 창작 지원 4대 핵심 도구 정의
   const tools = [
     {
       id: 'statement',
       title: '작가노트 & SNS',
       tag: '초안 작성',
       icon: PenTool,
-      badge: null,
-      desc: '작품 키워드 3개로 공모전용 심층 미학 평론 작가노트, 인스타 감성 캡션 + 해시태그, 블로그 후기를 동시에 추출하고 직접 수정합니다.'
+      desc: '작품 키워드로 평론 작가노트, 인스타 캡션, 블로그 글 생성'
     },
     {
       id: 'caption',
       title: '전시 캡션 출력기',
-      tag: '전시 · 아트페어',
+      tag: '전시 · 명패',
       icon: Tag,
       badge: (user && actualCaptionCount > 0) ? `${actualCaptionCount}점 준비` : null,
-      desc: '작품 옆 벽면에 붙이는 국영문 표준 캡션(명패)을 자동 생성하고, 자르기 좋은 절취선과 함께 A4 용지 규격으로 일괄 인쇄합니다.'
+      desc: '작품 벽면 국영문 표준 캡션을 A4 규격으로 일괄 인쇄'
     },
     {
       id: 'doc',
       title: '서류·출강 스튜디오',
-      tag: '행정 서류',
+      tag: '행정 공문서',
       icon: FileText,
-      badge: null,
-      desc: '출강 강의계획서, 미술계 표준 전시 약력(CV), 예술 작업 간이 견적서를 기관이 요구하는 공문서 규격으로 단정하게 완성합니다.'
+      desc: '강의계획서, 미술계 표준 전시 약력(CV), 간이 견적서'
     },
     {
       id: 'tax',
       title: '창작 가계부',
-      tag: '수입 · 지출',
+      tag: '정산 · 세무',
       icon: Receipt,
       badge: (user && actualPendingAmount > 0) 
         ? `미수금 ${actualPendingAmount.toLocaleString()}원` 
         : null,
-      desc: '출강·작품 수입과 재료비 지출을 한눈에 관리하고, 카드 영수증이 첨부된 정산 증빙서를 A4 인쇄 및 PDF로 보관합니다.'
+      desc: '출강·작품 수입 및 재료비 지출 정산 증빙서 보관'
     },
     {
       id: 'inspo',
       title: '영감 노트',
-      tag: '영감 · 문장',
+      tag: '사유 아카이브',
       icon: Quote,
       badge: (user && inspoCount > 0) ? `${inspoCount}개 보관` : null,
-      desc: '책 속 한 줄, 영화 속 명대사, 일상의 번뜩이는 사유를 카드로 단정하게 아카이빙하고 창작의 소중한 씨앗으로 안전하게 보관합니다.'
+      desc: '책 속 문장, 번뜩이는 영감을 카드로 안전하게 수집'
     }
   ];
 
-  // 작가별 실시간 저장 용량(1GB/100GB/500GB) 계산
+  // 스토리지 용량 계산
   const storagePlan = getUserStoragePlan(user);
   const usedStorageBytes = calculateUsedStorage(artworks);
   const storageStatus = checkStorageOverflow(usedStorageBytes, 0, storagePlan.limitBytes);
 
+  // 가장 최근 보관된 대표작 1점
+  const latestArtwork = artworks.length > 0 ? artworks[0] : null;
+  const latestStatusMeta = latestArtwork 
+    ? getArtworkStatusMeta(latestArtwork.status || (latestArtwork.isSold ? 'sold' : (latestArtwork.isNfs ? 'nfs' : 'available')))
+    : null;
+
   return (
-    <div className="dashboard-wrapper">
-      {/* 1. 히어로 인트로 */}
-      <section className="dashboard-hero">
-        <h1 className="hero-quote">
-          작가님은 오롯이 창작에만 몰입하세요.
-        </h1>
-        <p className="hero-sub">
-          마음을 울린 영감의 기록부터 소중한 작품 보관까지, 세월이 흘러도 변치 않는 나만의 디지털 수장고에서 안전하게 관리하세요.
-        </p>
+    <div className="mobile-app-shell">
+      {/* 1. 상단 프로필 헤더 (모바일 컴팩트 스타일) */}
+      <header className="mobile-header-card">
+        <div className="mobile-header-text">
+          <div className="mobile-header-badge">
+            <Sparkles size={13} color="#D97706" />
+            <span>디지털 수장고</span>
+          </div>
+          <h1 className="mobile-header-greeting">
+            {user?.name ? `${user.name} 작가님` : '창작자님의 수장고'}
+          </h1>
+          <p className="mobile-header-sub">
+            오롯이 창작에만 몰입할 수 있도록 안전하게 보관합니다.
+          </p>
+        </div>
+
+        {/* 플랜 뱃지 & 확장 버튼 */}
+        <div className="mobile-header-actions">
+          {!user?.isPro && onOpenPricing && (
+            <button
+              type="button"
+              onClick={onOpenPricing}
+              className="mobile-pro-badge-btn"
+              title="100GB 무손실 금고 요금제 안내"
+            >
+              <Crown size={12} color="#D97706" />
+              <span>Pro 베타 신청</span>
+            </button>
+          )}
+        </div>
+      </header>
+
+      {/* 2. 🌟 한눈에 보는 4대 핵심 현황 요약 카드 (Summary Grid) */}
+      <section className="mobile-summary-section" aria-label="창작 현황 한눈에 보기">
+        <div className="mobile-summary-grid">
+          {/* 카드 1: 보관 작품 */}
+          <div 
+            className="summary-card card-vault"
+            onClick={() => onSelectView('archive')}
+            role="button"
+            tabIndex={0}
+          >
+            <div className="summary-card-top">
+              <span className="summary-card-label">보관 작품</span>
+              <div className="summary-icon-wrapper icon-vault">
+                <ImageIcon size={16} />
+              </div>
+            </div>
+            <div className="summary-card-value">
+              <strong>{artworks.length}</strong>
+              <span className="summary-card-unit">점</span>
+            </div>
+            <div className="summary-card-footer">
+              <span>수장고 열람</span>
+              <ChevronRight size={13} />
+            </div>
+          </div>
+
+          {/* 카드 2: 미수금 / 정산 */}
+          <div 
+            className="summary-card card-tax"
+            onClick={() => onSelectView('tax')}
+            role="button"
+            tabIndex={0}
+          >
+            <div className="summary-card-top">
+              <span className="summary-card-label">미수금 정산</span>
+              <div className="summary-icon-wrapper icon-tax">
+                <DollarSign size={16} />
+              </div>
+            </div>
+            <div className="summary-card-value">
+              {actualPendingAmount > 0 ? (
+                <>
+                  <strong className="text-warning">{actualPendingAmount.toLocaleString()}</strong>
+                  <span className="summary-card-unit">원</span>
+                </>
+              ) : (
+                <strong className="text-muted" style={{ fontSize: '1.05rem' }}>정산 완료</strong>
+              )}
+            </div>
+            <div className="summary-card-footer">
+              <span>가계부 관리</span>
+              <ChevronRight size={13} />
+            </div>
+          </div>
+
+          {/* 카드 3: 영감 서랍 */}
+          <div 
+            className="summary-card card-inspo"
+            onClick={() => onSelectView('inspo')}
+            role="button"
+            tabIndex={0}
+          >
+            <div className="summary-card-top">
+              <span className="summary-card-label">영감 메모</span>
+              <div className="summary-icon-wrapper icon-inspo">
+                <Quote size={16} />
+              </div>
+            </div>
+            <div className="summary-card-value">
+              <strong>{inspoCount}</strong>
+              <span className="summary-card-unit">개</span>
+            </div>
+            <div className="summary-card-footer">
+              <span>서랍 열기</span>
+              <ChevronRight size={13} />
+            </div>
+          </div>
+
+          {/* 카드 4: 전시 캡션 */}
+          <div 
+            className="summary-card card-caption"
+            onClick={() => onSelectView('caption')}
+            role="button"
+            tabIndex={0}
+          >
+            <div className="summary-card-top">
+              <span className="summary-card-label">전시 캡션</span>
+              <div className="summary-icon-wrapper icon-caption">
+                <Tag size={16} />
+              </div>
+            </div>
+            <div className="summary-card-value">
+              <strong>{actualCaptionCount}</strong>
+              <span className="summary-card-unit">점</span>
+            </div>
+            <div className="summary-card-footer">
+              <span>A4 인쇄</span>
+              <ChevronRight size={13} />
+            </div>
+          </div>
+        </div>
+
+        {/* 슬림형 저장 용량 인디케이터 */}
+        <div className="mobile-storage-mini-bar" title={`저장 공간: ${formatBytes(usedStorageBytes)} / ${storagePlan.limitLabel}`}>
+          <div className="storage-mini-labels">
+            <span className="storage-mini-title">
+              <HardDrive size={11} />
+              <span>수장고 용량: {formatBytes(usedStorageBytes)} / {storagePlan.limitLabel}</span>
+            </span>
+            <span className="storage-mini-pct">{storageStatus.percentage}%</span>
+          </div>
+          <div className="storage-mini-track">
+            <div 
+              className="storage-mini-fill" 
+              style={{ width: `${Math.max(2, storageStatus.percentage)}%` }} 
+            />
+          </div>
+        </div>
       </section>
 
-      {/* 📱 모바일 전용 6대 핵심 도구 퀵 런처 (스크롤 없이 첫 화면에서 전체 기능 즉시 인지 및 원클릭 실행) */}
-      <div className="mobile-only mobile-quick-launcher-section">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.65rem', padding: '0 2px' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.01em' }}>
-            핵심 도구 바로가기
-          </span>
-          <span style={{ fontSize: '0.72rem', color: '#64748B' }}>
-            원클릭 실행
-          </span>
+      {/* 3. 🚀 원클릭 빠른 창작 액션 (Quick Actions) */}
+      <section className="mobile-actions-section">
+        <button
+          type="button"
+          onClick={() => onSelectView('statement')}
+          className="mobile-action-primary"
+        >
+          <div className="action-icon-circle primary">
+            <Plus size={18} />
+          </div>
+          <div className="action-text">
+            <strong>새 작품 등록 & 작가노트 쓰기</strong>
+            <span>사진과 키워드로 AI 글 3종 즉시 생성</span>
+          </div>
+          <ArrowRight size={16} className="action-arrow" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onSelectView('inspo')}
+          className="mobile-action-secondary"
+        >
+          <div className="action-icon-circle secondary">
+            <Quote size={16} />
+          </div>
+          <div className="action-text">
+            <strong>영감 한 줄 기록하기</strong>
+            <span>창작의 불씨가 되는 문장과 사유 메모</span>
+          </div>
+          <ChevronRight size={16} className="action-arrow" />
+        </button>
+      </section>
+
+      {/* 4. 🖼️ 최근 보관 작품 스포트라이트 (Latest Artwork Spotlight) */}
+      <section className="mobile-spotlight-section">
+        <div className="section-title-row">
+          <span className="section-title">최근 보관 작품</span>
+          {artworks.length > 0 && (
+            <button
+              type="button"
+              onClick={() => onSelectView('archive')}
+              className="section-link-btn"
+            >
+              전체 수장고 ({artworks.length}점) <ArrowRight size={13} />
+            </button>
+          )}
         </div>
-        <div className="mobile-quick-grid">
+
+        {latestArtwork ? (
+          <div 
+            className="latest-artwork-card"
+            onClick={() => onSelectView('archive', latestArtwork.id)}
+            role="button"
+            tabIndex={0}
+          >
+            <div className="latest-artwork-thumb">
+              {latestArtwork.imageUrl ? (
+                <img src={latestArtwork.imageUrl} alt={latestArtwork.title} />
+              ) : (
+                <div className="thumb-placeholder">
+                  <ImageIcon size={28} color="#94A3B8" />
+                </div>
+              )}
+              {latestStatusMeta && (
+                <span className={`latest-badge ${latestStatusMeta.badgeClass}`}>
+                  {latestStatusMeta.shortLabel}
+                </span>
+              )}
+            </div>
+
+            <div className="latest-artwork-body">
+              <div className="latest-title-row">
+                <h3 className="latest-title">《{latestArtwork.title}》</h3>
+                <span className="latest-year">{latestArtwork.year}년</span>
+              </div>
+              <p className="latest-meta">
+                {latestArtwork.medium && <span>{latestArtwork.medium}</span>}
+                {latestArtwork.size && <span> · {latestArtwork.size?.split('(')[0]?.trim() || latestArtwork.size}</span>}
+              </p>
+              <div className="latest-card-foot">
+                <span className="latest-tap-hint">터치하여 도록 및 캡션 열람</span>
+                <ChevronRight size={15} />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div 
+            className="empty-spotlight-box"
+            onClick={() => onSelectView('statement')}
+            role="button"
+            tabIndex={0}
+          >
+            <div className="empty-icon-circle">
+              <ImageIcon size={22} color="#64748B" />
+            </div>
+            <h4>첫 작품을 수장고에 모셔보세요</h4>
+            <p>사진과 기본 정보만 입력하면 작가노트와 캡션이 자동으로 정리됩니다.</p>
+            <button type="button" className="btn-primary" style={{ padding: '0.5rem 1.15rem', fontSize: '0.84rem' }}>
+              <Plus size={14} /> 첫 작품 등록하기
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* 5. 🧰 창작 행정 & 비즈니스 도구 메뉴 (Compact Service List) */}
+      <section className="mobile-tools-section">
+        <div className="section-title-row">
+          <span className="section-title">창작 행정 & 비서 도구</span>
+          <span className="section-sub">원클릭 실행</span>
+        </div>
+
+        <div className="mobile-tools-list">
           {tools.map((tool) => {
             const color = TRADITIONAL_COLORS[tool.id];
             const IconComponent = tool.icon;
             return (
-              <button
+              <div
                 key={tool.id}
-                type="button"
+                className="tool-list-row"
                 onClick={() => onSelectView(tool.id)}
-                className="mobile-quick-card"
-                style={{
-                  background: color.bg,
-                  border: `1px solid ${color.border}`,
-                }}
+                role="button"
+                tabIndex={0}
               >
                 <div 
-                  className="mobile-quick-icon-wrapper"
+                  className="tool-list-icon"
                   style={{
                     background: color.iconBg,
                     color: color.iconColor,
                     border: `1px solid ${color.border}`
                   }}
                 >
-                  <IconComponent size={17} />
+                  <IconComponent size={18} />
                 </div>
-                <div className="mobile-quick-text-col">
-                  <div className="mobile-quick-title">
-                    {tool.title}
+                <div className="tool-list-info">
+                  <div className="tool-list-title-wrap">
+                    <strong className="tool-list-title">{tool.title}</strong>
+                    <span 
+                      className="tool-list-tag"
+                      style={{
+                        background: color.tagBg,
+                        color: color.tagColor,
+                        border: `1px solid ${color.border}`
+                      }}
+                    >
+                      {tool.tag}
+                    </span>
+                    {tool.badge && (
+                      <span className="tool-list-badge">{tool.badge}</span>
+                    )}
                   </div>
-                  <div className="mobile-quick-tag" style={{ color: color.accent }}>
-                    {tool.badge || tool.tag}
-                  </div>
+                  <p className="tool-list-desc">{tool.desc}</p>
                 </div>
-              </button>
+                <ChevronRight size={17} className="tool-list-arrow" />
+              </div>
             );
           })}
-          {/* 6번째 카드: 나의 작품 전체 수장고 */}
-          <button
-            type="button"
-            onClick={() => onSelectView('archive')}
-            className="mobile-quick-card"
-            style={{
-              background: '#F8FAFC',
-              border: '1px solid #E2E8F0',
-            }}
+
+          {/* 피드백 & 새 도구 제안 슬롯 */}
+          <div
+            className="tool-list-row feedback-row"
+            onClick={onOpenNewToolModal}
+            role="button"
+            tabIndex={0}
           >
-            <div 
-              className="mobile-quick-icon-wrapper"
-              style={{
-                background: '#FFFFFF',
-                color: '#0F172A',
-                border: '1px solid #CBD5E1'
-              }}
-            >
-              <ImageIcon size={17} />
+            <div className="tool-list-icon feedback-icon">
+              <Lightbulb size={18} color="#D97706" />
             </div>
-            <div className="mobile-quick-text-col">
-              <div className="mobile-quick-title">
-                작품 수장고
+            <div className="tool-list-info">
+              <div className="tool-list-title-wrap">
+                <strong className="tool-list-title">새 도구 제안 & 작가 후기</strong>
+                <span className="tool-list-tag feedback-tag">라운지</span>
               </div>
-              <div className="mobile-quick-tag" style={{ color: '#0284C7' }}>
-                {artworks.length}점 보관 중
-              </div>
+              <p className="tool-list-desc">필요한 기능 아이디어나 사용 소감을 남겨주세요</p>
             </div>
-          </button>
-        </div>
-      </div>
-
-      {/* 2. [메인 무대 최상단 전진 배치] 나의 작품 디지털 수장고 */}
-      <div className="archive-board-section" style={{ marginTop: '1.25rem' }}>
-        <div className="archive-board-header">
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <span className="archive-board-title">
-                {user?.name ? `${user.name} 작가님의 수장고` : '나의 작품 디지털 수장고'}
-              </span>
-              <span className="archive-board-count" style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <span>총 {artworks.length}점 보관 중</span>
-                <span style={{ color: '#CBD5E1' }}>·</span>
-                <span style={{ 
-                  color: storageStatus.percentage >= 90 ? '#DC2626' : (storageStatus.percentage >= 75 ? '#D97706' : '#64748B'),
-                  fontWeight: 600,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  <HardDrive size={12} color={storageStatus.percentage >= 90 ? '#DC2626' : '#64748B'} />
-                  <span>{formatBytes(usedStorageBytes)} / {storagePlan.limitLabel}</span>
-                </span>
-              </span>
-              {!user?.isPro && onOpenPricing && (
-                <button
-                  type="button"
-                  onClick={onOpenPricing}
-                  style={{
-                    background: '#F8FAFC',
-                    border: '1px solid #E2E8F0',
-                    color: '#0F172A',
-                    fontSize: '0.72rem',
-                    fontWeight: 600,
-                    padding: '2px 8px',
-                    borderRadius: '999px',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}
-                  title="100GB 무손실 금고 요금제 안내"
-                >
-                  <Crown size={11} color="#D97706" />
-                  <span>100GB 확장</span>
-                </button>
-              )}
-            </div>
-            <p className="desktop-only" style={{ fontSize: '0.83rem', color: '#64748B', margin: '4px 0 0 0' }}>
-              세월이 흘러도 변치 않는 {user?.name || '작가'}님만의 프라이빗 디지털 수장고. 작품을 누르면 작가노트와 캡션을 바로 볼 수 있어요
-            </p>
+            <ChevronRight size={17} className="tool-list-arrow" />
           </div>
-          {artworks.length > 0 && (
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button 
-                onClick={() => onSelectView('statement')} 
-                className="btn-outline"
-                style={{ padding: '0.45rem 0.85rem', fontSize: '0.8rem', gap: '5px' }}
-                title="새 작품 등록 및 작가노트 작성을 시작합니다"
-              >
-                <Plus size={14} /> 새 작품 등록
-              </button>
-              <button 
-                onClick={() => onSelectView('archive')} 
-                className="archive-board-more-btn"
-                title="보관된 모든 작품과 상세 도록을 확인합니다"
-              >
-                전체보기 <ArrowRight size={14} />
-              </button>
-            </div>
-          )}
         </div>
-
-        {/* 대시보드 수장고 저장 공간 미니 프로그레스 바 */}
-        <div 
-          style={{ 
-            width: '100%', 
-            height: '4px', 
-            background: '#F1F5F9', 
-            borderRadius: '999px', 
-            overflow: 'hidden',
-            marginTop: '0.65rem',
-            marginBottom: '0.5rem'
-          }}
-          title={`저장 공간: ${formatBytes(usedStorageBytes)} / ${storagePlan.limitLabel} (${storageStatus.percentage}% 사용 중)`}
-        >
-          <div style={{
-            width: `${Math.max(2, storageStatus.percentage)}%`,
-            height: '100%',
-            background: storageStatus.percentage >= 90 ? '#DC2626' : (storageStatus.percentage >= 75 ? '#D97706' : '#0F172A'),
-            borderRadius: '999px',
-            transition: 'width 0.3s ease'
-          }} />
-        </div>
-
-        {artworks.length > 0 ? (
-          <>
-            {/* 1. PC/태블릿: 6열 정밀 테이블 뷰 */}
-            <div className="archive-table-wrapper desktop-only">
-              <table className="archive-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: '70px', textAlign: 'center' }}>작품</th>
-                    <th>작품명</th>
-                    <th>제작연도 / 규격</th>
-                    <th>재료 및 기법</th>
-                    <th>작품 상태</th>
-                    <th style={{ width: '90px', textAlign: 'right' }}>등록일</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {artworks.slice(0, 5).map((art) => {
-                    const statusMeta = getArtworkStatusMeta(art.status || (art.isSold ? 'sold' : (art.isNfs ? 'nfs' : 'available')));
-                    return (
-                      <tr 
-                        key={art.id} 
-                        onClick={() => onSelectView('archive', art.id)}
-                        style={{ cursor: 'pointer' }}
-                        title="클릭하여 작품 상세 및 작가노트 열람"
-                      >
-                        <td style={{ textAlign: 'center', padding: '10px 8px' }}>
-                          <div className="archive-mini-thumb">
-                            {art.imageUrl ? (
-                              <img src={art.imageUrl} alt={art.title} />
-                            ) : (
-                              <ImageIcon size={20} color="#94A3B8" />
-                            )}
-                          </div>
-                        </td>
-                        <td>
-                          <div style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.9rem' }}>
-                            《{art.title}》
-                          </div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '2px' }}>{art.artist || user?.name || '작가'}</div>
-                        </td>
-                        <td>
-                          <span style={{ fontSize: '0.84rem', color: '#334155', fontWeight: 500 }}>{art.year}년</span>
-                          <span style={{ fontSize: '0.78rem', color: '#64748B', marginLeft: '6px' }}>
-                            ({art.size?.split('(')[0]?.trim() || art.size})
-                          </span>
-                        </td>
-                        <td>
-                          <span style={{ fontSize: '0.82rem', color: '#475569' }}>
-                            {art.medium && art.medium.length > 20 ? art.medium.slice(0, 20) + '...' : art.medium || '-'}
-                          </span>
-                        </td>
-                        <td>
-                          <div>
-                            <span className={`archive-badge ${statusMeta.badgeClass}`}>
-                              <span className={`status-dot-indicator dot-${statusMeta.id}`} />
-                              <span>{statusMeta.shortLabel}</span>
-                            </span>
-                            {art.location && (
-                              <div 
-                                style={{ fontSize: '0.73rem', color: '#64748B', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }} 
-                                title={`보관/소장 위치: ${art.location}`}
-                              >
-                                📍 {art.location}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td style={{ textAlign: 'right', fontSize: '0.78rem', color: '#94A3B8' }}>
-                          {art.createdAt || '최근'}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* 2. 모바일(스마트폰): 한 손에 쏙 들어오는 단정한 카드 리스트 뷰 */}
-            <div className="archive-mobile-list mobile-only">
-              {artworks.slice(0, 5).map((art) => {
-                const statusMeta = getArtworkStatusMeta(art.status || (art.isSold ? 'sold' : (art.isNfs ? 'nfs' : 'available')));
-                return (
-                  <div 
-                    key={art.id} 
-                    className="archive-mobile-card"
-                    onClick={() => onSelectView('archive', art.id)}
-                    title="클릭하여 작품 상세 및 작가노트 열람"
-                  >
-                    <div className="archive-mobile-thumb">
-                      {art.imageUrl ? (
-                        <img src={art.imageUrl} alt={art.title} />
-                      ) : (
-                        <ImageIcon size={22} color="#94A3B8" />
-                      )}
-                    </div>
-                    <div className="archive-mobile-info">
-                      <div className="archive-mobile-title">
-                        《{art.title}》
-                      </div>
-                      <div className="archive-mobile-meta">
-                        <span>{art.year}년</span>
-                        {art.size && (
-                          <>
-                            <span className="dot">·</span>
-                            <span>{art.size?.split('(')[0]?.trim() || art.size}</span>
-                          </>
-                        )}
-                        {art.medium && (
-                          <>
-                            <span className="dot">·</span>
-                            <span>{art.medium}</span>
-                          </>
-                        )}
-                      </div>
-                      <div className="archive-mobile-badges" style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                        <span className={`archive-badge ${statusMeta.badgeClass}`}>
-                          <span className={`status-dot-indicator dot-${statusMeta.id}`} />
-                          <span>{statusMeta.shortLabel}</span>
-                        </span>
-                        {art.location && (
-                          <span style={{ fontSize: '0.72rem', color: '#64748B' }}>📍 {art.location}</span>
-                        )}
-                        <span className="archive-mobile-date">{art.createdAt || '최근'}</span>
-                      </div>
-                    </div>
-                    <ChevronRight size={18} className="archive-mobile-arrow" />
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        ) : (
-          <div 
-            className="archive-empty-box" 
-            onClick={() => onSelectView('archive')}
-            style={{
-              padding: '2.5rem 1.5rem',
-              background: '#FFFFFF',
-              border: '1.5px dashed #CBD5E1',
-              borderRadius: '12px',
-              textAlign: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              marginTop: '0.5rem'
-            }}
-          >
-            <div style={{ width: '48px', height: '48px', margin: '0 auto 12px', borderRadius: '50%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ImageIcon size={22} color="#64748B" />
-            </div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: '#0F172A', margin: '0 0 6px 0' }}>
-              첫 작품을 수장고에 모셔보세요
-            </h3>
-            <p style={{ fontSize: '0.88rem', color: '#64748B', margin: '0 0 16px 0', lineHeight: 1.5 }}>
-              작품 사진과 기본 정보만 등록하면 작가노트와 캡션까지 이어서 정리할 수 있어요.
-            </p>
-            <button 
-              className="btn-primary" 
-              style={{ padding: '0.55rem 1.25rem', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onSelectView('statement');
-              }}
-            >
-              <Plus size={15} /> 첫 작품 등록하기
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* 3. [하단 지원군] 창작 행정 & 비즈니스 비서 툴킷 (PC 전용 노출, 모바일은 상단 퀵 런처로 중복 제거) */}
-      <div className="section-headline desktop-only" style={{ marginTop: '2.5rem' }}>
-        <span>창작 행정 & 비즈니스 비서 도구</span>
-        <span style={{ fontSize: '0.8rem', color: '#6B7280', textTransform: 'none', fontWeight: 400 }}>
-          카드를 눌러 바로 시작하세요
-        </span>
-      </div>
-
-      <div className="tool-grid desktop-only">
-        {tools.map((tool) => {
-          const color = TRADITIONAL_COLORS[tool.id];
-          const IconComponent = tool.icon;
-          return (
-            <div 
-              key={tool.id} 
-              className="tool-card" 
-              onClick={() => onSelectView(tool.id)}
-              role="button"
-              tabIndex={0}
-              style={{
-                background: color.bg,
-                border: `1px solid ${color.border}`,
-                borderRadius: '16px',
-                padding: '1.5rem',
-                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.03)',
-                cursor: 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'flex-start',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              <div className="tool-card-header" style={{ marginBottom: '1.15rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '10px',
-                  background: color.iconBg,
-                  color: color.iconColor,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: `1px solid ${color.border}`
-                }}>
-                  <IconComponent size={19} />
-                </div>
-                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                  <span 
-                    className="tool-tag"
-                    style={{
-                      background: color.tagBg,
-                      color: color.tagColor,
-                      border: `1px solid ${color.border}`,
-                      fontSize: '0.74rem',
-                      fontWeight: 600,
-                      padding: '3px 10px',
-                      borderRadius: '999px',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-                    }}
-                  >
-                    {tool.tag}
-                  </span>
-                  {tool.badge && (
-                    <span style={{ 
-                      fontSize: '0.74rem', 
-                      fontWeight: 600, 
-                      padding: '3px 9px', 
-                      borderRadius: '999px',
-                      background: color.iconBg,
-                      color: color.accent,
-                      border: `1px solid ${color.border}`
-                    }}>
-                      {tool.badge}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="tool-card-body">
-                <h3 style={{ fontSize: '1.22rem', fontWeight: 700, color: '#0F172A', marginBottom: '0.6rem', letterSpacing: '-0.02em' }}>
-                  {tool.title}
-                </h3>
-                <p style={{ fontSize: '0.88rem', color: '#475569', lineHeight: 1.6, margin: 0 }}>
-                  {tool.desc}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-
-        {/* 5번째 모듈: 소소한 툴 추가 슬롯 */}
-        <div 
-          className="tool-card-placeholder" 
-          onClick={onOpenNewToolModal}
-          role="button"
-          tabIndex={0}
-        >
-          <div className="placeholder-plus-circle">
-            <Plus size={22} />
-          </div>
-          <h4 style={{ fontSize: '1rem', fontWeight: 600, color: '#374151', marginBottom: '0.35rem' }}>
-            새 도구 제안 & 작가 후기
-          </h4>
-          <p style={{ fontSize: '0.82rem', color: '#9CA3AF', maxWidth: '200px' }}>
-            필요한 기능 아이디어나 이용 소감을 남겨주세요. 수장고 로드맵과 작가 라운지에 반영됩니다.
-          </p>
-        </div>
-      </div>
+      </section>
     </div>
   );
 }
