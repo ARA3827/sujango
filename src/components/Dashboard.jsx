@@ -113,47 +113,37 @@ export default function Dashboard({
     };
   }, [user]);
 
-  // 창작 지원 4대 핵심 도구 정의
+  // 창작 지원 핵심 도구 정의 (필요한 메뉴명 중심으로 간결화)
   const tools = [
     {
       id: 'statement',
       title: '작가노트 & SNS',
-      tag: '초안 작성',
-      icon: PenTool,
-      desc: '작품 키워드로 평론 작가노트, 인스타 캡션, 블로그 글 생성'
+      icon: PenTool
     },
     {
       id: 'caption',
       title: '전시 캡션 출력기',
-      tag: '전시 · 명패',
       icon: Tag,
-      badge: (user && actualCaptionCount > 0) ? `${actualCaptionCount}점 준비` : null,
-      desc: '작품 벽면 국영문 표준 캡션을 A4 규격으로 일괄 인쇄'
+      badge: (user && actualCaptionCount > 0) ? `${actualCaptionCount}점 준비` : null
     },
     {
       id: 'doc',
       title: '서류·출강 스튜디오',
-      tag: '행정 공문서',
-      icon: FileText,
-      desc: '강의계획서, 미술계 표준 전시 약력(CV), 간이 견적서'
+      icon: FileText
     },
     {
       id: 'tax',
       title: '창작 가계부',
-      tag: '정산 · 세무',
       icon: Receipt,
       badge: (user && actualPendingAmount > 0) 
         ? `미수금 ${actualPendingAmount.toLocaleString()}원` 
-        : null,
-      desc: '출강·작품 수입 및 재료비 지출 정산 증빙서 보관'
+        : null
     },
     {
       id: 'inspo',
       title: '영감 노트',
-      tag: '사유 아카이브',
       icon: Quote,
-      badge: (user && inspoCount > 0) ? `${inspoCount}개 보관` : null,
-      desc: '책 속 문장, 번뜩이는 영감을 카드로 안전하게 수집'
+      badge: (user && inspoCount > 0) ? `${inspoCount}개 보관` : null
     }
   ];
 
@@ -403,11 +393,10 @@ export default function Dashboard({
         )}
       </section>
 
-      {/* 5. 🧰 창작 행정 & 비즈니스 도구 메뉴 (Compact Service List) */}
+      {/* 5. 🧰 창작 도구 메뉴 (Minimal Service List) */}
       <section className="mobile-tools-section">
         <div className="section-title-row">
-          <span className="section-title">창작 행정 & 비서 도구</span>
-          <span className="section-sub">원클릭 실행</span>
+          <span className="section-title">창작 도구</span>
         </div>
 
         <div className="mobile-tools-list">
@@ -433,23 +422,10 @@ export default function Dashboard({
                   <IconComponent size={18} />
                 </div>
                 <div className="tool-list-info">
-                  <div className="tool-list-title-wrap">
-                    <strong className="tool-list-title">{tool.title}</strong>
-                    <span 
-                      className="tool-list-tag"
-                      style={{
-                        background: color.tagBg,
-                        color: color.tagColor,
-                        border: `1px solid ${color.border}`
-                      }}
-                    >
-                      {tool.tag}
-                    </span>
-                    {tool.badge && (
-                      <span className="tool-list-badge">{tool.badge}</span>
-                    )}
-                  </div>
-                  <p className="tool-list-desc">{tool.desc}</p>
+                  <strong className="tool-list-title">{tool.title}</strong>
+                  {tool.badge && (
+                    <span className="tool-list-badge">{tool.badge}</span>
+                  )}
                 </div>
                 <ChevronRight size={17} className="tool-list-arrow" />
               </div>
@@ -467,11 +443,7 @@ export default function Dashboard({
               <Lightbulb size={18} color="#D97706" />
             </div>
             <div className="tool-list-info">
-              <div className="tool-list-title-wrap">
-                <strong className="tool-list-title">새 도구 제안 & 작가 후기</strong>
-                <span className="tool-list-tag feedback-tag">라운지</span>
-              </div>
-              <p className="tool-list-desc">필요한 기능 아이디어나 사용 소감을 남겨주세요</p>
+              <strong className="tool-list-title">새 도구 제안 & 작가 후기</strong>
             </div>
             <ChevronRight size={17} className="tool-list-arrow" />
           </div>

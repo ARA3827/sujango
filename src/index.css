@@ -4526,11 +4526,11 @@ input, select, textarea {
 .tool-list-row {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 11px 14px;
   cursor: pointer;
   transition: transform 0.12s ease, background 0.15s ease;
   user-select: none;
@@ -4541,8 +4541,8 @@ input, select, textarea {
   background: #F8FAFC;
 }
 .tool-list-icon {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -4551,45 +4551,30 @@ input, select, textarea {
 }
 .tool-list-info {
   flex: 1;
-  min-width: 0;
-}
-.tool-list-title-wrap {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
 }
 .tool-list-title {
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   color: #0F172A;
   font-weight: 700;
-}
-.tool-list-tag {
-  font-size: 0.68rem;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 4px;
+  white-space: nowrap;
 }
 .tool-list-badge {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: #B45309;
   background: #FEF3C7;
-  padding: 1px 6px;
-  border-radius: 4px;
-}
-.tool-list-desc {
-  font-size: 0.74rem;
-  color: #64748B;
-  margin: 2px 0 0;
+  padding: 2px 7px;
+  border-radius: 999px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.25;
 }
 .tool-list-arrow {
   color: #94A3B8;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .tool-list-row.feedback-row {
@@ -4598,11 +4583,6 @@ input, select, textarea {
 }
 .tool-list-icon.feedback-icon {
   background: #FEF3C7;
-  border: 1px solid #FDE68A;
-}
-.tool-list-tag.feedback-tag {
-  background: #FEF3C7;
-  color: #B45309;
   border: 1px solid #FDE68A;
 }
 
