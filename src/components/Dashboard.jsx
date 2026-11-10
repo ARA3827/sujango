@@ -221,10 +221,6 @@ export default function Dashboard({
               <strong>{artworks.length}</strong>
               <span className="summary-card-unit">점</span>
             </div>
-            <div className="summary-card-footer">
-              <span>수장고 열람</span>
-              <ChevronRight size={13} />
-            </div>
           </div>
 
           {/* 카드 2: 미수금 / 정산 */}
@@ -250,10 +246,6 @@ export default function Dashboard({
                 <strong className="text-muted" style={{ fontSize: '1.05rem' }}>정산 완료</strong>
               )}
             </div>
-            <div className="summary-card-footer">
-              <span>가계부 관리</span>
-              <ChevronRight size={13} />
-            </div>
           </div>
 
           {/* 카드 3: 영감 서랍 */}
@@ -273,10 +265,6 @@ export default function Dashboard({
               <strong>{inspoCount}</strong>
               <span className="summary-card-unit">개</span>
             </div>
-            <div className="summary-card-footer">
-              <span>서랍 열기</span>
-              <ChevronRight size={13} />
-            </div>
           </div>
 
           {/* 카드 4: 전시 캡션 */}
@@ -295,10 +283,6 @@ export default function Dashboard({
             <div className="summary-card-value">
               <strong>{actualCaptionCount}</strong>
               <span className="summary-card-unit">점</span>
-            </div>
-            <div className="summary-card-footer">
-              <span>A4 인쇄</span>
-              <ChevronRight size={13} />
             </div>
           </div>
         </div>

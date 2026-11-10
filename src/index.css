@@ -4081,16 +4081,14 @@ input, select, textarea {
   margin-bottom: 0.35rem;
 }
 .mobile-header-greeting {
-  font-size: 1.35rem;
+  font-size: clamp(1.12rem, 3.8vw, 1.35rem);
   font-weight: 800;
   color: #0F172A;
   margin: 0;
   letter-spacing: -0.02em;
   font-family: var(--font-serif);
   line-height: 1.25;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: keep-all;
 }
 .mobile-header-sub {
   font-size: 0.82rem;
@@ -4136,11 +4134,11 @@ input, select, textarea {
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
   border-radius: 14px;
-  padding: 0.95rem 0.95rem 0.85rem;
+  padding: 0.95rem 1rem;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
   user-select: none;
@@ -4154,10 +4152,10 @@ input, select, textarea {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.65rem;
 }
 .summary-card-label {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: #64748B;
 }
@@ -4190,7 +4188,7 @@ input, select, textarea {
   display: flex;
   align-items: baseline;
   gap: 3px;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0;
   letter-spacing: -0.02em;
 }
 .summary-card-value strong {
